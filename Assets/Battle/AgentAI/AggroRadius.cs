@@ -1,13 +1,13 @@
 ﻿using System;
 using Unity.Entities;
 
-namespace Battle.Movement
+namespace Battle.AI
 {
     /// <summary>
-    /// Maximum speed at which an entity can move.
+    /// Distance from which this entity will engage another entity.
     /// </summary>
     [Serializable]
-    public struct MaxSpeed : IComponentData
+    public struct AggroRadius : IComponentData
     {
         public float Value;
     }
