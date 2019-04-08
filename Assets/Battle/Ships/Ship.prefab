@@ -19,6 +19,9 @@ GameObject:
   - component: {fileID: 5780634793840389739}
   - component: {fileID: 263554561247348043}
   - component: {fileID: 8413645014947120081}
+  - component: {fileID: 4235276582872064405}
+  - component: {fileID: 1671009774891382103}
+  - component: {fileID: 7788511765830307194}
   m_Layer: 0
   m_Name: Ship
   m_TagString: Untagged
@@ -110,7 +113,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88334a20ba4517948899013445d5c7a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 6
+  MaxSpeed: 8
 --- !u!114 &8676365148435850563
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,3 +190,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb7d27e8b980294ca460035d510eb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &4235276582872064405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf4e5ed81c6d9b249abb1114f8059187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Range: 2
+  Armed: 1
+  AttackCone: 1
+--- !u!114 &1671009774891382103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Damage: 1
+--- !u!114 &7788511765830307194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e290bcb951d3f95449220f17862b4213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Duration: 0.2

@@ -9,10 +9,7 @@ namespace Battle.Combat
     [Serializable]
     public struct Attack : IComponentData
     {
-        /// <summary>
-        /// The base damage of this attack.
-        /// </summary>
-        public float BaseDamage;
+        byte dummy;
     }
 
     // Ideas - ShieldSystem would just redirect an attack intended for the owning entity into the shield entity.
