@@ -34,7 +34,7 @@ namespace Battle.AI
         /// <summary>
         /// Cell size for sorting via hash map
         /// </summary>
-        public float UnitCellSize = 2.0f;
+        public float UnitCellSize = 10.0f;
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {

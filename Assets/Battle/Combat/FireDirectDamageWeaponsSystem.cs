@@ -1,8 +1,11 @@
-﻿using Unity.Burst;
+﻿using Battle.Movement;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace Battle.Combat
 {
@@ -13,14 +16,16 @@ namespace Battle.Combat
     public class FireDirectWeaponsSystem : JobComponentSystem
     {
         //[BurstCompile]
-        struct FireDirectWeaponsJob : IJobForEachWithEntity<Translation, Target, Damage, DirectWeapon, Cooldown>
+        struct FireDirectWeaponsJob : IJobForEachWithEntity<Translation, Heading, Target, Damage, DirectWeapon, Cooldown>
         {
+            [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
             public EntityCommandBuffer.Concurrent buffer;
 
             public void Execute(
                 Entity attacker,
                 int index,
                 [ReadOnly] ref Translation position,
+                [ReadOnly] ref Heading heading,
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref Damage damage,
                 ref DirectWeapon weapon,
@@ -33,9 +38,19 @@ namespace Battle.Combat
                 if (!cooldown.IsReady())
                    return;
 
+                if (target.Value == Entity.Null || !Positions.Exists(target.Value))
+                    return;
+
                 // TODO: fire only when within weapon cone.
                 // If we are ready to fire, find out where enemy is.
+                var delta = Positions[target.Value].Value - position.Value;
+                float angleDiff = math.abs(math.atan2(delta.x, delta.z) - heading.Value);
+                angleDiff = angleDiff > math.PI ? math.abs((float)math.PI - angleDiff) : angleDiff;
+                //UnityEngine.Debug.Log("anglediff="+ math.abs(angleDiff) % 2f * (float)math.PI);
 
+                if (angleDiff > weapon.AttackCone / 2f)
+                    return;
+                
                 // Create the attack.
                 Entity attack = buffer.CreateEntity(index);
                 buffer.AddComponent(index, attack, new Attack());
@@ -57,7 +72,8 @@ namespace Battle.Combat
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var job = new FireDirectWeaponsJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent() };
+            var pos = GetComponentDataFromEntity<Translation>(true);
+            var job = new FireDirectWeaponsJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(), Positions = pos };
             var jobHandle = job.Schedule(this, inputDependencies);
             m_entityBufferSystem.AddJobHandleForProducer(jobHandle);
             return jobHandle;

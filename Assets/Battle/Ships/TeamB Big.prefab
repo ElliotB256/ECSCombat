@@ -10,7 +10,7 @@ PrefabInstance:
     - target: {fileID: 8676365148435850568, guid: c4bdab095f6db084e82a1fc092687b7b,
         type: 3}
       propertyPath: m_Name
-      value: TeamB (3)
+      value: TeamB Big
       objectReference: {fileID: 0}
     - target: {fileID: 8676365148435850564, guid: c4bdab095f6db084e82a1fc092687b7b,
         type: 3}
@@ -96,6 +96,11 @@ PrefabInstance:
         type: 3}
       propertyPath: TeamID
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4235276582872064405, guid: c4bdab095f6db084e82a1fc092687b7b,
+        type: 3}
+      propertyPath: Armed
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c4bdab095f6db084e82a1fc092687b7b, type: 3}

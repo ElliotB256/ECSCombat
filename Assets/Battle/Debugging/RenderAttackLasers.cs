@@ -20,7 +20,7 @@ namespace Battle.Debug
     {
         protected override void OnCreate()
         {
-            Enabled = false;
+            //Enabled = false;
         }
 
         protected override void OnUpdate()
