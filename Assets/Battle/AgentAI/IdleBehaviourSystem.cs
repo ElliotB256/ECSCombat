@@ -12,46 +12,59 @@ using Battle.Combat;
 namespace Battle.AI
 {
     /// <summary>
-    /// When idle, fighter advances to the other half of the map.
+    /// When idle, entity random walks
     /// </summary>
+    [UpdateBefore(typeof(PursueBehaviourSystem))]
     public class IdleBehaviourSystem : JobComponentSystem
     {
         public const float ARRIVAL_TOLERANCE = 1f;
 
-        [BurstCompile]
-        struct IdleJob : IJobForEach<FighterAIState, Translation, Target, Destination>
+        //[BurstCompile]
+        struct IdleJob : IJobForEachWithEntity<IdleBehaviour, MoveToDestinationBehaviour, Translation, Target>
         {
             public Random random_gen;
+            public EntityCommandBuffer.Concurrent buffer;
 
             public void Execute(
-                ref FighterAIState state,
+                Entity e,
+                int index,
+                [ReadOnly] ref IdleBehaviour idle,
+                [ReadOnly] ref MoveToDestinationBehaviour movement,
                 [ReadOnly] ref Translation position,
-                [ReadOnly] ref Target target,
-                ref Destination destination
+                [ReadOnly] ref Target target
                 )
             {
-                if (state.State != FighterAIState.eState.Idle)
-                    return;
-
                 // If the fighter has gotten close to their destination, pick another random destination.
-                if (math.lengthsq(destination.Value - position.Value) < ARRIVAL_TOLERANCE)
+                if (math.lengthsq(movement.Destination - position.Value) < ARRIVAL_TOLERANCE)
                 {
                     var dest = random_gen.NextFloat3(-10f, 10f);
                     dest.y = 0;
-                    destination.Value = dest;
+                    movement.Destination = dest;
                 }
 
-                // If the fighter has a target, change to pursuit
+                // If the fighter has a target, change from idle to pursuit. This requires a lazy update to the AI states.
                 if (target.Value != Entity.Null)
-                    state.State = FighterAIState.eState.Pursue;
+                {
+                    buffer.AddComponent(index, e, new PursueBehaviour());
+                    buffer.RemoveComponent<IdleBehaviour>(index, e);
+                }
             }
+        }
+
+        private AIStateChangeBufferSystem m_AIStateBuffer;
+
+        protected override void OnCreateManager()
+        {
+            m_AIStateBuffer = World.GetOrCreateSystem<AIStateChangeBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             var random_gen = new Random((uint)UnityEngine.Random.Range(1, 10000));
-            var job = new IdleJob() { random_gen = random_gen };
-            return job.Schedule(this, inputDependencies);
+            var job = new IdleJob() { random_gen = random_gen, buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent() };
+            var jobHandle = job.Schedule(this, inputDependencies);
+            m_AIStateBuffer.AddJobHandleForProducer(jobHandle);
+            return jobHandle;
         }
     }
 }

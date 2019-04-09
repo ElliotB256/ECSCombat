@@ -10,7 +10,7 @@ using Unity;
 using Battle.Combat;
 using System.Collections.Generic;
 
-namespace Battle.Debug
+namespace Battle.Debugging
 {
     /// <summary>
     /// Draws lines between 
