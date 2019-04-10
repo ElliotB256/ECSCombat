@@ -41,6 +41,7 @@ namespace Battle.AI
                     return;
                 }
 
+                // 
                 turnSpeed.RadiansPerSecond = 0f;
 
                 // Remain in evasive manoeuvre until a certain distance to target is reached.
