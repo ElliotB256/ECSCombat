@@ -10,5 +10,7 @@ namespace Battle.AI
     public struct AggroRadius : IComponentData
     {
         public float Value;
+
+        public const float MAX_AGGRO_RADIUS = 80f;
     }
 }

@@ -33,10 +33,6 @@ namespace Battle.AI
                 float desiredHeading = MathUtil.GetHeadingToPoint(dx);
 
                 // Adjust rotation speed to aim for desired heading.
-                //float diff = desiredHeading - heading.Value;
-                //float fpi = Mathf.PI;
-                //while (diff > fpi) { diff -= 2 * fpi; }
-                //while (diff < -fpi) { diff += 2 * fpi; }
                 float diff = MathUtil.GetAngleDifference(desiredHeading, heading.Value);
 
                 // For now - hardcoded turn speed of 10.

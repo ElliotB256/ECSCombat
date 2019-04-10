@@ -4,13 +4,13 @@ using UnityEngine;
 namespace Battle.AI
 {
     [RequiresEntityConversion]
-    public class FighterStateProxy : MonoBehaviour, IConvertGameObjectToEntity
+    public class AggroRadiusProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
-        public FighterAIState.eState State;
+        public float Radius = 10f;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new FighterAIState { State = State });
+            dstManager.AddComponentData(entity, new AggroRadius { Value = Radius });
         }
     }
 }

@@ -21,12 +21,12 @@ namespace Battle.AI
         private EntityQuery m_targetQuery;
         private EntityQuery m_pickerQuery;
 
-        private NativeArray<float3> m_targetPositions;
-        private NativeArray<float3> m_pickerPositions;
-        private NativeArray<byte> m_pickerStates;
-        private NativeArray<byte> m_pickerTeams;
-        private NativeArray<byte> m_targetTeams;
+        private NativeArray<Translation> m_targetPositions;
+        private NativeArray<Translation> m_pickerPositions;
+        private NativeArray<Team> m_pickerTeams;
+        private NativeArray<Team> m_targetTeams;
         private NativeArray<Entity> m_targetIds;
+        private NativeArray<AggroRadius> m_aggroRadii;
 
         private NativeMultiHashMap<int, int> m_targetBins;
 
@@ -41,14 +41,12 @@ namespace Battle.AI
             if (hasRunBefore)
                 DisposeNatives();
 
-            // Allocating native arrays used by this job.
+            m_targetQuery.AddDependency(inputDependencies);
+            m_pickerQuery.AddDependency(inputDependencies);
             int targetNum = m_targetQuery.CalculateLength();
             int pickerNum = m_pickerQuery.CalculateLength();
-            m_targetPositions = new NativeArray<float3>(targetNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            m_pickerPositions = new NativeArray<float3>(pickerNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            m_pickerStates = new NativeArray<byte>(pickerNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            m_targetTeams = new NativeArray<byte>(targetNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            m_pickerTeams = new NativeArray<byte>(pickerNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+
+            // Allocate native arrays used by this job and copy data into NativeArrays
 
             //NativeMultiHashMaps are used to sort the entities into space.
             //  The basic principle is as follows. The position of each entity is hashed into a integer, which thus encodes
@@ -56,39 +54,28 @@ namespace Battle.AI
             //  same bin. We can then look into each bin to figure out which entities are near each other.
             m_targetBins = new NativeMultiHashMap<int, int>(targetNum, Allocator.TempJob);
 
-
-            // Populate the allocated arrays with position information.
-            //   Setup the jobs, then schedule for execution.
-            var copyTargetPosition = new CopyPosition() { positions = m_targetPositions };
-            var copyPickerPosition = new CopyPosition() { positions = m_pickerPositions };
-            var copyTargetPosJob = copyTargetPosition.Schedule(m_targetQuery, inputDependencies);
-            var copyPickerPosJob = copyPickerPosition.Schedule(m_pickerQuery, inputDependencies);
-
-            JobHandle copyTargetEntityJob;
-            var copyPickerStatesJob = new CopyFighterState() { states = m_pickerStates }.Schedule(m_pickerQuery, inputDependencies);
-            var copyPickerTeamsJob = new CopyTeam() { teamIds = m_pickerTeams }.Schedule(m_pickerQuery, inputDependencies);
-            var copyTargetTeamsJob = new CopyTeam() { teamIds = m_targetTeams }.Schedule(m_targetQuery, inputDependencies);
-            m_targetIds = m_targetQuery.ToEntityArray(Allocator.TempJob, out copyTargetEntityJob);
-            var miscCopies = JobHandle.CombineDependencies(copyTargetEntityJob,
-                JobHandle.CombineDependencies(copyPickerStatesJob, copyPickerTeamsJob, copyTargetTeamsJob));
-
+            m_targetPositions = m_targetQuery.ToComponentDataArray<Translation>(Allocator.TempJob, out var copyTargetPosJob);
+            m_pickerPositions = m_pickerQuery.ToComponentDataArray<Translation>(Allocator.TempJob, out var copyPickerPosJob);
+            m_targetTeams = m_targetQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var copyTargetTeamsJob);
+            m_pickerTeams = m_pickerQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var copyPickerTeamsJob);
+            m_targetIds = m_targetQuery.ToEntityArray(Allocator.TempJob, out JobHandle copyTargetEntityJob);
+            m_aggroRadii = m_pickerQuery.ToComponentDataArray<AggroRadius>(Allocator.TempJob, out JobHandle copyAggroRadii);
+            var miscCopies = JobHandle.CombineDependencies(copyAggroRadii,
+                JobHandle.CombineDependencies(copyTargetEntityJob, copyPickerTeamsJob, copyTargetTeamsJob)
+                );
 
             // Once positions are copied over, we sort the positions into a hashmap.
             var hashTargetPosition = new HashPositions() { cellRadius = UnitCellSize, hashMap = m_targetBins.ToConcurrent() };
             var hashTargetJob = hashTargetPosition.Schedule(m_targetQuery, copyTargetPosJob);
-
             var hashBarrier = JobHandle.CombineDependencies(copyPickerPosJob, hashTargetJob, miscCopies);
 
-
-            // Having sorted entities into buckets by spatial pos, we now look in each bucket.
-            // We enumerate through picker entities, and look in the buckets associated with them.
+            // Having sorted entities into buckets by spatial pos, we loop through the entities and find nearby entities (in nearby buckets).
             var findTargets = new IdentifyBestTarget()
             {
                 targetPositions = m_targetPositions,
                 pickerPositions = m_pickerPositions,
                 pickerTeams = m_pickerTeams,
                 targetTeams = m_targetTeams,
-                pickerState = m_pickerStates,
                 targetMap = m_targetBins,
                 targetIds = m_targetIds,
                 cellRadius = UnitCellSize
@@ -100,15 +87,18 @@ namespace Battle.AI
             return findTargetsJH;
         }
 
+        /// <summary>
+        /// Clean up NativeArrays used in the job.
+        /// </summary>
         public void DisposeNatives()
         {
             m_targetBins.Dispose();
             m_targetPositions.Dispose();
             m_targetTeams.Dispose();
             m_pickerPositions.Dispose();
-            m_pickerStates.Dispose();
             m_pickerTeams.Dispose();
             m_targetIds.Dispose();
+            m_aggroRadii.Dispose();
         }
 
         protected override void OnStopRunning()
@@ -132,49 +122,12 @@ namespace Battle.AI
             {
                 All = new[] {
                     ComponentType.ReadOnly<Translation>(),
-                    ComponentType.ReadOnly<FighterAIState>(),
                     ComponentType.ReadOnly<Team>(),
+                    ComponentType.ReadOnly<AggroRadius>(),
                     ComponentType.ReadWrite<Target>()
                 }
             });
         }
-
-        #region Copying data to/from NativeArray
-
-        [BurstCompile]
-        struct CopyPosition : IJobForEachWithEntity<Translation>
-        {
-            public NativeArray<float3> positions;
-
-            public void Execute(Entity entity, int index, [ReadOnly]ref Translation pos)
-            {
-                positions[index] = pos.Value;
-            }
-        }
-
-        [BurstCompile]
-        struct CopyFighterState : IJobForEachWithEntity<FighterAIState>
-        {
-            public NativeArray<byte> states;
-
-            public void Execute(Entity entity, int index, [ReadOnly]ref FighterAIState state)
-            {
-                states[index] = (byte)state.State;
-            }
-        }
-
-        [BurstCompile]
-        struct CopyTeam : IJobForEachWithEntity<Team>
-        {
-            public NativeArray<byte> teamIds;
-
-            public void Execute(Entity entity, int index, [ReadOnly]ref Team team)
-            {
-                teamIds[index] = team.ID;
-            }
-        }
-
-        #endregion
 
         /// <summary>
         /// Sorts positions into a hashmap.
@@ -199,23 +152,19 @@ namespace Battle.AI
         {
             public float cellRadius;
 
-            [ReadOnly] public NativeArray<float3> targetPositions;
-            [ReadOnly] public NativeArray<float3> pickerPositions;
-            [ReadOnly] public NativeArray<byte> pickerTeams;
-            [ReadOnly] public NativeArray<byte> targetTeams;
-            [ReadOnly] public NativeArray<byte> pickerState;
+            [ReadOnly] public NativeArray<Translation> targetPositions;
+            [ReadOnly] public NativeArray<Translation> pickerPositions;
+            [ReadOnly] public NativeArray<Team> pickerTeams;
+            [ReadOnly] public NativeArray<Team> targetTeams;
             [ReadOnly] public NativeMultiHashMap<int, int> targetMap;
             [ReadOnly] public NativeArray<Entity> targetIds;
             
 
             public void Execute(Entity picker, int pickerIndex, ref Target pickerTarget)
-            {
-                // Only select targets for pickers with Idle state.
-                if (pickerState[pickerIndex] != (byte)FighterAIState.eState.Idle)
-                    return;
+            {                
+                float3 pickerPos = pickerPositions[pickerIndex].Value;
 
                 // First, compute hash of this picker.
-                float3 pickerPos = pickerPositions[pickerIndex];
                 var hash = (int)math.hash(new int3(math.floor(pickerPos / cellRadius)));
                 
                 // Iterate over the hash map of positions. For each associated entity, determine if it is a good target.
@@ -245,12 +194,12 @@ namespace Battle.AI
             public void TestTarget(int pickerIndex, int targetIndex, ref float score, ref bool found, ref Entity currentTarget)
             {
                 // Cannot target if on the same team.
-                if (pickerTeams[pickerIndex] == targetTeams[targetIndex])
+                if (pickerTeams[pickerIndex].ID == targetTeams[targetIndex].ID)
                     return;
 
                 found = true;
 
-                var distance = targetPositions[targetIndex] - pickerPositions[pickerIndex];
+                var distance = targetPositions[targetIndex].Value - pickerPositions[pickerIndex].Value;
                 var newScore = math.lengthsq(distance);
                 if (newScore < score)
                 {
