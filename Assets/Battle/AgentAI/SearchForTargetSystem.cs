@@ -29,7 +29,6 @@ namespace Battle.AI
         private NativeArray<Entity> m_targetIds;
 
         private NativeMultiHashMap<int, int> m_targetBins;
-        private NativeMultiHashMap<int, int> m_pickerBins;
 
         /// <summary>
         /// Cell size for sorting via hash map
@@ -40,9 +39,7 @@ namespace Battle.AI
         {
             // if not first time, dispose of memory allocated on previous iteration.
             if (hasRunBefore)
-            {
                 DisposeNatives();
-            }
 
             // Allocating native arrays used by this job.
             int targetNum = m_targetQuery.CalculateLength();
@@ -58,7 +55,6 @@ namespace Battle.AI
             //  all coordinates in a single number. Two nearby entities hash to the same number, and so get put into the
             //  same bin. We can then look into each bin to figure out which entities are near each other.
             m_targetBins = new NativeMultiHashMap<int, int>(targetNum, Allocator.TempJob);
-            m_pickerBins = new NativeMultiHashMap<int, int>(pickerNum, Allocator.TempJob);
 
 
             // Populate the allocated arrays with position information.
@@ -79,11 +75,9 @@ namespace Battle.AI
 
             // Once positions are copied over, we sort the positions into a hashmap.
             var hashTargetPosition = new HashPositions() { cellRadius = UnitCellSize, hashMap = m_targetBins.ToConcurrent() };
-            var hashPickerPosition = new HashPositions() { cellRadius = UnitCellSize, hashMap = m_pickerBins.ToConcurrent() };
             var hashTargetJob = hashTargetPosition.Schedule(m_targetQuery, copyTargetPosJob);
-            var hashPickerJob = hashPickerPosition.Schedule(m_pickerQuery, copyPickerPosJob);
 
-            var hashBarrier = JobHandle.CombineDependencies(hashTargetJob, hashPickerJob, miscCopies);
+            var hashBarrier = JobHandle.CombineDependencies(copyPickerPosJob, hashTargetJob, miscCopies);
 
 
             // Having sorted entities into buckets by spatial pos, we now look in each bucket.
@@ -109,7 +103,6 @@ namespace Battle.AI
         public void DisposeNatives()
         {
             m_targetBins.Dispose();
-            m_pickerBins.Dispose();
             m_targetPositions.Dispose();
             m_targetTeams.Dispose();
             m_pickerPositions.Dispose();
@@ -122,9 +115,7 @@ namespace Battle.AI
         {
             // if memory exists, dispose of memory allocated on previous iteration.
             if (hasRunBefore)
-            {
                 DisposeNatives();
-            }
         }
 
         protected override void OnCreate()
@@ -229,9 +220,7 @@ namespace Battle.AI
                 
                 // Iterate over the hash map of positions. For each associated entity, determine if it is a good target.
                 bool found = false;
-                NativeMultiHashMapIterator<int> iterator;
-                int targetIndex;
-                if (!targetMap.TryGetFirstValue(hash, out targetIndex, out iterator))
+                if (!targetMap.TryGetFirstValue(hash, out int targetIndex, out NativeMultiHashMapIterator<int> iterator))
                     return;
 
                 float score = float.PositiveInfinity;
@@ -243,9 +232,7 @@ namespace Battle.AI
 
                 // If we found a target, write it.
                 if (found)
-                {
                     pickerTarget.Value = target;
-                }
             }
 
             /// <summary>
@@ -272,40 +259,5 @@ namespace Battle.AI
                 }
             }
         }
-
-        //[BurstCompile]
-        //struct IdentifyBestTarget : IJobNativeMultiHashMapMergedSharedKeyIndices
-        //{
-        //    [ReadOnly] public NativeArray<float3> targetPositions;
-        //    [ReadOnly] public NativeArray<float3> pickerPositions;
-        //    [ReadOnly] public NativeArray<byte> pickerTeams;
-        //    [ReadOnly] public NativeArray<byte> targetTeams;
-        //    [ReadOnly] public NativeArray<byte> pickerState;
-
-        //    void NearestPosition(NativeArray<float3> targets, float3 position, out int nearestPositionIndex, out float nearestDistance)
-        //    {
-        //        nearestPositionIndex = 0;
-        //        nearestDistance = math.lengthsq(position - targets[0]);
-        //        for (int i = 1; i < targets.Length; i++)
-        //        {
-        //            var targetPosition = targets[i];
-        //            var distance = math.lengthsq(position - targetPosition);
-        //            var nearest = distance < nearestDistance;
-
-        //            nearestDistance = math.select(nearestDistance, distance, nearest);
-        //            nearestPositionIndex = math.select(nearestPositionIndex, i, nearest);
-        //        }
-        //        nearestDistance = math.sqrt(nearestDistance);
-        //    }
-
-        //    public void ExecuteFirst(int key)
-        //    {
-
-        //    }
-
-        //    public void ExecuteNext(int firstKey, int key)
-        //    {
-        //    }
-        //}
     }
 }
