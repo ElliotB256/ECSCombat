@@ -18,7 +18,7 @@ namespace Battle.AI
         public const float ENGAGEMENT_RADIUS = 10f;
 
         //[BurstCompile]
-        struct PursueBehaviourJob : IJobForEachWithEntity<EvasiveManoeuvre, Target, Translation, TurnSpeed>
+        struct PursueBehaviourJob : IJobForEachWithEntity<EvasiveManoeuvre, Target, Translation, TurnSpeed, Heading, MaxTurnSpeed>
         {
             [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
             public EntityCommandBuffer.Concurrent buffer;
@@ -29,7 +29,9 @@ namespace Battle.AI
                 [ReadOnly] ref EvasiveManoeuvre pursue,
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref Translation pos,
-                ref TurnSpeed turnSpeed
+                ref TurnSpeed turnSpeed,
+                [ReadOnly] ref Heading heading,
+                [ReadOnly] ref MaxTurnSpeed maxTurnSpeed
                 )
             {
                 if (target.Value == Entity.Null)
@@ -41,11 +43,18 @@ namespace Battle.AI
                     return;
                 }
 
-                // 
-                turnSpeed.RadiansPerSecond = 0f;
+                //Target position
+                var targetPos = Positions[target.Value];
+
+                // Turn away from the enemy.
+                float angleDiff = MathUtil.GetAngleDifference(MathUtil.GetHeadingToPoint(targetPos.Value - pos.Value), heading.Value);
+                if (math.abs(angleDiff) < 0.3*math.PI)
+                    turnSpeed.RadiansPerSecond = - maxTurnSpeed.RadiansPerSecond * math.sign(angleDiff);
+                else
+                    turnSpeed.RadiansPerSecond = 0f;
 
                 // Remain in evasive manoeuvre until a certain distance to target is reached.
-                if (math.lengthsq(Positions[target.Value].Value - pos.Value) > ENGAGEMENT_RADIUS * ENGAGEMENT_RADIUS)
+                if (math.lengthsq(targetPos.Value - pos.Value) > ENGAGEMENT_RADIUS * ENGAGEMENT_RADIUS)
                 {
                     buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
                     buffer.AddComponent(index, e, new PursueBehaviour());

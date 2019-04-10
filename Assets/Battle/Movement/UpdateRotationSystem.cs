@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Battle.Movement
 {
     /// <summary>
-    /// Updates TurnSpeed to aim toward the intended Destination.
+    /// Updates the Rotation of an entity based on it's heading.
     /// </summary>
     public class UpdateRotationSystem : JobComponentSystem
     {

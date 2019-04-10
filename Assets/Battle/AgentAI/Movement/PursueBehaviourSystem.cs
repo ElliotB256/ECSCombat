@@ -16,7 +16,7 @@ namespace Battle.AI
     [UpdateBefore(typeof(MoveToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
     public class PursueBehaviourSystem : JobComponentSystem
     {
-        public const float PROXIMITY_RADIUS = 1f;
+        public const float PROXIMITY_RADIUS = 4f;
 
         //[BurstCompile]
         struct PursueBehaviourJob : IJobForEachWithEntity<PursueBehaviour, Target, Translation, MoveToDestinationBehaviour>

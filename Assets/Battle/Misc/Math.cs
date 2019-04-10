@@ -22,9 +22,12 @@ namespace Battle
         /// <summary>
         /// Returns the smallest angle difference between two stated angles.
         /// </summary>
-        public static float GetAngleDifference(float angleA, float angleB)
+        public static float GetAngleDifference(float target, float source)
         {
-            return (float)((math.abs(angleA - angleB) + math.PI) % (math.PI * 2) - math.PI);
+            // custom mod required - mod(a,n) = a - floor(a / n) * n
+            double a = (target - source) + math.PI;
+            double n = math.PI * 2;
+            return (float)((a - math.floor(a / n) * n) - math.PI);
         }
     }
 }

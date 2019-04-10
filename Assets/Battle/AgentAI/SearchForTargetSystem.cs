@@ -226,7 +226,7 @@ namespace Battle.AI
                 // First, compute hash of this picker.
                 float3 pickerPos = pickerPositions[pickerIndex];
                 var hash = (int)math.hash(new int3(math.floor(pickerPos / cellRadius)));
-
+                
                 // Iterate over the hash map of positions. For each associated entity, determine if it is a good target.
                 bool found = false;
                 NativeMultiHashMapIterator<int> iterator;
