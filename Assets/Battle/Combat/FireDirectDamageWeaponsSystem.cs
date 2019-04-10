@@ -45,10 +45,10 @@ namespace Battle.Combat
                 // If we are ready to fire, find out where enemy is.
                 var delta = Positions[target.Value].Value - position.Value;
                 float angleDiff = math.abs(math.atan2(delta.x, delta.z) - heading.Value);
-                angleDiff = angleDiff > math.PI ? math.abs((float)math.PI - angleDiff) : angleDiff;
+                angleDiff = (float)((angleDiff + math.PI) % (math.PI * 2) - math.PI);
                 //UnityEngine.Debug.Log("anglediff="+ math.abs(angleDiff) % 2f * (float)math.PI);
 
-                if (angleDiff > weapon.AttackCone / 2f)
+                if (math.abs(angleDiff) > weapon.AttackCone / 2f)
                     return;
                 
                 // Create the attack.
