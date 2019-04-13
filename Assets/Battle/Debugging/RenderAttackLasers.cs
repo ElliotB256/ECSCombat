@@ -25,7 +25,7 @@ namespace Battle.Debugging
 
         protected override void OnUpdate()
         {
-            var pos = GetComponentDataFromEntity<Translation>(true);
+            var pos = GetComponentDataFromEntity<LocalToWorld>(true);
             Entities.ForEach(
                 (
                     ref Attack attack,
@@ -37,8 +37,8 @@ namespace Battle.Debugging
                     UnityEngine.Debug.Log("Position does not exist.");
                 else
                     UnityEngine.Debug.DrawLine(
-                        pos[attacker.Value].Value,
-                        pos[target.Value].Value,
+                        pos[attacker.Value].Position,
+                        pos[target.Value].Position,
                         Color.red,
                         0.1f);
             });           

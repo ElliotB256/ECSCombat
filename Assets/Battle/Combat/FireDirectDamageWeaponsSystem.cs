@@ -16,16 +16,15 @@ namespace Battle.Combat
     public class FireDirectWeaponsSystem : JobComponentSystem
     {
         //[BurstCompile]
-        struct FireDirectWeaponsJob : IJobForEachWithEntity<Translation, Heading, Target, Damage, DirectWeapon, Cooldown>
+        struct FireDirectWeaponsJob : IJobForEachWithEntity<LocalToWorld, Target, Damage, DirectWeapon, Cooldown>
         {
-            [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
+            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
 
             public void Execute(
                 Entity attacker,
                 int index,
-                [ReadOnly] ref Translation position,
-                [ReadOnly] ref Heading heading,
+                [ReadOnly] ref LocalToWorld worldTransform,
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref Damage damage,
                 ref DirectWeapon weapon,
@@ -38,13 +37,13 @@ namespace Battle.Combat
                 if (!cooldown.IsReady())
                    return;
 
-                if (target.Value == Entity.Null || !Positions.Exists(target.Value))
+                if (target.Value == Entity.Null || !worldTransforms.Exists(target.Value))
                     return;
 
                 // Only fire when target is within weapon cone.
-                var delta = Positions[target.Value].Value - position.Value;
-                float angleDiff = MathUtil.GetAngleDifference(MathUtil.GetHeadingToPoint(delta), heading.Value);
-                if (math.abs(angleDiff) > weapon.AttackCone / 2f)
+                var delta = worldTransforms[target.Value].Position - worldTransform.Position;
+                var projection = math.dot(delta, worldTransform.Forward);
+                if (math.cos(weapon.AttackCone / 2f) > projection)
                     return;
                 
                 // Create the attack.
@@ -68,8 +67,8 @@ namespace Battle.Combat
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var pos = GetComponentDataFromEntity<Translation>(true);
-            var job = new FireDirectWeaponsJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(), Positions = pos };
+            var pos = GetComponentDataFromEntity<LocalToWorld>(true);
+            var job = new FireDirectWeaponsJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(), worldTransforms = pos };
             var jobHandle = job.Schedule(this, inputDependencies);
             m_entityBufferSystem.AddJobHandleForProducer(jobHandle);
             return jobHandle;

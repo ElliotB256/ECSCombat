@@ -15,20 +15,20 @@ namespace Battle.AI
     public class TurnToDestinationSystem : JobComponentSystem
     {
         [BurstCompile]
-        struct TurnToDestinationJob : IJobForEach<TurnToDestinationBehaviour, Translation, Heading, MaxTurnSpeed, TurnSpeed>
+        struct TurnToDestinationJob : IJobForEach<TurnToDestinationBehaviour, LocalToWorld, Heading, MaxTurnSpeed, TurnSpeed>
         {
             public float DeltaTime;
 
             public void Execute(
                 [ReadOnly] ref TurnToDestinationBehaviour dest,
-                [ReadOnly] ref Translation translation,
+                [ReadOnly] ref LocalToWorld localToWorld,
                 [ReadOnly] ref Heading heading,
                 [ReadOnly] ref MaxTurnSpeed maxTurnSpeed,
                 ref TurnSpeed turnSpeed
                 )
             {
                 // Determine desired heading to target
-                Vector3 dx = dest.Destination - translation.Value;
+                Vector3 dx = dest.Destination - localToWorld.Position;
                 float desiredHeading = MathUtil.GetHeadingToPoint(dx);
 
                 // Adjust rotation speed to aim for desired heading.

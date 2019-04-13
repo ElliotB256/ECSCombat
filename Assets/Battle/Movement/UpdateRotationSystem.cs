@@ -9,26 +9,27 @@ using UnityEngine;
 namespace Battle.Movement
 {
     /// <summary>
-    /// Updates the Rotation of an entity based on it's heading.
+    /// Updates the rotation of all entities with TurnSpeed
     /// </summary>
     public class UpdateRotationSystem : JobComponentSystem
     {
         [BurstCompile]
-        struct UpdateRotationJob : IJobForEach<Heading, Rotation>
+        struct UpdateRotationJob : IJobForEach<Rotation, TurnSpeed>
         {
+            public float DeltaTime;
+
             public void Execute(
-                [ReadOnly] ref Heading heading,
-                ref Rotation rotation
+                ref Rotation rot,
+                [ReadOnly] ref TurnSpeed turnSpeed
                 )
             {
-                rotation.Value = quaternion.AxisAngle(new float3(0f, 1f, 0f), heading.Value);
+                rot.Value = math.mul(math.normalize(rot.Value), quaternion.AxisAngle(math.up(), turnSpeed.RadiansPerSecond * DeltaTime));
             }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var job = new UpdateRotationJob() { };
-
+            var job = new UpdateRotationJob() { DeltaTime = Time.fixedDeltaTime };
             return job.Schedule(this, inputDependencies);
         }
     }
