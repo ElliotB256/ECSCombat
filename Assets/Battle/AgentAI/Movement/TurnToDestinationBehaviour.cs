@@ -8,7 +8,7 @@ namespace Battle.AI
     /// An entity moves towards a given destination.
     /// </summary>
     [Serializable]
-    public struct MoveToDestinationBehaviour : IComponentData
+    public struct TurnToDestinationBehaviour : IComponentData
     {
         /// <summary>
         /// The target destination the entity is moving towards.

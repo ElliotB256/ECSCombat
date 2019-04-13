@@ -12,7 +12,7 @@ namespace Battle.AI
     /// <summary>
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
-    [UpdateBefore(typeof(MoveToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
+    [UpdateBefore(typeof(TurnToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
     public class EvasiveManoeuvreSystem : JobComponentSystem
     {
         public const float ENGAGEMENT_RADIUS = 10f;
@@ -58,7 +58,7 @@ namespace Battle.AI
                 {
                     buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
                     buffer.AddComponent(index, e, new PursueBehaviour());
-                    buffer.AddComponent(index, e, new MoveToDestinationBehaviour());
+                    buffer.AddComponent(index, e, new TurnToDestinationBehaviour());
                 }
             }
         }

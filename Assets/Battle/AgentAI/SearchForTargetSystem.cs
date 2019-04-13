@@ -115,7 +115,8 @@ namespace Battle.AI
             {
                 All = new[] {
                     ComponentType.ReadOnly<Translation>(),
-                    ComponentType.ReadOnly<Team>()
+                    ComponentType.ReadOnly<Team>(),
+                    ComponentType.ReadOnly<Targetable>()
                 }
             });
 
@@ -125,8 +126,8 @@ namespace Battle.AI
                     ComponentType.ReadOnly<Translation>(),
                     ComponentType.ReadOnly<Team>(),
                     ComponentType.ReadOnly<AggroRadius>(),
-                    ComponentType.ReadWrite<Target>(),
-                    ComponentType.ReadOnly<IdleBehaviour>()
+                    ComponentType.ReadWrite<Target>()
+                    //ComponentType.ReadOnly<IdleBehaviour>()
                 }
             });
         }
@@ -176,7 +177,10 @@ namespace Battle.AI
 
 
             public void Execute(Entity picker, int pickerIndex, ref Target pickerTarget)
-            {                
+            {
+                if (pickerTarget.Value != Entity.Null)
+                    return;
+
                 float2 vec = new float2(pickerPositions[pickerIndex].Value.x, pickerPositions[pickerIndex].Value.z);
                 float radius = aggroRadii[pickerIndex].Value;
 

@@ -13,13 +13,13 @@ namespace Battle.AI
     /// <summary>
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
-    [UpdateBefore(typeof(MoveToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
+    [UpdateBefore(typeof(TurnToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
     public class PursueBehaviourSystem : JobComponentSystem
     {
         public const float PROXIMITY_RADIUS = 4f;
 
         //[BurstCompile]
-        struct PursueBehaviourJob : IJobForEachWithEntity<PursueBehaviour, Target, Translation, MoveToDestinationBehaviour>
+        struct PursueBehaviourJob : IJobForEachWithEntity<PursueBehaviour, Target, Translation, TurnToDestinationBehaviour>
         {
             [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
             public EntityCommandBuffer.Concurrent buffer;
@@ -30,7 +30,7 @@ namespace Battle.AI
                 [ReadOnly] ref PursueBehaviour pursue,
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref Translation pos,
-                ref MoveToDestinationBehaviour destination
+                ref TurnToDestinationBehaviour destination
                 )
             {
                 if (target.Value == Entity.Null)
@@ -43,7 +43,7 @@ namespace Battle.AI
                 if (math.lengthsq(destination.Destination - pos.Value) < PROXIMITY_RADIUS * PROXIMITY_RADIUS)
                 {
                     buffer.RemoveComponent<PursueBehaviour>(index, e);
-                    buffer.RemoveComponent<MoveToDestinationBehaviour>(index, e);
+                    buffer.RemoveComponent<TurnToDestinationBehaviour>(index, e);
                     buffer.AddComponent(index, e, new EvasiveManoeuvre());
                 }
             }

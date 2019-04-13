@@ -20,7 +20,7 @@ namespace Battle.AI
         public const float ARRIVAL_TOLERANCE = 1f;
 
         //[BurstCompile]
-        struct IdleJob : IJobForEachWithEntity<IdleBehaviour, MoveToDestinationBehaviour, Translation, Target>
+        struct IdleJob : IJobForEachWithEntity<IdleBehaviour, TurnToDestinationBehaviour, Translation, Target>
         {
             public Random random_gen;
             public EntityCommandBuffer.Concurrent buffer;
@@ -29,7 +29,7 @@ namespace Battle.AI
                 Entity e,
                 int index,
                 [ReadOnly] ref IdleBehaviour idle,
-                [ReadOnly] ref MoveToDestinationBehaviour movement,
+                [ReadOnly] ref TurnToDestinationBehaviour movement,
                 [ReadOnly] ref Translation position,
                 [ReadOnly] ref Target target
                 )

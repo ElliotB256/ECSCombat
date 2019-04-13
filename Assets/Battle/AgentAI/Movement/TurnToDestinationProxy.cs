@@ -5,13 +5,13 @@ using UnityEngine;
 namespace Battle.AI
 {
     [RequiresEntityConversion]
-    public class MoveToDestinationProxy : MonoBehaviour, IConvertGameObjectToEntity
+    public class TurnToDestinationProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float3 Destination;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new MoveToDestinationBehaviour { Destination = Destination });
+            dstManager.AddComponentData(entity, new TurnToDestinationBehaviour { Destination = Destination });
         }
     }
 }
