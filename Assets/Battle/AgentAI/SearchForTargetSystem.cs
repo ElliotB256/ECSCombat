@@ -5,7 +5,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Battle.Combat;
-using UnityEngine;
 
 namespace Battle.AI
 {

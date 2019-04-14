@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 1202677402638425770}
   - component: {fileID: 1202677402638425771}
   m_Layer: 0
-  m_Name: turret (1)
+  m_Name: Turret
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 2
+  Damage: 5
 --- !u!114 &1202677402638425765
 MonoBehaviour:
   m_ObjectHideFlags: 0

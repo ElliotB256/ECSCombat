@@ -4948,7 +4948,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 1
+  Damage: 3
 --- !u!114 &7788511765830307194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4961,7 +4961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e290bcb951d3f95449220f17862b4213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Duration: 0.2
+  Duration: 0.5
 --- !u!114 &77670067571427503
 MonoBehaviour:
   m_ObjectHideFlags: 0
