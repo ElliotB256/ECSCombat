@@ -16,7 +16,8 @@ namespace Battle.Effects
     [
         UpdateBefore(typeof(CleanUpAttacksSystem)),
         UpdateBefore(typeof(LaserEffectBufferSystem)),
-        UpdateAfter(typeof(AttackEntityBufferSystem))
+        UpdateAfter(typeof(AttackEntityBufferSystem)),
+        UpdateBefore(typeof(KillEntitiesWithNoHealthSystem))
     ]
     public class LaserEffectSystem : JobComponentSystem
     {
@@ -58,8 +59,10 @@ namespace Battle.Effects
 
             public void Execute(Entity e, int index, ref LaserBeamEffect beamEffect, ref Instigator attacker, ref Target target)
             {
-                beamEffect.start = worldTransforms[attacker.Value].Position;
-                beamEffect.end = worldTransforms[target.Value].Position;
+                if (worldTransforms.Exists(attacker.Value))
+                    beamEffect.start = worldTransforms[attacker.Value].Position;
+                if (worldTransforms.Exists(target.Value))
+                    beamEffect.end = worldTransforms[target.Value].Position;
 
                 beamEffect.lifetime -= deltaTime;
                 if (beamEffect.lifetime < 0f)

@@ -39,7 +39,9 @@ namespace Battle.AI
 
                 if (!Positions.Exists(target.Value))
                 {
-                    UnityEngine.Debug.LogWarning("Could not find entity in position table.");
+                    buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
+                    buffer.AddComponent(index, e, new IdleBehaviour());
+                    buffer.AddComponent(index, e, new TurnToDestinationBehaviour());
                     return;
                 }
 

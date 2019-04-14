@@ -33,8 +33,13 @@ namespace Battle.AI
                 ref TurnToDestinationBehaviour destination
                 )
             {
-                if (target.Value == Entity.Null)
+                if (target.Value == Entity.Null || !Positions.Exists(target.Value))
+                {
+                    // Go to idle state
+                    buffer.RemoveComponent<PursueBehaviour>(index, e);
+                    buffer.AddComponent(index, e, new IdleBehaviour());
                     return;
+                }
 
                 // Set entity destination to target position
                 destination.Destination = Positions[target.Value].Value;
