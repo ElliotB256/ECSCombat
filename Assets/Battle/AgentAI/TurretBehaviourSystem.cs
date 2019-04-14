@@ -21,7 +21,6 @@ namespace Battle.AI
         struct IdleJob : IJobForEachWithEntity<TurretBehaviour, Translation, Target, TurnToDestinationBehaviour, DirectWeapon>
         {
             [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
-            public EntityCommandBuffer.Concurrent buffer;
 
             public void Execute(
                 Entity e,

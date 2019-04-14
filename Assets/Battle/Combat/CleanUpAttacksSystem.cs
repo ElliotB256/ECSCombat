@@ -33,7 +33,7 @@ namespace Battle.Combat
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {            
+        {
             var job = new CleanUpAttackJob() { buffer = m_endSimBufferSystem.CreateCommandBuffer().ToConcurrent() };
             var jobHandle = job.Schedule(this, inputDependencies);
             m_endSimBufferSystem.AddJobHandleForProducer(jobHandle);
