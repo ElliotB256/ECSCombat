@@ -4774,10 +4774,10 @@ GameObject:
   - component: {fileID: 7788511765830307194}
   - component: {fileID: 77670067571427503}
   - component: {fileID: 7174596930336603145}
-  - component: {fileID: 3630902080235397585}
   - component: {fileID: 4039902755765850377}
   - component: {fileID: 3998173456323643437}
   - component: {fileID: 4130837226368224007}
+  - component: {fileID: 1758710379918494469}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -4990,19 +4990,6 @@ MonoBehaviour:
     x: 1
     y: 0
     z: 1
---- !u!114 &3630902080235397585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676365148435850568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e1a945a429aeb149bff8f9662ec6cf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 20
 --- !u!114 &4039902755765850377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5027,7 +5014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d98289d03cc2884a966c6f5da175912, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 20
+  MaxHealth: 30
 --- !u!114 &4130837226368224007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5042,3 +5029,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParticleSystem: {fileID: 8959642655804248576, guid: 9ebc1c9bb94c972498d8ba381cba2dc8,
     type: 3}
+--- !u!114 &1758710379918494469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 10

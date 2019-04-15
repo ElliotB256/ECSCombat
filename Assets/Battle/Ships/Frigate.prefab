@@ -21,6 +21,8 @@ GameObject:
   - component: {fileID: 713217497150845621}
   - component: {fileID: 5019436852425230286}
   - component: {fileID: 1152860378133328811}
+  - component: {fileID: 914962366}
+  - component: {fileID: 1733079549356937890}
   m_Layer: 0
   m_Name: Frigate
   m_TagString: Untagged
@@ -219,6 +221,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ParticleSystem: {fileID: 8959642655804248576, guid: 8d770f0c24a09c04f8fae2bb70b455c3,
     type: 3}
+--- !u!114 &914962366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713217497150845611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d98289d03cc2884a966c6f5da175912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 200
+--- !u!114 &1733079549356937890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713217497150845611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 10
 --- !u!1001 &713217495970673815
 PrefabInstance:
   m_ObjectHideFlags: 0

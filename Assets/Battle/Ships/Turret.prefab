@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 1202677402638425756}
   - component: {fileID: 1202677402638425762}
   - component: {fileID: 1202677402638425763}
-  - component: {fileID: 1202677402638425760}
   - component: {fileID: 1202677402638425761}
   - component: {fileID: 1202677402638425766}
   - component: {fileID: 1202677402638425767}
@@ -21,6 +20,7 @@ GameObject:
   - component: {fileID: 1202677402638425765}
   - component: {fileID: 1202677402638425770}
   - component: {fileID: 1202677402638425771}
+  - component: {fileID: 4327874472904166238}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -115,19 +115,6 @@ MonoBehaviour:
   Range: 10
   Armed: 1
   AttackCone: 45
---- !u!114 &1202677402638425760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202677402638425774}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e1a945a429aeb149bff8f9662ec6cf3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Radius: 15
 --- !u!114 &1202677402638425761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178,7 +165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 5
+  Damage: 30
 --- !u!114 &1202677402638425765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219,3 +206,16 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
+--- !u!114 &4327874472904166238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1202677402638425774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Radius: 10
