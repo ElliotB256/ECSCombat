@@ -12,6 +12,7 @@ namespace Battle.Combat
     /// <summary>
     /// Spawns ships from the aircraft hangar.
     /// </summary>
+    [UpdateAfter(typeof(CleanUpAttacksSystem)), UpdateBefore(typeof(SpawnNewUnitsBufferSystem))]
     public class AircraftHangarSystem : JobComponentSystem
     {
         struct AircraftHangerSpawnJob : IJobForEachWithEntity<LocalToWorld, AircraftHangar, Team, Cooldown>
@@ -39,11 +40,11 @@ namespace Battle.Combat
             }
         }
 
-        BeginInitializationEntityCommandBufferSystem m_EntityCommandBufferSystem;
+        SpawnNewUnitsBufferSystem m_EntityCommandBufferSystem;
 
         protected override void OnCreate()
         {
-            m_EntityCommandBufferSystem = World.GetOrCreateSystem<BeginInitializationEntityCommandBufferSystem>();
+            m_EntityCommandBufferSystem = World.GetOrCreateSystem<SpawnNewUnitsBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)

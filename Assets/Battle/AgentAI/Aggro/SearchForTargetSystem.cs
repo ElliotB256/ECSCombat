@@ -54,6 +54,7 @@ namespace Battle.AI
             // Having sorted entities into buckets by spatial pos, we loop through the entities and find nearby entities (in nearby buckets).
             var findTargetsJH = new IdentifyBestTargetChunkJob()
             {
+                CellSize = HASH_CELL_SIZE,
                 PickerAggroRadii = GetArchetypeChunkComponentType<AggroRadius>(true),
                 PickerLocalToWorld = GetArchetypeChunkComponentType<LocalToWorld>(true),
                 PickerTargets = GetArchetypeChunkComponentType<Target>(false),
@@ -66,7 +67,7 @@ namespace Battle.AI
 
             hasRunBefore = true;
 
-            return hashBarrier;
+            return findTargetsJH;
         }
 
         /// <summary>
@@ -144,6 +145,8 @@ namespace Battle.AI
         [BurstCompile]
         struct IdentifyBestTargetChunkJob : IJobChunk
         {
+            public float CellSize;
+
             //Picker components
             [ReadOnly] public ArchetypeChunkComponentType<LocalToWorld> PickerLocalToWorld;
             [ReadOnly] public ArchetypeChunkComponentType<AggroRadius> PickerAggroRadii;
@@ -158,68 +161,68 @@ namespace Battle.AI
 
             public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
-                //var localToWorlds = chunk.GetNativeArray(PickerLocalToWorld);
-                //var aggroRadii = chunk.GetNativeArray(PickerAggroRadii);
-                //var teams = chunk.GetNativeArray(PickerTeams);
-                //var pickerTargets = chunk.GetNativeArray(PickerTargets);
-                //var pickerTeams = chunk.GetNativeArray(PickerTeams);
+                var localToWorlds = chunk.GetNativeArray(PickerLocalToWorld);
+                var aggroRadii = chunk.GetNativeArray(PickerAggroRadii);
+                var teams = chunk.GetNativeArray(PickerTeams);
+                var pickerTargets = chunk.GetNativeArray(PickerTargets);
+                var pickerTeams = chunk.GetNativeArray(PickerTeams);
 
-                //for (int picker = 0; picker < chunk.Count; picker++)
-                //{
-                //    // Ignore entities which already have a target.
-                //    if (pickerTargets[picker].Value == Entity.Null)
-                //        continue;
+                for (int picker = 0; picker < chunk.Count; picker++)
+                {
+                    // Ignore entities which already have a target.
+                    if (pickerTargets[picker].Value != Entity.Null)
+                        continue;
 
-                //    // Initialise target loop variables.
-                //    float score = float.PositiveInfinity;
-                //    Entity target = Entity.Null;
+                    // Initialise target loop variables.
+                    float score = float.PositiveInfinity;
+                    Entity currentTarget = Entity.Null;
 
-                //    // Search all bins that cover the given aggro radius.
-                //    float radius = aggroRadii[picker].Value;
-                //    var pickerPosition = localToWorlds[picker].Position;
-                //    float2 vec = new float2(pickerPosition.x, pickerPosition.z);
-                //    var minBinCoords = HashPositions.BinCoordinates(vec - radius, CellSize);
-                //    var maxBinCoords = HashPositions.BinCoordinates(vec + radius, CellSize);
+                    // Search all bins that cover the given aggro radius.
+                    float radius = aggroRadii[picker].Value;
+                    var pickerPosition = localToWorlds[picker].Position;
+                    float2 vec = new float2(pickerPosition.x, pickerPosition.z);
+                    var minBinCoords = HashPositions.BinCoordinates(vec - radius, CellSize);
+                    var maxBinCoords = HashPositions.BinCoordinates(vec + radius, CellSize);
 
-                //    for (int x = minBinCoords.x; x <= maxBinCoords.x; x++)
-                //    {
-                //        for (int y = minBinCoords.y; y <= maxBinCoords.y; y++)
-                //        {
-                //            // Identify bucket to search
-                //            var hash = HashPositions.Hash(new int2(x, y));
+                    for (int x = minBinCoords.x; x <= maxBinCoords.x; x++)
+                    {
+                        for (int y = minBinCoords.y; y <= maxBinCoords.y; y++)
+                        {
+                            // Identify bucket to search
+                            var hash = HashPositions.Hash(new int2(x, y));
 
-                //            // Check targets within each bucket.
-                //            if (!TargetMap.TryGetFirstValue(hash, out int targetIndex, out NativeMultiHashMapIterator<int> iterator))
-                //                continue;
-                //            CheckTarget(
-                //                pickerTeams[picker],
-                //                TargetTeams[targetIndex],
-                //                TargetPositions[targetIndex].Position,
-                //                pickerPosition,
-                //                aggroRadii[picker].Value,
-                //                ref score,
-                //                ref target,
-                //                Targets[targetIndex]
-                //                );
+                            // Check targets within each bucket.
+                            if (!TargetMap.TryGetFirstValue(hash, out int targetIndex, out NativeMultiHashMapIterator<int> iterator))
+                                continue;
+                            CheckTarget(
+                                pickerTeams[picker],
+                                TargetTeams[targetIndex],
+                                TargetPositions[targetIndex].Position,
+                                pickerPosition,
+                                aggroRadii[picker].Value,
+                                ref score,
+                                ref currentTarget,
+                                Targets[targetIndex]
+                                );
 
-                //            while (TargetMap.TryGetNextValue(out targetIndex, ref iterator))
-                //                CheckTarget(
-                //                pickerTeams[picker],
-                //                TargetTeams[targetIndex],
-                //                TargetPositions[targetIndex].Position,
-                //                pickerPosition[picker],
-                //                aggroRadii[picker].Value,
-                //                ref score,
-                //                ref target,
-                //                Targets[targetIndex]
-                //                );
-                //        }
-                //    }
+                            while (TargetMap.TryGetNextValue(out targetIndex, ref iterator))
+                                CheckTarget(
+                                pickerTeams[picker],
+                                TargetTeams[targetIndex],
+                                TargetPositions[targetIndex].Position,
+                                pickerPosition,
+                                aggroRadii[picker].Value,
+                                ref score,
+                                ref currentTarget,
+                                Targets[targetIndex]
+                                );
+                        }
+                    }
 
-                //    // If a target was found, write it.
-                //    if (target != Entity.Null)
-                //        pickerTargets[picker] = new Target { Value = target };
-                //}
+                    // If a target was found, write it.
+                    if (currentTarget != Entity.Null)
+                        pickerTargets[picker] = new Target { Value = currentTarget };
+                }
             }
 
             /// <summary>
@@ -253,93 +256,6 @@ namespace Battle.AI
                 {
                     score = distanceSq;
                     currentTarget = candidate;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Identifies the best target for each picker.
-        /// </summary>
-        [BurstCompile]
-        struct IdentifyBestTarget : IJobForEachWithEntity<Target> // was IJobParallelFor.
-        {
-            public float CellSize;
-
-            [ReadOnly] public NativeArray<Translation> targetPositions;
-            [ReadOnly] public NativeArray<Translation> pickerPositions;
-            [ReadOnly] public NativeArray<Team> pickerTeams;
-            [ReadOnly] public NativeArray<Team> targetTeams;
-            [ReadOnly] public NativeMultiHashMap<int, int> targetMap;
-            [ReadOnly] public NativeArray<Entity> targetIds;
-            [ReadOnly] public NativeArray<AggroRadius> aggroRadii;
-
-
-            public void Execute(
-                Entity picker,
-                int pickerIndex,
-                ref Target pickerTarget)
-            {
-                if (pickerTarget.Value != Entity.Null)
-                    return;
-
-                float2 vec = new float2(pickerPositions[pickerIndex].Value.x, pickerPositions[pickerIndex].Value.z);
-                float radius = aggroRadii[pickerIndex].Value;
-
-                // We need to search not only the picker bin, but any adjacent bins aswell if radius > binSize.
-                var minBinCoords = HashPositions.BinCoordinates(vec - radius, CellSize);
-                var maxBinCoords = HashPositions.BinCoordinates(vec + radius, CellSize);
-
-                float score = float.PositiveInfinity;
-                Entity target = Entity.Null;
-                bool found = false;
-
-                for (int x = minBinCoords.x; x <= maxBinCoords.x; x++)
-                {
-                    for (int y = minBinCoords.y; y <= maxBinCoords.y; y++)
-                    {
-                        // Identify bucket to search
-                        var hash = HashPositions.Hash(new int2(x, y));
-
-                        // Iterate over the hash map of positions. For each associated entity, determine if it is a good target.
-                        if (!targetMap.TryGetFirstValue(hash, out int targetIndex, out NativeMultiHashMapIterator<int> iterator))
-                            continue;
-
-                        TestTarget(pickerIndex, targetIndex, radius, ref score, ref found, ref target);
-
-                        while (targetMap.TryGetNextValue(out targetIndex, ref iterator))
-                            TestTarget(pickerIndex, targetIndex, radius, ref score, ref found, ref target);
-                    }
-                }
-
-                // If we found a target, write it.
-                if (found)
-                    pickerTarget.Value = target;
-            }
-
-            /// <summary>
-            /// Test a target entity to see if it is a favorable target
-            /// </summary>
-            /// <param name="targetIndex">index of entity to test</param>
-            /// <param name="score">the current score, to beat</param>
-            /// <param name=""></param>
-            /// <param name="currentTarget">the current target entity</param>
-            public void TestTarget(int pickerIndex, int targetIndex, float radius, ref float score, ref bool found, ref Entity currentTarget)
-            {
-                // Cannot target if on the same team.
-                if (pickerTeams[pickerIndex].ID == targetTeams[targetIndex].ID)
-                    return;
-
-                var distanceSq = math.lengthsq(targetPositions[targetIndex].Value - pickerPositions[pickerIndex].Value);
-
-                if (distanceSq > radius * radius)
-                    return;
-
-                found = true;
-
-                if (distanceSq < score)
-                {
-                    score = distanceSq;
-                    currentTarget = targetIds[targetIndex];
                 }
             }
         }
