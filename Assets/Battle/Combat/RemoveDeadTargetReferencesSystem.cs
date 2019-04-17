@@ -8,7 +8,7 @@ namespace Battle.Combat
     /// <summary>
     /// Sets any Target components that point to an invalid, non-existant entity to Entity.Null
     /// </summary>
-    [UpdateAfter(typeof(KillChildrenOnParentDeathSystem)), UpdateBefore(typeof(KillEntitiesWithNoHealthSystem))]
+    [UpdateAfter(typeof(PostAttackEntityBuffer))]
     public class RemoveDeadTargetReferencesSystem : JobComponentSystem
     {
         [BurstCompile]

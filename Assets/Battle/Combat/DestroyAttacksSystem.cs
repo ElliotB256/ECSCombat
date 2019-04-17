@@ -8,7 +8,11 @@ namespace Battle.Combat
     /// <summary>
     /// Deletes all attacks (entities with Attack component).
     /// </summary>
-    public class CleanUpAttacksSystem : JobComponentSystem
+    [
+        UpdateAfter(typeof(AttackResultSystemsGroup)),
+        UpdateBefore(typeof(PostAttackEntityBuffer))
+        ]
+    public class DestroyAttacksSystem : JobComponentSystem
     {
         private EndSimulationEntityCommandBufferSystem m_endSimBufferSystem;
 

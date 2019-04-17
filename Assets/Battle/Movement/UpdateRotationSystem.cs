@@ -11,6 +11,7 @@ namespace Battle.Movement
     /// <summary>
     /// Updates the rotation of all entities with TurnSpeed
     /// </summary>
+    [UpdateInGroup(typeof(MovementUpdateSystems))]
     public class UpdateRotationSystem : JobComponentSystem
     {
         [BurstCompile]

@@ -9,7 +9,7 @@ namespace Battle.Combat
     /// <summary>
     /// Destroys any entity whose Parent transform has died
     /// </summary>
-    [UpdateAfter(typeof(DealAttackDamageSystem)), UpdateBefore(typeof(KillEntitiesWithNoHealthSystem))]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup)), UpdateAfter(typeof(DealAttackDamageSystem))]
     public class KillChildrenOnParentDeathSystem : JobComponentSystem
     {
         /// <summary>
@@ -35,11 +35,11 @@ namespace Battle.Combat
             }
         }
 
-        private DeleteDeadEntitiesBuffer m_entityBufferSystem;
+        private PostAttackEntityBuffer m_entityBufferSystem;
 
         protected override void OnCreateManager()
         {
-            m_entityBufferSystem = World.GetOrCreateSystem<DeleteDeadEntitiesBuffer>();
+            m_entityBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)

@@ -12,8 +12,7 @@ namespace Battle.Combat
     /// Note that multiple attacks may refer to a single target, so some care is required with concurrently writing to Health.
     /// </summary>
     [   
-        UpdateAfter(typeof(FireDirectWeaponsSystem)),
-        UpdateBefore(typeof(CleanUpAttacksSystem))
+        UpdateInGroup(typeof(AttackResultSystemsGroup))
         ]
     public class DealAttackDamageSystem : JobComponentSystem
     {

@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace Battle.Effects
 {
-    [UpdateAfter(typeof(DealAttackDamageSystem)),UpdateBefore(typeof(KillEntitiesWithNoHealthSystem))]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup))]
     public class DeathExplosionEffectSystem : ComponentSystem
     {
         protected override void OnUpdate()

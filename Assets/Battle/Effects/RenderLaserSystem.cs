@@ -16,7 +16,10 @@ namespace Battle.Effects
     /// Render laser beam effects. Hacky.
     /// </summary>
     [AlwaysUpdateSystem]
-    [UpdateAfter(typeof(LaserEffectSystem))]
+    [
+        UpdateAfter(typeof(LaserEffectSystem)),
+        UpdateInGroup(typeof(AttackResultSystemsGroup))
+        ]
     public class RenderAttackLaserSystem : JobComponentSystem
     {
         private RenderLaserComponent m_renderer;

@@ -12,7 +12,9 @@ namespace Battle.Combat
     /// <summary>
     /// Fires all direct weapons that are armed and in range of their target.
     /// </summary>
-    [UpdateBefore(typeof(AttackEntityBufferSystem))]
+    [
+        UpdateInGroup(typeof(WeaponSystemsGroup))
+        ]
     public class FireDirectWeaponsSystem : JobComponentSystem
     {
         //[BurstCompile]
@@ -58,11 +60,11 @@ namespace Battle.Combat
             }
         }
 
-        private AttackEntityBufferSystem m_entityBufferSystem;
+        private WeaponEntityBufferSystem m_entityBufferSystem;
 
         protected override void OnCreateManager()
         {
-            m_entityBufferSystem = World.GetOrCreateSystem<AttackEntityBufferSystem>();
+            m_entityBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)

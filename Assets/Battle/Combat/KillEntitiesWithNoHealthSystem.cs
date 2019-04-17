@@ -8,7 +8,7 @@ namespace Battle.Combat
     /// <summary>
     /// Destroys any entity with health for which Health < 0
     /// </summary>
-    [UpdateAfter(typeof(DealAttackDamageSystem)), UpdateBefore(typeof(DeleteDeadEntitiesBuffer))]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup)), UpdateAfter(typeof(DealAttackDamageSystem))]
     public class KillEntitiesWithNoHealthSystem : JobComponentSystem
     {
         [BurstCompile]
@@ -27,11 +27,11 @@ namespace Battle.Combat
             }
         }
 
-        private DeleteDeadEntitiesBuffer m_entityBufferSystem;
+        private PostAttackEntityBuffer m_entityBufferSystem;
 
         protected override void OnCreateManager()
         {
-            m_entityBufferSystem = World.GetOrCreateSystem<DeleteDeadEntitiesBuffer>();
+            m_entityBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)

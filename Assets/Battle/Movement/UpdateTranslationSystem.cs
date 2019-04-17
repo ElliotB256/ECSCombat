@@ -11,6 +11,7 @@ namespace Battle.Movement
     /// <summary>
     /// Updates the Translation of all entities with speed.
     /// </summary>
+    [UpdateInGroup(typeof(MovementUpdateSystems))]
     public class UpdateTranslationSystem : JobComponentSystem
     {
         [BurstCompile]

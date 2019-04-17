@@ -13,12 +13,7 @@ namespace Battle.Effects
     /// <summary>
     /// Create laser effects between attacker and target entity.
     /// </summary>
-    [
-        UpdateBefore(typeof(CleanUpAttacksSystem)),
-        UpdateBefore(typeof(LaserEffectBufferSystem)),
-        UpdateAfter(typeof(AttackEntityBufferSystem)),
-        UpdateBefore(typeof(KillEntitiesWithNoHealthSystem))
-    ]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup))]
     public class LaserEffectSystem : JobComponentSystem
     {
         /// <summary>
@@ -70,11 +65,11 @@ namespace Battle.Effects
             }
         }
 
-        private LaserEffectBufferSystem m_laserEffectBufferSystem;
+        private PostAttackEntityBuffer m_laserEffectBufferSystem;
 
         protected override void OnCreateManager()
         {
-            m_laserEffectBufferSystem = World.GetOrCreateSystem<LaserEffectBufferSystem>();
+            m_laserEffectBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
