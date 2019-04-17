@@ -11,9 +11,11 @@ namespace Battle.AI
     {
         [Flags] public enum eType : byte
         {
-            Small,
-            Medium,
-            Large
+            None = 0,
+            Fighters = (1 << 0),
+            Frigates = (1 << 1),
+            Cruisers = (1 << 2),
+            Turrets = (1 << 3)
         }
 
         public eType Type;

@@ -12,11 +12,11 @@ namespace Battle.AI
         /// <summary>
         /// The categories that we prefer to engage.
         /// </summary>
-        public AgentCategory Preferred;
+        public AgentCategory.eType Preferred;
 
         /// <summary>
         /// The categories that we do not want to engage.
         /// </summary>
-        public AgentCategory Discouraged;
+        public AgentCategory.eType Discouraged;
     }
 }

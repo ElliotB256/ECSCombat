@@ -17,12 +17,12 @@ namespace Battle.AI
     public class SearchForTargetSystem : JobComponentSystem
     {
         bool hasRunBefore = false;
-
         private EntityQuery m_targetQuery;
         private EntityQuery m_pickerQuery;
         private NativeArray<LocalToWorld> m_targetPositions;
         private NativeArray<Team> m_targetTeams;
         private NativeArray<Entity> m_targetIds;
+        private NativeArray<AgentCategory.eType> m_targetTypes;
         private NativeMultiHashMap<int, int> m_targetBins;
 
         /// <summary>
@@ -42,10 +42,17 @@ namespace Battle.AI
             int pickerNum = m_pickerQuery.CalculateLength();
             m_targetBins = new NativeMultiHashMap<int, int>(targetNum, Allocator.TempJob);
 
+            m_targetTypes = new NativeArray<AgentCategory.eType>(targetNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var targetTypesJH = new GetTargetTypesJob
+            {
+                TargetCategories = GetArchetypeChunkComponentType<AgentCategory>(true),
+                TargetTypes = m_targetTypes
+            }.Schedule(m_targetQuery, inputDependencies);
             m_targetPositions = m_targetQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob, out var copyTargetPosJob);
             m_targetTeams = m_targetQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var copyTargetTeamsJob);
             m_targetIds = m_targetQuery.ToEntityArray(Allocator.TempJob, out JobHandle copyTargetEntityJob);
             var copyJobs = JobHandle.CombineDependencies(copyTargetEntityJob, copyTargetTeamsJob);
+            copyJobs = JobHandle.CombineDependencies(copyJobs, targetTypesJH);
 
             // Once positions are copied over, we sort the positions into a hashmap.
             var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = m_targetBins.ToConcurrent() }.Schedule(m_targetQuery, copyTargetPosJob);
@@ -59,10 +66,12 @@ namespace Battle.AI
                 PickerLocalToWorld = GetArchetypeChunkComponentType<LocalToWorld>(true),
                 PickerTargets = GetArchetypeChunkComponentType<Target>(false),
                 PickerTeams = GetArchetypeChunkComponentType<Team>(true),
+                PickerOrders = GetArchetypeChunkComponentType<TargetingOrders>(true),
                 Targets = m_targetIds,
                 TargetPositions = m_targetPositions,
                 TargetTeams = m_targetTeams,
-                TargetMap = m_targetBins
+                TargetMap = m_targetBins,
+                TargetTypes = m_targetTypes,
             }.Schedule(m_pickerQuery, hashBarrier);
 
             hasRunBefore = true;
@@ -79,6 +88,7 @@ namespace Battle.AI
             m_targetPositions.Dispose();
             m_targetTeams.Dispose();
             m_targetIds.Dispose();
+            m_targetTypes.Dispose();
         }
 
         protected override void OnStopRunning()
@@ -108,6 +118,31 @@ namespace Battle.AI
                     ComponentType.ReadWrite<Target>()
                 }
             });
+        }
+
+        /// <summary>
+        /// Gets the types of all targets, where possible. Otherwise, sets Type to None.
+        /// </summary>
+        [BurstCompile]
+        struct GetTargetTypesJob : IJobChunk
+        {
+            [WriteOnly] public NativeArray<AgentCategory.eType> TargetTypes;
+            [ReadOnly] public ArchetypeChunkComponentType<AgentCategory> TargetCategories;
+
+            public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+            {
+                if (chunk.Has(TargetCategories))
+                {
+                    var categories = chunk.GetNativeArray(TargetCategories);
+                    for (int i = 0; i < chunk.Count; i++)
+                        TargetTypes[i + firstEntityIndex] = categories[i].Type;
+                }
+                else
+                {
+                    for (int i = 0; i < chunk.Count; i++)
+                        TargetTypes[i + firstEntityIndex] = AgentCategory.eType.None;
+                }
+            }
         }
 
         /// <summary>
@@ -151,6 +186,7 @@ namespace Battle.AI
             [ReadOnly] public ArchetypeChunkComponentType<LocalToWorld> PickerLocalToWorld;
             [ReadOnly] public ArchetypeChunkComponentType<AggroRadius> PickerAggroRadii;
             [ReadOnly] public ArchetypeChunkComponentType<Team> PickerTeams;
+            [ReadOnly] public ArchetypeChunkComponentType<TargetingOrders> PickerOrders;
             public ArchetypeChunkComponentType<Target> PickerTargets;
 
             //Target arrays
@@ -158,6 +194,7 @@ namespace Battle.AI
             [ReadOnly] public NativeArray<Team> TargetTeams;
             [ReadOnly] public NativeArray<LocalToWorld> TargetPositions;
             [ReadOnly] public NativeMultiHashMap<int, int> TargetMap;
+            [ReadOnly] public NativeArray<AgentCategory.eType> TargetTypes;
 
             public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
@@ -166,6 +203,11 @@ namespace Battle.AI
                 var teams = chunk.GetNativeArray(PickerTeams);
                 var pickerTargets = chunk.GetNativeArray(PickerTargets);
                 var pickerTeams = chunk.GetNativeArray(PickerTeams);
+
+                // Targeting orders
+                var hasPickerOrders = chunk.Has(PickerOrders);
+                var pickerOrders = chunk.GetNativeArray(PickerOrders);
+                var defaultPickerOrders = new TargetingOrders { Discouraged = AgentCategory.eType.None, Preferred = AgentCategory.eType.None };
 
                 for (int picker = 0; picker < chunk.Count; picker++)
                 {
@@ -184,6 +226,8 @@ namespace Battle.AI
                     var minBinCoords = HashPositions.BinCoordinates(vec - radius, CellSize);
                     var maxBinCoords = HashPositions.BinCoordinates(vec + radius, CellSize);
 
+                    var orders = hasPickerOrders ? pickerOrders[picker] : defaultPickerOrders;
+
                     for (int x = minBinCoords.x; x <= maxBinCoords.x; x++)
                     {
                         for (int y = minBinCoords.y; y <= maxBinCoords.y; y++)
@@ -200,6 +244,8 @@ namespace Battle.AI
                                 TargetPositions[targetIndex].Position,
                                 pickerPosition,
                                 aggroRadii[picker].Value,
+                                orders,
+                                TargetTypes[targetIndex],
                                 ref score,
                                 ref currentTarget,
                                 Targets[targetIndex]
@@ -212,6 +258,8 @@ namespace Battle.AI
                                 TargetPositions[targetIndex].Position,
                                 pickerPosition,
                                 aggroRadii[picker].Value,
+                                orders,
+                                TargetTypes[targetIndex],
                                 ref score,
                                 ref currentTarget,
                                 Targets[targetIndex]
@@ -239,6 +287,8 @@ namespace Battle.AI
                 float3 targetPos,
                 float3 pickerPos,
                 float aggroRadius,
+                TargetingOrders orders,
+                AgentCategory.eType targetType,
                 ref float score,
                 ref Entity currentTarget,
                 Entity candidate)
@@ -248,13 +298,19 @@ namespace Battle.AI
                     return;
 
                 // Cannot target if outside aggro radius.
-                var distanceSq = math.lengthsq(targetPos - pickerPos);
-                if (distanceSq > aggroRadius * aggroRadius)
+                var newScore = math.lengthsq(targetPos - pickerPos);
+                if (newScore > aggroRadius * aggroRadius)
                     return;
 
-                if (distanceSq < score)
+                // Favored and discouraged targets.
+                if ((orders.Preferred & targetType) > 0)
+                    newScore /= 5f;
+                if ((orders.Discouraged & targetType) > 0)
+                    newScore *= 5f;
+
+                if (newScore < score)
                 {
-                    score = distanceSq;
+                    score = newScore;
                     currentTarget = candidate;
                 }
             }

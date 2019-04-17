@@ -4778,6 +4778,8 @@ GameObject:
   - component: {fileID: 3998173456323643437}
   - component: {fileID: 4130837226368224007}
   - component: {fileID: 1758710379918494469}
+  - component: {fileID: 8497919675810535832}
+  - component: {fileID: 4068023571032933344}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -5014,7 +5016,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d98289d03cc2884a966c6f5da175912, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 30
+  MaxHealth: 50
 --- !u!114 &4130837226368224007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5041,4 +5043,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 10
+  Radius: 30
+--- !u!114 &8497919675810535832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11e55438286ac6b46964f5deb56b136d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AgentType: 1
+--- !u!114 &4068023571032933344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28aa1474b9d772340b65b603dd6a69f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PreferredTargets: 1
+  DiscouragedTargets: 4
