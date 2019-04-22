@@ -19,8 +19,7 @@ namespace Battle.Combat.Calculations
         [BurstCompile]
         struct CalculateRangeEffectivenessJob : IJobForEachWithEntity<Attack, LinearEffectiveRange, EffectSourceLocation, Target, Effectiveness>
         {
-            // NB use [DeallocateOnJobCompletion]
-            [ReadOnly] public NativeArray<float3> targetPositions;
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> targetPositions;
 
             public void Execute(
                 Entity entity,
@@ -50,7 +49,6 @@ namespace Battle.Combat.Calculations
             [WriteOnly] public NativeArray<float3> targetPositions;
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> targetWorldTransforms;
 
-            
             public void Execute(Entity entity, int index, [ReadOnly] ref Target target)
             {
                 targetPositions[index] = targetWorldTransforms[target.Value].Position;
@@ -77,9 +75,7 @@ namespace Battle.Combat.Calculations
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            DisposeNativeArrays();
             m_targetPositions = new NativeArray<float3>(m_attackQuery.CalculateLength(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            hasRunBefore = true;
 
             var getTargetPositionsJH = new GetTargetPositions()
             {
@@ -94,23 +90,5 @@ namespace Battle.Combat.Calculations
 
             return calculateRangeEffectivenessJH;
         }
-
-        #region Clean up natives
-
-        bool hasRunBefore = false;
-
-        void DisposeNativeArrays()
-        {
-            if (!hasRunBefore)
-                return;
-            m_targetPositions.Dispose();
-        }
-
-        protected override void OnStopRunning()
-        {
-            DisposeNativeArrays();
-        }
-
-        #endregion
     }
 }

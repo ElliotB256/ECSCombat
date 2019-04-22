@@ -5055,6 +5055,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Ammo: {fileID: 7198412652241774557, guid: 8bd57cce45ef172428516210e8162a78, type: 3}
-  Range: 10
+  Range: 20
   Armed: 1
   AttackCone: 45

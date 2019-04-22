@@ -34,10 +34,7 @@ namespace Battle.AI
                 [ReadOnly] ref MaxTurnSpeed maxTurnSpeed
                 )
             {
-                if (target.Value == Entity.Null)
-                    return;
-
-                if (!Positions.Exists(target.Value))
+                if (target.Value == Entity.Null || !Positions.Exists(target.Value))
                 {
                     buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
                     buffer.AddComponent(index, e, new IdleBehaviour());

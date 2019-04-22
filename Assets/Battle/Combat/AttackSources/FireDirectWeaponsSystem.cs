@@ -1,5 +1,6 @@
 ﻿using Battle.Combat.AttackSources;
 using Battle.Combat.Calculations;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -16,10 +17,17 @@ namespace Battle.Combat.AttackSources
         ]
     public class FireDirectWeaponsSystem : JobComponentSystem
     {
+        protected WeaponEntityBufferSystem m_entityBufferSystem;
+
+        /// <summary>
+        /// Holds the world location of each weapon's target entity.
+        /// </summary>
+        protected NativeArray<float3> m_targetPositions;
+
         //[BurstCompile]
         struct FireDirectWeaponsJob : IJobForEachWithEntity<LocalToWorld, Target, DirectWeapon, Cooldown>
         {
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
+            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
 
             public void Execute(
@@ -40,9 +48,14 @@ namespace Battle.Combat.AttackSources
                 if (target.Value == Entity.Null)
                     return;
 
+                var delta = (worldTransforms[index] - worldTransform.Position);
+
+                // Cannot fire if out of weapon range
+                if (math.lengthsq(delta) > weapon.Range * weapon.Range)
+                    return;
+
                 // Only fire when target is within weapon cone.
-                var delta = math.normalize(worldTransforms[target.Value].Position - worldTransform.Position);
-                var projection = math.dot(delta, math.normalize(worldTransform.Forward));
+                var projection = math.dot(math.normalize(delta), math.normalize(worldTransform.Forward));
                 if (math.cos(weapon.AttackCone / 2f) > projection)
                     return;
 
@@ -59,20 +72,49 @@ namespace Battle.Combat.AttackSources
             }
         }
 
-        private WeaponEntityBufferSystem m_entityBufferSystem;
+        [BurstCompile]
+        struct GetTargetPositions : IJobForEachWithEntity<Target>
+        {
+            [WriteOnly] public NativeArray<float3> targetPositions;
+            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> targetWorldTransforms;
+
+            public void Execute(Entity entity, int index, [ReadOnly] ref Target target)
+            {
+                targetPositions[index] = target.Value != Entity.Null ? targetWorldTransforms[target.Value].Position : new float3(0f,0f,0f);
+            }
+        }
 
         protected override void OnCreateManager()
         {
             m_entityBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
+            m_query = GetEntityQuery(new EntityQueryDesc
+            {
+                All = new[] {
+                    ComponentType.ReadOnly<LocalToWorld>(),
+                    ComponentType.ReadOnly<Target>(),
+                    ComponentType.ReadOnly<DirectWeapon>(),
+                    ComponentType.ReadWrite<Cooldown>(),
+                }
+            });
         }
+
+        protected EntityQuery m_query;
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var pos = GetComponentDataFromEntity<LocalToWorld>(true);
-            var job = new FireDirectWeaponsJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(), worldTransforms = pos };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            m_targetPositions = new NativeArray<float3>(m_query.CalculateLength(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var getTargetPositionsJH = new GetTargetPositions
+            {
+                targetPositions = m_targetPositions,
+                targetWorldTransforms = GetComponentDataFromEntity<LocalToWorld>(true)
+            }.Schedule(m_query, inputDependencies);
+            var fireDirectWeaponsHandle = new FireDirectWeaponsJob()
+            {
+                buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                worldTransforms = m_targetPositions
+            }.Schedule(m_query, getTargetPositionsJH);
+            m_entityBufferSystem.AddJobHandleForProducer(fireDirectWeaponsHandle);
+            return fireDirectWeaponsHandle;
         }
     }
 }
