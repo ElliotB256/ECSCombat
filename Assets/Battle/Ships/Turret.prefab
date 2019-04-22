@@ -12,16 +12,15 @@ GameObject:
   - component: {fileID: 1202677402638425759}
   - component: {fileID: 1202677402638425756}
   - component: {fileID: 1202677402638425762}
-  - component: {fileID: 1202677402638425763}
   - component: {fileID: 1202677402638425761}
   - component: {fileID: 1202677402638425766}
   - component: {fileID: 1202677402638425767}
-  - component: {fileID: 1202677402638425764}
   - component: {fileID: 1202677402638425765}
   - component: {fileID: 1202677402638425770}
   - component: {fileID: 1202677402638425771}
   - component: {fileID: 4327874472904166238}
   - component: {fileID: 8631393303557847292}
+  - component: {fileID: 8649663006005873948}
   m_Layer: 0
   m_Name: Turret
   m_TagString: Untagged
@@ -101,21 +100,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MaxRadiansPerSecond: 20
---- !u!114 &1202677402638425763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202677402638425774}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf4e5ed81c6d9b249abb1114f8059187, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Range: 10
-  Armed: 1
-  AttackCone: 45
 --- !u!114 &1202677402638425761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,19 +138,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Duration: 0.5
---- !u!114 &1202677402638425764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1202677402638425774}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Damage: 30
 --- !u!114 &1202677402638425765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -234,3 +205,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PreferredTargets: 2
   DiscouragedTargets: 1
+--- !u!114 &8649663006005873948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1202677402638425774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d982bfef2735b704c973512a7bcbdfd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Ammo: {fileID: 7198412652241774557, guid: 7425bb0eab99c1241b47ea2313ea7cd8, type: 3}
+  Range: 10
+  Armed: 1
+  AttackCone: 45

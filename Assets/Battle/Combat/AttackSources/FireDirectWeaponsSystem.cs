@@ -1,13 +1,12 @@
-﻿using Battle.Movement;
-using Unity.Burst;
+﻿using Battle.Combat.AttackSources;
+using Battle.Combat.Calculations;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
-namespace Battle.Combat
+namespace Battle.Combat.AttackSources
 {
     /// <summary>
     /// Fires all direct weapons that are armed and in range of their target.
@@ -18,7 +17,7 @@ namespace Battle.Combat
     public class FireDirectWeaponsSystem : JobComponentSystem
     {
         //[BurstCompile]
-        struct FireDirectWeaponsJob : IJobForEachWithEntity<LocalToWorld, Target, Damage, DirectWeapon, Cooldown>
+        struct FireDirectWeaponsJob : IJobForEachWithEntity<LocalToWorld, Target, DirectWeapon, Cooldown>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
@@ -28,7 +27,6 @@ namespace Battle.Combat
                 int index,
                 [ReadOnly] ref LocalToWorld worldTransform,
                 [ReadOnly] ref Target target,
-                [ReadOnly] ref Damage damage,
                 ref DirectWeapon weapon,
                 ref Cooldown cooldown
                 )
@@ -37,9 +35,9 @@ namespace Battle.Combat
                     return;
 
                 if (!cooldown.IsReady())
-                   return;
+                    return;
 
-                if (target.Value == Entity.Null || !worldTransforms.Exists(target.Value))
+                if (target.Value == Entity.Null)
                     return;
 
                 // Only fire when target is within weapon cone.
@@ -47,13 +45,14 @@ namespace Battle.Combat
                 var projection = math.dot(delta, math.normalize(worldTransform.Forward));
                 if (math.cos(weapon.AttackCone / 2f) > projection)
                     return;
-                
+
                 // Create the attack.
-                Entity attack = buffer.CreateEntity(index);
+                Entity attack = buffer.Instantiate(index, weapon.AttackTemplate);
                 buffer.AddComponent(index, attack, new Attack());
                 buffer.AddComponent(index, attack, target);
                 buffer.AddComponent(index, attack, new Instigator() { Value = attacker });
-                buffer.AddComponent(index, attack, damage);
+                buffer.AddComponent(index, attack, new EffectSourceLocation { Value = worldTransform.Position });
+                buffer.AddComponent(index, attack, new Effectiveness { Value = 1f });
 
                 // Reset the cooldown
                 cooldown.Timer = cooldown.Duration;

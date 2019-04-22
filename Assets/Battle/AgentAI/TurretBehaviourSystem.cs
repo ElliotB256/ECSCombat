@@ -8,6 +8,7 @@ using Unity.Transforms;
 using Battle.Movement;
 
 using Battle.Combat;
+using Battle.Combat.AttackSources;
 
 namespace Battle.AI
 {
@@ -18,15 +19,15 @@ namespace Battle.AI
     public class TurretBehaviourSystem : JobComponentSystem
     {
         [BurstCompile]
-        struct IdleJob : IJobForEachWithEntity<TurretBehaviour, Translation, Target, TurnToDestinationBehaviour, DirectWeapon>
+        struct IdleJob : IJobForEachWithEntity<TurretBehaviour, LocalToWorld, Target, TurnToDestinationBehaviour, DirectWeapon>
         {
-            [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
+            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Positions;
 
             public void Execute(
                 Entity e,
                 int index,
                 [ReadOnly] ref TurretBehaviour behaviour,
-                [ReadOnly] ref Translation position,
+                [ReadOnly] ref LocalToWorld localToWorld,
                 ref Target target,
                 ref TurnToDestinationBehaviour turnTo,
                 [ReadOnly] ref DirectWeapon weapon
@@ -39,20 +40,20 @@ namespace Battle.AI
                 if (!Positions.Exists(target.Value))
                     target.Value = Entity.Null;
 
-                var targetPos = Positions[target.Value];
+                var targetPos = Positions[target.Value].Position;
 
                 // If target is outside fighter range, disengage.
-                if (math.lengthsq(targetPos.Value - position.Value) > weapon.Range * weapon.Range)
+                if (math.lengthsq(targetPos - localToWorld.Position) > weapon.Range * weapon.Range)
                     target.Value = Entity.Null;
 
                 // set Turret destination to be target
-                turnTo.Destination = targetPos.Value;
+                turnTo.Destination = targetPos;
             }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var pos = GetComponentDataFromEntity<Translation>(true);
+            var pos = GetComponentDataFromEntity<LocalToWorld>(true);
             var job = new IdleJob() { Positions = pos };
             var jobHandle = job.Schedule(this, inputDependencies);
             return jobHandle;

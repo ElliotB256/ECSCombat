@@ -1,7 +1,7 @@
 ﻿using System;
 using Unity.Entities;
 
-namespace Battle.Combat
+namespace Battle.Combat.AttackSources
 {
     /// <summary>
     /// A weapon that can attack an entity.
@@ -24,5 +24,10 @@ namespace Battle.Combat
         /// Whether this weapon is armed. If true, the weapon will attack as soon as possible.
         /// </summary>
         public bool Armed;
+
+        /// <summary>
+        /// Attack template spawned by this weapon.
+        /// </summary>
+        public Entity AttackTemplate;
     }
 }

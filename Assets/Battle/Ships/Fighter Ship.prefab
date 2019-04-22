@@ -4769,8 +4769,6 @@ GameObject:
   - component: {fileID: 8676365148435850565}
   - component: {fileID: 263554561247348043}
   - component: {fileID: 8413645014947120081}
-  - component: {fileID: 4235276582872064405}
-  - component: {fileID: 1671009774891382103}
   - component: {fileID: 7788511765830307194}
   - component: {fileID: 77670067571427503}
   - component: {fileID: 7174596930336603145}
@@ -4780,6 +4778,7 @@ GameObject:
   - component: {fileID: 1758710379918494469}
   - component: {fileID: 8497919675810535832}
   - component: {fileID: 4068023571032933344}
+  - component: {fileID: 3127939938808698773}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -4923,34 +4922,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8cb7d27e8b980294ca460035d510eb4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4235276582872064405
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676365148435850568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf4e5ed81c6d9b249abb1114f8059187, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Range: 6
-  Armed: 1
-  AttackCone: 30
---- !u!114 &1671009774891382103
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676365148435850568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Damage: 3
 --- !u!114 &7788511765830307194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5071,3 +5042,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PreferredTargets: 1
   DiscouragedTargets: 4
+--- !u!114 &3127939938808698773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676365148435850568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d982bfef2735b704c973512a7bcbdfd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Ammo: {fileID: 7198412652241774557, guid: 8bd57cce45ef172428516210e8162a78, type: 3}
+  Range: 10
+  Armed: 1
+  AttackCone: 45
