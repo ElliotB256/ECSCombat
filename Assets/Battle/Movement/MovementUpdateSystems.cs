@@ -7,7 +7,7 @@ namespace Battle.Movement
     /// A group for systems that update the position of entities.
     /// </summary>
     [UpdateAfter(typeof(PostAttackEntityBuffer))]
-    public class MovementUpdateSystems : ComponentSystemGroup
+    public class MovementUpdateSystemsGroup : ComponentSystemGroup
     {
     }
 }
