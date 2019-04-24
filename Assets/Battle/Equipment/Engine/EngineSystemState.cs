@@ -9,5 +9,6 @@ namespace Battle.Equipment
     [Serializable]
     public struct EngineSystemState : ISystemStateComponentData
     {
+        public float Thrust;
     }
 }

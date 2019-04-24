@@ -13,10 +13,5 @@ namespace Battle.Equipment
         /// Amount of thrust produced by this engine
         /// </summary>
         public float Thrust;
-
-        /// <summary>
-        /// Amount of turning thrust produced by this engine.
-        /// </summary>
-        public float TurnThrust;
     }
 }

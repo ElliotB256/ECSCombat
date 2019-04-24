@@ -12,23 +12,53 @@ namespace Battle.Equipment
     /// <summary>
     /// Modifies a Parent's maximum speed as Engines are added/removed.
     /// </summary>
+    [AlwaysUpdateSystem]
     public class EngineSystem : JobComponentSystem
     {
         protected EntityQuery m_engineParents;
         protected EntityQuery m_enginesToBeEnabled;
         protected EntityQuery m_enginesToBeDisabled;
         private EquipmentBufferSystem m_equipmentBuffer;
+        bool hasRunBefore = false;
+        private NativeMultiHashMap<Entity, Engine> AddedHashMap;
+        private NativeMultiHashMap<Entity, Engine> RemovedHashMap;
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            //EquipmentBufferSystem
-            var AddJH = new UpdateParentSpeedJob {
-                AddingComponent = true,
+            var removedCount = m_enginesToBeDisabled.CalculateLength();
+            var addedCount = m_enginesToBeEnabled.CalculateLength();
+            if (hasRunBefore)
+            {
+                RemovedHashMap.Dispose();
+                AddedHashMap.Dispose();
+            }
+
+            AddedHashMap = new NativeMultiHashMap<Entity, Engine>(addedCount, Allocator.TempJob);
+            RemovedHashMap = new NativeMultiHashMap<Entity, Engine>(removedCount, Allocator.TempJob);
+            hasRunBefore = true;
+
+            var sortAddedJH = new AddSystemStateJob
+            {
+                EquipmentMap = AddedHashMap.ToConcurrent(),
                 EntityBuffer = m_equipmentBuffer.CreateCommandBuffer().ToConcurrent(),
-                MaxSpeed = GetComponentDataFromEntity<MaxSpeed>()
             }.Schedule(m_enginesToBeEnabled, inputDependencies);
-            m_equipmentBuffer.AddJobHandleForProducer(AddJH);
-            return AddJH;
+            var sortRemovedJH = new RemoveSystemStateJob
+            {
+                EquipmentMap = RemovedHashMap.ToConcurrent(),
+                EntityBuffer = m_equipmentBuffer.CreateCommandBuffer().ToConcurrent(),
+            }.Schedule(m_enginesToBeDisabled, inputDependencies);
+            m_equipmentBuffer.AddJobHandleForProducer(sortAddedJH);
+            m_equipmentBuffer.AddJobHandleForProducer(sortRemovedJH);
+            var combinedJH = JobHandle.CombineDependencies(sortAddedJH, sortRemovedJH);
+
+            var updateJH = new UpdateMaxSpeeds
+            {
+                AddedEquipmentMap = AddedHashMap,
+                RemovedEquipmentMap = RemovedHashMap,
+                MaxSpeed = GetComponentDataFromEntity<Speed>()
+            }.Schedule(combinedJH);
+            
+            return updateJH;
         }
 
         protected override void OnCreate()
@@ -46,56 +76,33 @@ namespace Battle.Equipment
                 None = new[] { ComponentType.ReadWrite<Engine>() }
             });
 
-            //m_engineParents = GetEntityQuery(new EntityQueryDesc
-            //{
-            //    All = new[] { ComponentType.ReadWrite<MaxSpeed>(), ComponentType.ReadWrite<MaxTurnSpeed>() }
-            //});
-
             m_equipmentBuffer = World.GetOrCreateSystem<EquipmentBufferSystem>();
+        }
+
+        protected override void OnStopRunning()
+        {
+            if (!hasRunBefore)
+            {
+                RemovedHashMap.Dispose();
+                AddedHashMap.Dispose();
+            }
         }
 
         // We want to get a list of entities to change and the amounts to change by.
         //
         // 1. Create NativeMultiHashMap<Entity,Data> of all delta equipment entities.
-        // 2. Create NativeArray<Data>, aligned with HashMap<,> Entity Keys, which aggregates the deltas for each entity
+        // 2. Copy NativeArray<Data> for the parents
+        // 3. Update NativeArray<Data> for the parents using the HashMap -> Copying wasteful?
+        // 4. Set parent Data using IJobForEachWithEntity
 
-        ///// <summary>
-        ///// Adds or removes system state components.
-        ///// </summary>
+        /// <summary>
+        /// Adds or removes system state components.
+        /// </summary>
         //[BurstCompile]
-        //struct AddRemoveSystemStateJob : IJobForEachWithEntity<Engine, Parent>
-        //{
-        //    public EntityCommandBuffer.Concurrent EntityBuffer;
-
-        //    /// <summary>
-        //    /// True if system state component should be added
-        //    /// </summary>
-        //    public bool AddSystemStateComponent;
-
-        //    public void Execute(
-        //        Entity e,
-        //        int index,
-        //        [ReadOnly] ref Engine engine,
-        //        [ReadOnly] ref Parent parent
-        //        )
-        //    {
-        //        if (AddSystemStateComponent)
-        //            EntityBuffer.AddComponent(index, e, new EngineSystemState { });
-        //        else
-        //            EntityBuffer.RemoveComponent<EngineSystemState>(index, e);
-        //    }
-        //}
-
-        [BurstCompile]
-        struct UpdateParentSpeedJob : IJobForEachWithEntity<Engine, Parent>
+        struct AddSystemStateJob : IJobForEachWithEntity<Engine, Parent>
         {
-            public ComponentDataFromEntity<MaxSpeed> MaxSpeed;
             public EntityCommandBuffer.Concurrent EntityBuffer;
-
-            /// <summary>
-            /// True if components are being added.
-            /// </summary>
-            public bool AddingComponent;
+            public NativeMultiHashMap<Entity, Engine>.Concurrent EquipmentMap;
 
             public void Execute(
                 Entity e,
@@ -104,24 +111,76 @@ namespace Battle.Equipment
                 [ReadOnly] ref Parent parent
                 )
             {
-                float Value = 0f;
-                if (AddingComponent)
-                {
-                    Value = engine.Thrust;
-                    EntityBuffer.AddComponent(index, e, new EngineSystemState { });
-                }
-                else
-                {
-                    Value = -engine.Thrust;
-                    EntityBuffer.RemoveComponent<EngineSystemState>(index, e);
-                }
+                EquipmentMap.Add(parent.Value, engine);
+                EntityBuffer.AddComponent(index, e, new EngineSystemState { Thrust = engine.Thrust });
+            }
+        }
 
-                if (MaxSpeed.Exists(parent.Value))
+        /// <summary>
+        /// Adds or removes system state components.
+        /// </summary>
+        //[BurstCompile]
+        struct RemoveSystemStateJob : IJobForEachWithEntity<EngineSystemState, Parent>
+        {
+            public EntityCommandBuffer.Concurrent EntityBuffer;
+            public NativeMultiHashMap<Entity, Engine>.Concurrent EquipmentMap;
+
+            public void Execute(
+                Entity e,
+                int index,
+                [ReadOnly] ref EngineSystemState engine,
+                [ReadOnly] ref Parent parent
+                )
+            {
+                EquipmentMap.Add(parent.Value, new Engine { Thrust = engine.Thrust });
+                EntityBuffer.RemoveComponent<EngineSystemState>(index, e);
+            }
+        }
+
+        //[BurstCompile]
+        struct UpdateMaxSpeeds : IJob
+        {
+            public ComponentDataFromEntity<Speed> MaxSpeed;
+            [ReadOnly] public NativeMultiHashMap<Entity, Engine> AddedEquipmentMap;
+            [ReadOnly] public NativeMultiHashMap<Entity, Engine> RemovedEquipmentMap;
+
+            public void Execute()
+            {
+                var addedToEntities = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
+                for (int i=0; i<addedToEntities.Length; i++)
                 {
-                    MaxSpeed current = MaxSpeed[parent.Value];
-                    current.Value += Value;
-                    MaxSpeed[parent.Value] = current;
+                    var parent = addedToEntities[i];
+                    if (!MaxSpeed.Exists(parent))
+                        continue;
+
+                    Speed current = MaxSpeed[parent];
+                    AddedEquipmentMap.TryGetFirstValue(parent, out Engine engine, out var iterator);
+                    do
+                    {
+                        current.Value += engine.Thrust;
+                    } while (AddedEquipmentMap.TryGetNextValue(out engine, ref iterator));
+
+                    MaxSpeed[parent] = current;
                 }
+                addedToEntities.Dispose();
+
+                var removedFromEntities = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
+                for (int i = 0; i < removedFromEntities.Length; i++)
+                {
+                    var parent = addedToEntities[i];
+                    if (!MaxSpeed.Exists(parent))
+                        continue;
+
+                    Speed current = MaxSpeed[parent];
+                    RemovedEquipmentMap.TryGetFirstValue(parent, out Engine engine, out var iterator);
+                    do
+                    {
+                        current.Value -= engine.Thrust;
+                    } while (RemovedEquipmentMap.TryGetNextValue(out engine, ref iterator));
+
+                    MaxSpeed[parent] = current;
+                }
+                removedFromEntities.Dispose();
             }
         }
     }

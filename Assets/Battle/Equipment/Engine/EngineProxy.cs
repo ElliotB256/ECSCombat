@@ -7,11 +7,10 @@ namespace Battle.Equipment
     public class EngineProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Thrust;
-        public float TurnThrust;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            var data = new Engine { Thrust = Thrust, TurnThrust = TurnThrust };
+            var data = new Engine { Thrust = Thrust };
             dstManager.AddComponentData(entity, data);
         }
     }
