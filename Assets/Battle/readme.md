@@ -33,7 +33,7 @@ Executes changes from the EarlyEquipmentUpdateGroup.
 
 | System                 | Description                                              |
 |------------------------|----------------------------------------------------------|
-| EngineSystem           | Adds thrust from attached engines to parent thrust       | 
+| EngineSystem           | Adds/removes thrust from attached engines to parent      | 
 
 ### EnableDisableSystem
 

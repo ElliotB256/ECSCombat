@@ -9,9 +9,10 @@ namespace Battle.Combat
     /// Destroys any entity with health for which Health < 0
     /// </summary>
     [UpdateInGroup(typeof(AttackResultSystemsGroup)), UpdateAfter(typeof(DealAttackDamageSystem))]
-    public class KillEntitiesWithNoHealthSystem : JobComponentSystem
+    public class KillMortalEntitiesWithNoHealthSystem : JobComponentSystem
     {
         [BurstCompile]
+        [RequireComponentTag(typeof(Mortal))]
         struct KillEntitiesWithNoHealthJob : IJobForEachWithEntity<Health>
         {
             public EntityCommandBuffer.Concurrent buffer;
