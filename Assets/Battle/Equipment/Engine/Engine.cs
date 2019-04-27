@@ -7,7 +7,7 @@ namespace Battle.Equipment
     /// Marks an entity as engine equipment.
     /// </summary>
     [Serializable]
-    public struct Engine : IComponentData, IAggregateEquipment
+    public struct Engine : IComponentData
     {
         /// <summary>
         /// Amount of thrust produced by this engine

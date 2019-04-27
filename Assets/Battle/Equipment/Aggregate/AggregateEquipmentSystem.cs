@@ -11,7 +11,7 @@ namespace Battle.Equipment
     /// </summary>
     [AlwaysUpdateSystem]
     public abstract class AggregateEquipmentSystem<TEquipment> : JobComponentSystem
-        where TEquipment : struct, IComponentData, IAggregateEquipment
+        where TEquipment : struct, IComponentData
     {
         /// <summary>
         /// Query that selects entities/components to be enabled.
