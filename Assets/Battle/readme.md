@@ -19,19 +19,27 @@ Here's how the game loop is currently laid out.
 
 The equipment systems are laid out as follows:
 
-1. The EarlyEquipmentUpdateGroup updates.
+### The EarlyEquipmentUpdateGroup updates.
 
 | System                 | Description                                              |
 |------------------------|----------------------------------------------------------|
-| DisableBrokenEquipment | Adds Disabling to Equipment with health <= 0             |
+| DisableBrokenEquipment | Adds Disabling to enabled Equipment with health <= 0     |
 
+### EarlyEquipmentBufferSystem
 
-1. The EquipmentUpdateGroup updates.
+Executes changes from the EarlyEquipmentUpdateGroup.
+
+### The EquipmentUpdateGroup updates.
 
 | System                 | Description                                              |
 |------------------------|----------------------------------------------------------|
 | EngineSystem           | Adds thrust from attached engines to parent thrust       | 
 
-2. The EnableDisableSystem changes components Enabling->Enabled and Disabling->Disabled.
-3. The EquipmentBufferSystem executes the results of the equipment systems and the EnableDisableSystem.
+### EnableDisableSystem
+
+Changes components Enabling->Enabled and Disabling->Disabled.
+
+### EquipmentBufferSystem
+
+Executes the results of the equipment systems and the EnableDisableSystem.
 
