@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Battle.Movement;
+using Unity.Entities;
 using UnityEngine;
 
 namespace Battle.Equipment
@@ -8,6 +9,7 @@ namespace Battle.Equipment
     /// </summary>
     [ExecuteAlways]
     [UpdateAfter(typeof(EquipmentUpdateGroup))]
+    [UpdateBefore(typeof(MovementUpdateSystemsGroup))]
     public class EquipmentBufferSystem : EntityCommandBufferSystem
     {
     }
