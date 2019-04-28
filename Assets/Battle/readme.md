@@ -39,6 +39,7 @@ Executes changes from the EarlyEquipmentUpdateGroup.
 ### EnableDisableSystem
 
 Changes components Enabling->Enabled and Disabling->Disabled.
+Deletes the components Disabling and Enabling.
 
 ### EquipmentBufferSystem
 

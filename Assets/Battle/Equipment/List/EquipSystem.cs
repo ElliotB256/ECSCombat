@@ -96,6 +96,7 @@ namespace Battle.Equipment
                 )
             {
                 EquipmentMap.Add(parent.Value, e);
+                Buffer.AddComponent(index, e, new Equipping());
                 Buffer.AddComponent(index, e, new Equipped());
             }
         }
