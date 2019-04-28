@@ -10,9 +10,23 @@ namespace Battle.Equipment
     /// Modifies attributes of a parent component as equipment is enabled/disabled
     /// </summary>
     [AlwaysUpdateSystem]
-    public abstract class AggregateEquipmentSystem<TEquipment> : JobComponentSystem
+    public abstract class AggregateEquipmentSystem<TParent,TEquipment,TAggregator> : JobComponentSystem
         where TEquipment : struct, IComponentData
+        where TParent    : struct, IComponentData
+        where TAggregator : struct, IAggregator<TParent, TEquipment>
     {
+        protected enum AggregationScenario
+        {
+            OnEquipAndDequip,
+            OnEnableAndDisable,
+        }
+
+        /// <summary>
+        /// Scenario system uses for adding/removing components.
+        /// </summary>
+        /// <returns></returns>
+        protected abstract AggregationScenario Scenario { get; }
+
         /// <summary>
         /// Query that selects entities/components to be enabled.
         /// </summary>
@@ -45,14 +59,30 @@ namespace Battle.Equipment
 
         protected override void OnCreate()
         {
+            ComponentType AddCT;
+            ComponentType RemoveCT;
+            switch (Scenario)
+            {
+                case AggregationScenario.OnEnableAndDisable:
+                    AddCT = ComponentType.ReadOnly<Enabling>();
+                    RemoveCT = ComponentType.ReadOnly<Disabling>();
+                    break;
+                case AggregationScenario.OnEquipAndDequip:
+                    AddCT = ComponentType.ReadOnly<Equipping>();
+                    RemoveCT = ComponentType.ReadOnly<Dequipping>();
+                    break;
+                default:
+                    throw new System.Exception("Unhandled AggregationBehaviour");
+            }
+
             ComponentsToBeEnabled = GetEntityQuery(new EntityQueryDesc
             {
-                All = new[] { ComponentType.ReadOnly<TEquipment>(), ComponentType.ReadOnly<Parent>(), ComponentType.ReadOnly<Enabling>() },
+                All = new[] { ComponentType.ReadOnly<TEquipment>(), ComponentType.ReadOnly<Parent>(), AddCT },
             });
 
             ComponentsToBeDisabled = GetEntityQuery(new EntityQueryDesc
             {
-                All = new[] { ComponentType.ReadOnly<TEquipment>(), ComponentType.ReadOnly<Parent>(), ComponentType.ReadOnly<Disabling>() },
+                All = new[] { ComponentType.ReadOnly<TEquipment>(), ComponentType.ReadOnly<Parent>(), RemoveCT },
             });
 
             EquipmentBuffer = World.GetOrCreateSystem<EquipmentBufferSystem>();
@@ -82,7 +112,13 @@ namespace Battle.Equipment
             }.Schedule(ComponentsToBeDisabled, inputDependencies);
             var combinedJH = JobHandle.CombineDependencies(sortAddedJH, sortRemovedJH);
 
-            var updateJH = CreateProcessJobHandle(combinedJH);
+            var updateJH = new AggregateJob()
+            {
+                Aggregator = GetAggregator(),
+                AddedEquipmentMap = AddedEquipment,
+                RemovedEquipmentMap = RemovedEquipment,
+                ParentComponents = GetComponentDataFromEntity<TParent>(false)
+            }.Schedule(combinedJH);
             
             return updateJH;
         }
@@ -115,6 +151,54 @@ namespace Battle.Equipment
             }
         }
 
-        protected abstract JobHandle CreateProcessJobHandle(JobHandle inputDependencies);
+        public virtual TAggregator GetAggregator()
+        {
+            return new TAggregator();
+        }
+
+        //[BurstCompile]
+        struct AggregateJob : IJob
+        {
+            public TAggregator Aggregator;
+            public ComponentDataFromEntity<TParent> ParentComponents;
+            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> AddedEquipmentMap;
+            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> RemovedEquipmentMap;
+
+            public void Execute()
+            {
+                var parents = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
+                var addedEquipments = AddedEquipmentMap.GetValueArray(Allocator.Temp);
+                for (int i = 0; i < parents.Length; i++)
+                {
+                    var parent = parents[i];
+                    if (!ParentComponents.Exists(parent))
+                        continue;
+                    ParentComponents[parent] = Aggregator.Combine(ParentComponents[parent], addedEquipments[i]);
+                }
+                addedEquipments.Dispose();
+                parents.Dispose();
+
+                parents = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
+                var removedEquipments = RemovedEquipmentMap.GetValueArray(Allocator.Temp);
+                for (int i = 0; i < parents.Length; i++)
+                {
+                    var parent = parents[i];
+                    if (!ParentComponents.Exists(parent))
+                        continue;
+                    ParentComponents[parent] = Aggregator.Remove(ParentComponents[parent], removedEquipments[i]);
+                }
+                removedEquipments.Dispose();
+                parents.Dispose();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Modifies one component type with another.
+    /// </summary>
+    public interface IAggregator<TParent,TComp>
+    {
+        TParent Combine(TParent original, TComp component);
+        TParent Remove(TParent original, TComp component);
     }
 }

@@ -14,65 +14,23 @@ namespace Battle.Equipment
     /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EquipmentUpdateGroup))]
-    public class EngineSystem : AggregateEquipmentSystem<Engine>
+    public class EngineSystem : AggregateEquipmentSystem<Speed, Engine, EngineAggregator>
     {
-        protected override JobHandle CreateProcessJobHandle(JobHandle inputDependencies)
+        protected override AggregationScenario Scenario => AggregationScenario.OnEnableAndDisable;
+    }
+
+    public struct EngineAggregator : IAggregator<Speed, Engine>
+    {
+        public Speed Combine(Speed original, Engine component)
         {
-            var job = new UpdateMaxSpeeds()
-            {
-                AddedEquipmentMap = AddedEquipment,
-                RemovedEquipmentMap = RemovedEquipment,
-                MaxSpeed = GetComponentDataFromEntity<Speed>()
-            };
-            var jobHandle = job.Schedule(inputDependencies);
-            return jobHandle;
+            original.Value += component.Thrust;
+            return original;
         }
 
-        //[BurstCompile]
-        struct UpdateMaxSpeeds : IJob
+        public Speed Remove(Speed original, Engine component)
         {
-            public ComponentDataFromEntity<Speed> MaxSpeed;
-            [ReadOnly] public NativeMultiHashMap<Entity, Engine> AddedEquipmentMap;
-            [ReadOnly] public NativeMultiHashMap<Entity, Engine> RemovedEquipmentMap;
-
-            public void Execute()
-            {
-                var addedToEntities = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
-                for (int i=0; i<addedToEntities.Length; i++)
-                {
-                    var parent = addedToEntities[i];
-                    if (!MaxSpeed.Exists(parent))
-                        continue;
-
-                    Speed current = MaxSpeed[parent];
-                    AddedEquipmentMap.TryGetFirstValue(parent, out Engine engine, out var iterator);
-                    do
-                    {
-                        current.Value += engine.Thrust;
-                    } while (AddedEquipmentMap.TryGetNextValue(out engine, ref iterator));
-
-                    MaxSpeed[parent] = current;
-                }
-                addedToEntities.Dispose();
-
-                var removedFromEntities = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
-                for (int i = 0; i < removedFromEntities.Length; i++)
-                {
-                    var parent = addedToEntities[i];
-                    if (!MaxSpeed.Exists(parent))
-                        continue;
-
-                    Speed current = MaxSpeed[parent];
-                    RemovedEquipmentMap.TryGetFirstValue(parent, out Engine engine, out var iterator);
-                    do
-                    {
-                        current.Value -= engine.Thrust;
-                    } while (RemovedEquipmentMap.TryGetNextValue(out engine, ref iterator));
-
-                    MaxSpeed[parent] = current;
-                }
-                removedFromEntities.Dispose();
-            }
+            original.Value -= component.Thrust;
+            return original;
         }
     }
 }
