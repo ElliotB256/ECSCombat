@@ -24,6 +24,7 @@ The equipment systems are laid out as follows:
 | System                 | Description                                              |
 |------------------------|----------------------------------------------------------|
 | DisableBrokenEquipment | Adds Disabling to enabled Equipment with health <= 0     |
+| EquipSystem            | Adds equipment to parent's EquipmentList, adds Equipped  |
 
 ### EarlyEquipmentBufferSystem
 

@@ -89,7 +89,7 @@ namespace Battle.Equipment
 
         protected override void OnStopRunning()
         {
-            if (!hasRunBefore)
+            if (hasRunBefore)
             {
                 RemovedEquipment.Dispose();
                 AddedEquipment.Dispose();
