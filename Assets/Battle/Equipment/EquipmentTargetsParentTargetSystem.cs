@@ -1,9 +1,4 @@
 ﻿using Battle.Combat;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -61,7 +56,7 @@ namespace Battle.Equipment
                 [ReadOnly] ref Target target
                 )
             {
-                if (Targets.Exists(parent.Value))
+                if (!Targets.Exists(parent.Value))
                     ParentTargets[index] = Entity.Null;
                 else
                     ParentTargets[index] = Targets[parent.Value].Value;

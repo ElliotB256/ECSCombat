@@ -1,5 +1,6 @@
 ﻿using Battle.Combat.AttackSources;
 using Battle.Combat.Calculations;
+using Battle.Equipment;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -94,6 +95,7 @@ namespace Battle.Combat.AttackSources
                     ComponentType.ReadOnly<Target>(),
                     ComponentType.ReadOnly<DirectWeapon>(),
                     ComponentType.ReadWrite<Cooldown>(),
+                    ComponentType.ReadOnly<Enabled>(),
                 }
             });
         }

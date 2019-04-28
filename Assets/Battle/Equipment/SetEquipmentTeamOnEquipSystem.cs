@@ -69,7 +69,7 @@ namespace Battle.Equipment
                 [ReadOnly] ref Team target
                 )
             {
-                if (Teams.Exists(parent.Value))
+                if (!Teams.Exists(parent.Value))
                 {
                     Debug.LogWarning("Could not find parent team for attached equipment.");
                     ParentTeams[index] = new Team { ID = 255 };
