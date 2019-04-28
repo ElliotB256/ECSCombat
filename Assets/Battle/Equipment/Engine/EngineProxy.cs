@@ -9,10 +9,13 @@ namespace Battle.Equipment
     {
         public float Thrust;
 
+        [Tooltip("Turning rate, in degrees")]
+        public float TurningRate;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            var data = new Engine { Thrust = Thrust };
-            dstManager.AddComponentData(entity, data);
+            dstManager.AddComponentData(entity, new Engine { Thrust = Thrust });
+            dstManager.AddComponentData(entity, new TurningEngine { TurnSpeedRadians = Mathf.Deg2Rad * TurningRate });
         }
     }
 }

@@ -9,7 +9,6 @@ namespace Battle.Equipment
     /// <summary>
     /// Modifies attributes of a parent component as equipment is enabled/disabled
     /// </summary>
-    [AlwaysUpdateSystem]
     public abstract class AggregateEquipmentSystem<TParent,TEquipment,TAggregator> : JobComponentSystem
         where TEquipment : struct, IComponentData
         where TParent    : struct, IComponentData

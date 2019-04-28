@@ -47,6 +47,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Thrust: 3
+  TurningRate: 40
 --- !u!114 &5476970657273150516
 MonoBehaviour:
   m_ObjectHideFlags: 0
