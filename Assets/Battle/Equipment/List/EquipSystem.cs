@@ -52,7 +52,7 @@ namespace Battle.Equipment
         {
             if (hasRunBefore)
                 EquipmentMap.Dispose();
-            EquipmentMap = new NativeMultiHashMap<Entity, Entity>(EntitiesToEquip.CalculateLength(), Allocator.TempJob);
+            EquipmentMap = new NativeMultiHashMap<Entity, Entity>(EntitiesToEquip.CalculateEntityCount(), Allocator.TempJob);
 
             // Start by sorting newly added equipment by parent entity.
             var mapJH = new MapEquipmentToParent

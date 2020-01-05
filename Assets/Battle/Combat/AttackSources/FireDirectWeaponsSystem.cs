@@ -104,7 +104,7 @@ namespace Battle.Combat.AttackSources
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            m_targetPositions = new NativeArray<float3>(m_query.CalculateLength(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            m_targetPositions = new NativeArray<float3>(m_query.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var getTargetPositionsJH = new GetTargetPositions
             {
                 targetPositions = m_targetPositions,

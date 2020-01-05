@@ -75,7 +75,7 @@ namespace Battle.Combat.Calculations
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            m_targetPositions = new NativeArray<float3>(m_attackQuery.CalculateLength(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            m_targetPositions = new NativeArray<float3>(m_attackQuery.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
 
             var getTargetPositionsJH = new GetTargetPositions()
             {

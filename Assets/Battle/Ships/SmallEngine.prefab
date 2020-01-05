@@ -47,8 +47,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8469fcee80fc34c44bbf829ca9a4354d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Thrust: 3
-  TurningRate: 40
+  Thrust: 4
+  TurningRate: 60
 --- !u!114 &5476970657273150516
 MonoBehaviour:
   m_ObjectHideFlags: 0

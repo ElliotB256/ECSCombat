@@ -27,7 +27,7 @@ namespace Battle.Equipment
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var targetArray = new NativeArray<Team>(Query.CalculateLength(), Allocator.TempJob);
+            var targetArray = new NativeArray<Team>(Query.CalculateEntityCount(), Allocator.TempJob);
             var getTeamsJH = new GetParentTeams
             {
                 ParentTeams = targetArray,

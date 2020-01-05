@@ -58,7 +58,7 @@ namespace Battle.Effects
             if (hasRunBefore)
                 m_renderer.Beams.Dispose();
 
-            m_renderer.Beams = new NativeArray<LaserBeamEffect>(m_query.CalculateLength(), Allocator.TempJob);
+            m_renderer.Beams = new NativeArray<LaserBeamEffect>(m_query.CalculateEntityCount(), Allocator.TempJob);
             hasRunBefore = true;
             var jobHandle = new ListLasersJob() { lasers = m_renderer.Beams }.Schedule(m_query, inputDeps);
             m_renderer.LaserSystemJob = jobHandle;

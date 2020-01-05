@@ -88,7 +88,7 @@ namespace Battle.Combat
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             TryDisposeNatives();
-            m_damageTable = new NativeMultiHashMap<Entity, float>(m_attackQuery.CalculateLength(), Allocator.TempJob);
+            m_damageTable = new NativeMultiHashMap<Entity, float>(m_attackQuery.CalculateEntityCount(), Allocator.TempJob);
 
             var sortJob = new SortAttackDamageJob() { damageTable = m_damageTable.ToConcurrent() };
             var sortJobH = sortJob.Schedule(m_attackQuery, inputDependencies);

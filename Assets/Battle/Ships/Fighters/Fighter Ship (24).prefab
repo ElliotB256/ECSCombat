@@ -123,7 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88334a20ba4517948899013445d5c7a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 8
+  MaxSpeed: 2
 --- !u!114 &1208510331489906787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5686c4281965f14449c655981ab8c2bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxRadiansPerSecond: 6
+  MaxRadiansPerSecond: 2
 --- !u!114 &7711724858087067754
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -23,7 +23,7 @@ namespace Battle.Equipment
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            var targetArray = new NativeArray<Entity>(Query.CalculateLength(), Allocator.TempJob);
+            var targetArray = new NativeArray<Entity>(Query.CalculateEntityCount(), Allocator.TempJob);
             var getTargetsJH = new GetParentTargets {
                 ParentTargets = targetArray,
                 Targets = GetComponentDataFromEntity<Target>(true)

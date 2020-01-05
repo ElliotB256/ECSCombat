@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace Battle.Combat
 {
@@ -32,7 +31,8 @@ namespace Battle.Combat
             Attacks = AttackQuery.ToEntityArray(Allocator.TempJob);
             return new UpdateJob()
             {
-                Attacks = Attacks,
+                Random = new Random((uint)UnityEngine.Random.Range(1, 10000)),
+            Attacks = Attacks,
                 AttackTargets = GetComponentDataFromEntity<Target>(true),
                 AttackDamages = GetComponentDataFromEntity<Damage>(true),
                 EquipmentLists = GetBufferFromEntity<EquipmentList>(true),
@@ -43,6 +43,7 @@ namespace Battle.Combat
 
         protected struct UpdateJob : IJob
         {
+            public Random Random;
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> Attacks;
             [ReadOnly] public ComponentDataFromEntity<Target> AttackTargets;
             [ReadOnly] public ComponentDataFromEntity<Damage> AttackDamages;
@@ -72,8 +73,8 @@ namespace Battle.Combat
                             baseChance = math.pow(CombatSize[equipment].Value, 2f) / math.pow(CombatSize[target.Value].Value, 1f);
                         }
 
-                        //if (UnityEngine.Random.value > baseChance)
-                        //   continue;
+                        if (Random.NextFloat(0f,1f) > baseChance)
+                           continue;
 
                         var health = EquipmentHealths[equipment];
                         health.Value -= AttackDamages[attack].Value;

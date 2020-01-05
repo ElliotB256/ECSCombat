@@ -38,8 +38,8 @@ namespace Battle.AI
 
             m_targetQuery.AddDependency(inputDependencies);
             m_pickerQuery.AddDependency(inputDependencies);
-            int targetNum = m_targetQuery.CalculateLength();
-            int pickerNum = m_pickerQuery.CalculateLength();
+            int targetNum = m_targetQuery.CalculateEntityCount();
+            int pickerNum = m_pickerQuery.CalculateEntityCount();
             m_targetBins = new NativeMultiHashMap<int, int>(targetNum, Allocator.TempJob);
 
             m_targetTypes = new NativeArray<AgentCategory.eType>(targetNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);

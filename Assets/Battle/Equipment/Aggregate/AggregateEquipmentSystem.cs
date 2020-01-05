@@ -89,8 +89,8 @@ namespace Battle.Equipment
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var removedCount = ComponentsToBeDisabled.CalculateLength();
-            var addedCount = ComponentsToBeEnabled.CalculateLength();
+            var removedCount = ComponentsToBeDisabled.CalculateEntityCount();
+            var addedCount = ComponentsToBeEnabled.CalculateEntityCount();
             if (hasRunBefore)
             {
                 RemovedEquipment.Dispose();
