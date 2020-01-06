@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 5825789290031142593}
   - component: {fileID: 7542924215028325246}
   - component: {fileID: 7542924215028325196}
+  - component: {fileID: 6375422252147950401}
   m_Layer: 0
   m_Name: Fighter Ship (24)
   m_TagString: Untagged
@@ -80,6 +81,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -91,6 +93,7 @@ MeshRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -307,6 +310,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Value: 1
+--- !u!114 &6375422252147950401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208510331489906793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db22cecd53919546b1d677ebeb315c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BaseEvasionRating: 3
 --- !u!1 &5895549097753276612
 GameObject:
   m_ObjectHideFlags: 0
@@ -5000,7 +5016,7 @@ ParticleSystem:
 --- !u!199 &4630900306513510333
 ParticleSystemRenderer:
   serializedVersion: 6
-  m_ObjectHideFlags: 2
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -5012,6 +5028,7 @@ ParticleSystemRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -5024,6 +5041,7 @@ ParticleSystemRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -5066,11 +5084,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1208510331489906789}
     m_Modifications:
-    - target: {fileID: 4392682235109084773, guid: b54edbf35647e0e4d8c8c9d441939c37,
-        type: 3}
-      propertyPath: m_Name
-      value: LaserBlaster_Simple (1)
-      objectReference: {fileID: 0}
     - target: {fileID: 436057183654363444, guid: b54edbf35647e0e4d8c8c9d441939c37,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5126,6 +5139,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4392682235109084773, guid: b54edbf35647e0e4d8c8c9d441939c37,
+        type: 3}
+      propertyPath: m_Name
+      value: LaserBlaster_Simple (1)
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b54edbf35647e0e4d8c8c9d441939c37, type: 3}
 --- !u!4 &7971642020556351522 stripped
@@ -5141,11 +5159,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1208510331489906789}
     m_Modifications:
-    - target: {fileID: 5476970657273150513, guid: 6247ce4a960853743b41b4fb5a563922,
-        type: 3}
-      propertyPath: m_Name
-      value: SmallEngine (1)
-      objectReference: {fileID: 0}
     - target: {fileID: 5476970657273150514, guid: 6247ce4a960853743b41b4fb5a563922,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5201,6 +5214,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5476970657273150513, guid: 6247ce4a960853743b41b4fb5a563922,
+        type: 3}
+      propertyPath: m_Name
+      value: SmallEngine (1)
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6247ce4a960853743b41b4fb5a563922, type: 3}
 --- !u!4 &2643545185908085304 stripped
@@ -5216,11 +5234,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1208510331489906789}
     m_Modifications:
-    - target: {fileID: 5476970657273150513, guid: 6247ce4a960853743b41b4fb5a563922,
-        type: 3}
-      propertyPath: m_Name
-      value: SmallEngine
-      objectReference: {fileID: 0}
     - target: {fileID: 5476970657273150514, guid: 6247ce4a960853743b41b4fb5a563922,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5276,6 +5289,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5476970657273150513, guid: 6247ce4a960853743b41b4fb5a563922,
+        type: 3}
+      propertyPath: m_Name
+      value: SmallEngine
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6247ce4a960853743b41b4fb5a563922, type: 3}
 --- !u!4 &2643545186237324435 stripped
@@ -5291,11 +5309,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1208510331489906789}
     m_Modifications:
-    - target: {fileID: 4392682235109084773, guid: b54edbf35647e0e4d8c8c9d441939c37,
-        type: 3}
-      propertyPath: m_Name
-      value: LaserBlaster_Simple
-      objectReference: {fileID: 0}
     - target: {fileID: 436057183654363444, guid: b54edbf35647e0e4d8c8c9d441939c37,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5350,6 +5363,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4392682235109084773, guid: b54edbf35647e0e4d8c8c9d441939c37,
+        type: 3}
+      propertyPath: m_Name
+      value: LaserBlaster_Simple
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b54edbf35647e0e4d8c8c9d441939c37, type: 3}

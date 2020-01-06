@@ -24,6 +24,7 @@ namespace Battle.Effects
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
+            public Unity.Mathematics.Random random;
 
             public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target)
             {
@@ -34,6 +35,13 @@ namespace Battle.Effects
                     lifetime = 0.2f,
                     width = 0.3f
                 };
+
+                // if attack missed, move the end position randomly.
+                if (attack.Result == Attack.eResult.Miss)
+                {
+                    var delta = new Unity.Mathematics.float3(random.NextFloat() - 0.5f, 0f, random.NextFloat() - 0.5f);
+                    laserEffect.end = laserEffect.end + 6f * delta;
+                }
 
                 Entity effect = buffer.CreateEntity(index);
                 buffer.AddComponent(index, effect, laserEffect);
@@ -56,8 +64,8 @@ namespace Battle.Effects
             {
                 if (worldTransforms.Exists(attacker.Value))
                     beamEffect.start = worldTransforms[attacker.Value].Position;
-                if (worldTransforms.Exists(target.Value))
-                    beamEffect.end = worldTransforms[target.Value].Position;
+                //if (worldTransforms.Exists(target.Value))
+                //    beamEffect.end = worldTransforms[target.Value].Position;
 
                 beamEffect.lifetime -= deltaTime;
                 if (beamEffect.lifetime < 0f)
@@ -74,11 +82,13 @@ namespace Battle.Effects
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
+            var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
             // Create laser effects
             var pos = GetComponentDataFromEntity<LocalToWorld>(true);
             var createJob = new CreateLaserEffectJob() {
                 worldTransforms = pos,
-                buffer = m_laserEffectBufferSystem.CreateCommandBuffer().ToConcurrent()
+                buffer = m_laserEffectBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                random = random
             };
             var createJobHandle = createJob.Schedule(this, inputDependencies);
             m_laserEffectBufferSystem.AddJobHandleForProducer(createJobHandle);

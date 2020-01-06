@@ -9,7 +9,20 @@ namespace Battle.Combat
     [Serializable]
     public struct Attack : IComponentData
     {
-        byte dummy;
+        public float Accuracy;
+
+        public enum eResult : byte
+        {
+            Hit,
+            Miss
+        }
+
+        public eResult Result;
+
+        public static Attack New(float Accuracy)
+        {
+            return new Attack { Accuracy = Accuracy, Result = eResult.Hit };
+        }
     }
 
     // Ideas - ShieldSystem would just redirect an attack intended for the owning entity into the shield entity.

@@ -49,7 +49,7 @@ namespace Battle.AI
                 {
                     buffer.RemoveComponent<PursueBehaviour>(index, e);
                     buffer.RemoveComponent<TurnToDestinationBehaviour>(index, e);
-                    buffer.AddComponent(index, e, new EvasiveManoeuvre());
+                    buffer.AddComponent(index, e, new PeelManoeuvre());
                 }
             }
         }

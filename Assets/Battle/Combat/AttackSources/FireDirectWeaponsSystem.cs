@@ -62,7 +62,7 @@ namespace Battle.Combat.AttackSources
 
                 // Create the attack.
                 Entity attack = buffer.Instantiate(index, weapon.AttackTemplate);
-                buffer.AddComponent(index, attack, new Attack());
+                buffer.AddComponent(index, attack, Attack.New(weapon.Accuracy));
                 buffer.AddComponent(index, attack, target);
                 buffer.AddComponent(index, attack, new Instigator() { Value = attacker });
                 buffer.AddComponent(index, attack, new EffectSourceLocation { Value = worldTransform.Position });

@@ -9,6 +9,5 @@ namespace Battle.AI
     [Serializable]
     public struct IdleBehaviour : IComponentData
     {
-        byte dummy;
     }
 }

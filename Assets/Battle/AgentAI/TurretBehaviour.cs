@@ -8,7 +8,5 @@ namespace Battle.AI
     /// </summary>
     [Serializable]
     public struct TurretBehaviour : IComponentData
-    {
-        byte dummy;
-    }
+    {}
 }

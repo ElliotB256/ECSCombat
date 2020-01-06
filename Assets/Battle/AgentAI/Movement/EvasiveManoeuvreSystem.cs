@@ -18,7 +18,7 @@ namespace Battle.AI
         public const float ENGAGEMENT_RADIUS = 10f;
 
         //[BurstCompile]
-        struct PursueBehaviourJob : IJobForEachWithEntity<EvasiveManoeuvre, Target, Translation, TurnSpeed, Heading, MaxTurnSpeed>
+        struct PursueBehaviourJob : IJobForEachWithEntity<PeelManoeuvre, Target, Translation, TurnSpeed, Heading, MaxTurnSpeed>
         {
             [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
             public EntityCommandBuffer.Concurrent buffer;
@@ -26,7 +26,7 @@ namespace Battle.AI
             public void Execute(
                 Entity e,
                 int index,
-                [ReadOnly] ref EvasiveManoeuvre pursue,
+                [ReadOnly] ref PeelManoeuvre pursue,
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref Translation pos,
                 ref TurnSpeed turnSpeed,
@@ -36,7 +36,7 @@ namespace Battle.AI
             {
                 if (target.Value == Entity.Null || !Positions.Exists(target.Value))
                 {
-                    buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
+                    buffer.RemoveComponent<PeelManoeuvre>(index, e);
                     buffer.AddComponent(index, e, new IdleBehaviour());
                     buffer.AddComponent(index, e, new TurnToDestinationBehaviour());
                     return;
@@ -55,7 +55,7 @@ namespace Battle.AI
                 // Remain in evasive manoeuvre until a certain distance to target is reached.
                 if (math.lengthsq(targetPos.Value - pos.Value) > ENGAGEMENT_RADIUS * ENGAGEMENT_RADIUS)
                 {
-                    buffer.RemoveComponent<EvasiveManoeuvre>(index, e);
+                    buffer.RemoveComponent<PeelManoeuvre>(index, e);
                     buffer.AddComponent(index, e, new PursueBehaviour());
                     buffer.AddComponent(index, e, new TurnToDestinationBehaviour());
                 }

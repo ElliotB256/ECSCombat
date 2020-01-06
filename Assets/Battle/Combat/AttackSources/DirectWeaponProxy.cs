@@ -19,11 +19,14 @@ namespace Battle.Combat.AttackSources
         [Tooltip("Full attack cone for the weapon, in degrees")]
         public float AttackCone;
 
+        [Tooltip("Base accuracy rating of the weapon")]
+        public float Accuracy;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             float coneInRad = AttackCone * Mathf.PI / 180f;
             var prefab = conversionSystem.GetPrimaryEntity(Ammo);
-            dstManager.AddComponentData(entity, new DirectWeapon { Armed = Armed, Range = Range, AttackCone = coneInRad, AttackTemplate = prefab });
+            dstManager.AddComponentData(entity, new DirectWeapon { Armed = Armed, Range = Range, AttackCone = coneInRad, AttackTemplate = prefab, Accuracy = Accuracy });
         }
 
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

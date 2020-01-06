@@ -34,7 +34,10 @@ namespace Battle.Combat
                 [ReadOnly] ref Damage damage
                 )
             {
-                damageTable.Add(target.Value, damage.Value);
+                var amount = damage.Value;
+                if (attackFlag.Result == Attack.eResult.Miss)
+                    amount = 0f;
+                damageTable.Add(target.Value, amount);
             }
         }
 

@@ -29,5 +29,10 @@ namespace Battle.Combat.AttackSources
         /// Attack template spawned by this weapon.
         /// </summary>
         public Entity AttackTemplate;
+
+        /// <summary>
+        /// Accuracy of the direct weapon
+        /// </summary>
+        public float Accuracy;
     }
 }
