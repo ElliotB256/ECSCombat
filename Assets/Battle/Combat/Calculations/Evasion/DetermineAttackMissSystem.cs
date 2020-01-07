@@ -25,8 +25,8 @@ namespace Battle.Combat.AttackSources
                 if (Evasions.HasComponent(target.Value))
                 {
                     float evasion = Evasions[target.Value].GetEvasionRating();
-                    float missChance = math.exp(-evasion / attack.Accuracy);
-                    if (random.NextFloat() < missChance)
+                    float hitChance = math.exp(-evasion / attack.Accuracy);
+                    if (random.NextFloat() > hitChance)
                         attack.Result = Attack.eResult.Miss;
                 }
             }

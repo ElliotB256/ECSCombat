@@ -20,13 +20,13 @@ namespace Battle.Effects
         /// Spawns laser effects for each laser-based attack.
         /// </summary>
         //[BurstCompile]
-        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target>
+        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, LaserBeam>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
             public Unity.Mathematics.Random random;
 
-            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target)
+            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref LaserBeam beam)
             {
                 var laserEffect = new LaserBeamEffect()
                 {
