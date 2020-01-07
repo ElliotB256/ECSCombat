@@ -26,7 +26,8 @@ namespace Battle.Combat.AttackSources
         {
             float coneInRad = AttackCone * Mathf.PI / 180f;
             var prefab = conversionSystem.GetPrimaryEntity(Ammo);
-            dstManager.AddComponentData(entity, new DirectWeapon { Armed = Armed, Range = Range, AttackCone = coneInRad, AttackTemplate = prefab, Accuracy = Accuracy });
+            dstManager.AddComponentData(entity, new InstantEffect { AttackTemplate = prefab, Accuracy = Accuracy });
+            dstManager.AddComponentData(entity, new TargettedTool { Armed = Armed, Range = Range, Cone = coneInRad, Firing = false });
         }
 
         public void DeclareReferencedPrefabs(List<GameObject> referencedPrefabs)

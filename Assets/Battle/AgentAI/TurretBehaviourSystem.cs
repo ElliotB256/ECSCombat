@@ -19,7 +19,7 @@ namespace Battle.AI
     public class TurretBehaviourSystem : JobComponentSystem
     {
         [BurstCompile]
-        struct IdleJob : IJobForEachWithEntity<TurretBehaviour, LocalToWorld, Target, TurnToDestinationBehaviour, DirectWeapon>
+        struct IdleJob : IJobForEachWithEntity<TurretBehaviour, LocalToWorld, Target, TurnToDestinationBehaviour, TargettedTool>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Positions;
 
@@ -30,7 +30,7 @@ namespace Battle.AI
                 [ReadOnly] ref LocalToWorld localToWorld,
                 ref Target target,
                 ref TurnToDestinationBehaviour turnTo,
-                [ReadOnly] ref DirectWeapon weapon
+                [ReadOnly] ref TargettedTool tool
                 )
             {
 
@@ -43,7 +43,7 @@ namespace Battle.AI
                 var targetPos = Positions[target.Value].Position;
 
                 // If target is outside fighter range, disengage.
-                if (math.lengthsq(targetPos - localToWorld.Position) > weapon.Range * weapon.Range)
+                if (math.lengthsq(targetPos - localToWorld.Position) > tool.Range * tool.Range)
                     target.Value = Entity.Null;
 
                 // set Turret destination to be target
