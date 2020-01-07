@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9156084250694381887}
   - component: {fileID: 8836378383092647923}
-  - component: {fileID: -6135476940928329576}
+  - component: {fileID: -4250382451207999985}
   m_Layer: 0
   m_Name: FighterLaserBeam
   m_TagString: Untagged
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damage: 3
---- !u!114 &-6135476940928329576
+--- !u!114 &-4250382451207999985
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -54,8 +54,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 7198412652241774557}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab1ede166088c5b4f905e7c9025e01af, type: 3}
+  m_Script: {fileID: 11500000, guid: d7e1bca3e47e6ef4c96acb2d455bfa94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParticleSystem: {fileID: 5824467282786897139, guid: 128ce467ffcbf324ba4c495dc5f61382,
-    type: 3}

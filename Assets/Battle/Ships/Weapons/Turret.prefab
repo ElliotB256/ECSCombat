@@ -224,7 +224,7 @@ MonoBehaviour:
   Range: 10
   Armed: 1
   AttackCone: 45
-  Accuracy: 2
+  Accuracy: 3
 --- !u!114 &6268857803740094674
 MonoBehaviour:
   m_ObjectHideFlags: 0

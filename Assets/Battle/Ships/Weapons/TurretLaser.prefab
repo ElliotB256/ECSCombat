@@ -44,7 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f2b62f75077f64e9c2850a6275fd34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 40
+  Damage: 15
 --- !u!114 &-4459203131079396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57,5 +57,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab1ede166088c5b4f905e7c9025e01af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ParticleSystem: {fileID: 6662909830388142943, guid: 4c6f62b6eea771f44a767ba643da3c68,
+  ParticleSystem: {fileID: 5824467282786897139, guid: 128ce467ffcbf324ba4c495dc5f61382,
     type: 3}
