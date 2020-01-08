@@ -17,11 +17,11 @@ namespace Battle.Combat.AttackSources
         UpdateInGroup(typeof(WeaponSystemsGroup)),
         UpdateAfter(typeof(FireTargettedToolsSystem))
         ]
-    public class ApplyInstantEffectsSystem : JobComponentSystem
+    public class ProjectileSpawnSystem : JobComponentSystem
     {
         protected WeaponEntityBufferSystem m_entityBufferSystem;
 
-        struct ApplyInstantEffectsJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, InstantEffect>
+        struct ProjectileSpawnJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, ProjectileWeapon>
         {
             public EntityCommandBuffer.Concurrent buffer;
 
@@ -31,19 +31,18 @@ namespace Battle.Combat.AttackSources
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref LocalToWorld worldTransform,
                 [ReadOnly] ref TargettedTool tool,
-                [ReadOnly] ref InstantEffect effect
+                [ReadOnly] ref ProjectileWeapon weapon
                 )
             {
                 if (!tool.Firing)
                     return;
 
-                // Create the effect
-                Entity attack = buffer.Instantiate(index, effect.AttackTemplate);
-                buffer.AddComponent(index, attack, Attack.New(effect.Accuracy));
-                buffer.AddComponent(index, attack, target);
-                buffer.AddComponent(index, attack, new Instigator() { Value = attacker });
-                buffer.AddComponent(index, attack, new EffectSourceLocation { Value = worldTransform.Position });
-                buffer.AddComponent(index, attack, new Effectiveness { Value = 1f });
+                // Create the projectile
+                Entity attack = buffer.Instantiate(index, weapon.Projectile);
+                buffer.SetComponent(index, attack, target);
+                buffer.SetComponent(index, attack, new Translation { Value = worldTransform.Position });
+                buffer.SetComponent(index, attack, new Rotation { Value = new quaternion(worldTransform.Value) });
+                buffer.SetComponent(index, attack, new Instigator() { Value = attacker });
             }
         }
 
@@ -54,12 +53,12 @@ namespace Battle.Combat.AttackSources
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var applyEffectsJH = new ApplyInstantEffectsJob()
+            var spawnJH = new ProjectileSpawnJob()
             {
                 buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(),
             }.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(applyEffectsJH);
-            return applyEffectsJH;
+            m_entityBufferSystem.AddJobHandleForProducer(spawnJH);
+            return spawnJH;
         }
     }
 }
