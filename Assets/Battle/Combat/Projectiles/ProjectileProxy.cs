@@ -17,7 +17,7 @@ namespace Battle.Combat
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             var prefab = conversionSystem.GetPrimaryEntity(Attack);
-            dstManager.AddComponentData(entity, new Projectile { AttackEntity = prefab });
+            dstManager.AddComponentData(entity, new Projectile { AttackEntity = prefab, ReachedTarget = false });
             dstManager.AddComponentData(entity, new Instigator());
             dstManager.AddComponentData(entity, new Target());
 

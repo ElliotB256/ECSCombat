@@ -103,11 +103,11 @@ namespace Battle.Equipment
 
             var sortAddedJH = new AddToMap
             {
-                EquipmentMap = AddedEquipment.ToConcurrent(),
+                EquipmentMap = AddedEquipment.AsParallelWriter(),
             }.Schedule(ComponentsToBeEnabled, inputDependencies);
             var sortRemovedJH = new AddToMap
             {
-                EquipmentMap = RemovedEquipment.ToConcurrent(),
+                EquipmentMap = RemovedEquipment.AsParallelWriter(),
             }.Schedule(ComponentsToBeDisabled, inputDependencies);
             var combinedJH = JobHandle.CombineDependencies(sortAddedJH, sortRemovedJH);
 
@@ -137,7 +137,7 @@ namespace Battle.Equipment
         [BurstCompile]
         struct AddToMap : IJobForEachWithEntity<TEquipment, Parent>
         {
-            public NativeMultiHashMap<Entity, TEquipment>.Concurrent EquipmentMap;
+            public NativeMultiHashMap<Entity, TEquipment>.ParallelWriter EquipmentMap;
 
             public void Execute(
                 Entity e,

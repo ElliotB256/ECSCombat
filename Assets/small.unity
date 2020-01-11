@@ -171,16 +171,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (25)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -236,6 +226,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (25)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
 --- !u!1001 &540198649
@@ -245,16 +245,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (29)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -309,6 +299,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (29)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
@@ -411,11 +411,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (31)
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -471,6 +466,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (31)
+      objectReference: {fileID: 0}
     - target: {fileID: 7711724858087067754, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: TeamID
@@ -485,16 +485,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (35)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -549,6 +539,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (35)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
@@ -642,16 +642,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (27)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -707,6 +697,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (27)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7711724858087067754, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: TeamID
@@ -721,16 +721,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (28)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -786,6 +776,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (28)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
 --- !u!1001 &1180503585
@@ -795,16 +795,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (33)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -860,6 +850,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (33)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
 --- !u!1001 &1326901417
@@ -869,16 +869,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (26)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -934,6 +924,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (26)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7711724858087067754, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: TeamID
@@ -948,16 +948,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (34)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1012,6 +1002,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (34)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6077652382118307699, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
@@ -1125,16 +1125,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (30)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1190,6 +1180,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (30)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7711724858087067754, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: TeamID
@@ -1204,11 +1204,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 10378401105513712, guid: 20c38ee1f4d3e7240a4715511aca0e07,
-        type: 3}
-      propertyPath: m_Name
-      value: Plasma Barge
-      objectReference: {fileID: 0}
     - target: {fileID: 10378401105513699, guid: 20c38ee1f4d3e7240a4715511aca0e07,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1263,6 +1258,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 10378401105513712, guid: 20c38ee1f4d3e7240a4715511aca0e07,
+        type: 3}
+      propertyPath: m_Name
+      value: Plasma Barge
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20c38ee1f4d3e7240a4715511aca0e07, type: 3}
@@ -1367,16 +1367,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (32)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1431,6 +1421,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (32)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
@@ -1510,16 +1510,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_Name
-      value: Fighter Ship (24)
-      objectReference: {fileID: 0}
-    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1208510331489906789, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1574,6 +1564,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_Name
+      value: Fighter Ship (24)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6077652382118307699, guid: 40dc8fc0d7676014680fd0ef5c754ab7,
         type: 3}

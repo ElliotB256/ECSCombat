@@ -3,15 +3,14 @@ using Unity.Entities;
 using Unity.Jobs;
 using Battle.AI;
 using Unity.Transforms;
+using Unity.Burst;
 
 namespace Battle.Combat
 {
     [UpdateBefore(typeof(TurnToDestinationSystem))]
-    public class HomingProjectileSystem : JobComponentSystem
+    public class ProjectilePursueTargetSystem : JobComponentSystem
     {
-        public const float PROXIMITY_RADIUS = 4f;
-
-        //[BurstCompile]
+        [BurstCompile]
         struct PursueJob : IJobForEachWithEntity<Homing, Projectile, Target, Translation, TurnToDestinationBehaviour>
         {
             [ReadOnly] public ComponentDataFromEntity<Translation> Positions;

@@ -57,7 +57,7 @@ namespace Battle.Equipment
             // Start by sorting newly added equipment by parent entity.
             var mapJH = new MapEquipmentToParent
             {
-                EquipmentMap = EquipmentMap.ToConcurrent(),
+                EquipmentMap = EquipmentMap.AsParallelWriter(),
                 Buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent()
             }.Schedule(EntitiesToEquip, inputDependencies);
             EquipmentBuffer.AddJobHandleForProducer(mapJH);
@@ -87,7 +87,7 @@ namespace Battle.Equipment
             /// <summary>
             /// Key is parent entity, value is equipment entity.
             /// </summary>
-            public NativeMultiHashMap<Entity, Entity>.Concurrent EquipmentMap;
+            public NativeMultiHashMap<Entity, Entity>.ParallelWriter EquipmentMap;
 
             public void Execute(
                 Entity e,

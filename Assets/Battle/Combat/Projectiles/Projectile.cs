@@ -13,5 +13,10 @@ namespace Battle.Combat
         /// The attack transferred by this projectile
         /// </summary>
         public Entity AttackEntity;
+
+        /// <summary>
+        /// The projectile has reached it's target.
+        /// </summary>
+        public bool ReachedTarget;
     }
 }

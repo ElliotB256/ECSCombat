@@ -109,7 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88334a20ba4517948899013445d5c7a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxSpeed: 7
+  MaxSpeed: 20
 --- !u!114 &5777986388307676388
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5686c4281965f14449c655981ab8c2bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxRadiansPerSecond: 2
+  MaxRadiansPerSecond: 3
 --- !u!114 &1062001562390050906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,5 +135,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e23d4d75b9dd60e42800e0761324ca8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Attack: {fileID: 1202677402638425774, guid: 81dfee7c9a57d394c89aa38283e60153, type: 3}
+  Attack: {fileID: 1458265541791253341, guid: ce684fc9e8be635488428786cae96681, type: 3}
   Homing: 1

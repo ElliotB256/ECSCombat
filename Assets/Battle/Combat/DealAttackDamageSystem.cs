@@ -24,7 +24,7 @@ namespace Battle.Combat
         [BurstCompile]
         struct SortAttackDamageJob : IJobForEachWithEntity<Attack, Target, Damage>
         {
-            public NativeMultiHashMap<Entity, float>.Concurrent damageTable;
+            public NativeMultiHashMap<Entity, float>.ParallelWriter damageTable;
 
             public void Execute(
                 Entity attack,
@@ -93,7 +93,7 @@ namespace Battle.Combat
             TryDisposeNatives();
             m_damageTable = new NativeMultiHashMap<Entity, float>(m_attackQuery.CalculateEntityCount(), Allocator.TempJob);
 
-            var sortJob = new SortAttackDamageJob() { damageTable = m_damageTable.ToConcurrent() };
+            var sortJob = new SortAttackDamageJob() { damageTable = m_damageTable.AsParallelWriter() };
             var sortJobH = sortJob.Schedule(m_attackQuery, inputDependencies);
 
             var dealJob = new DealAttackDamageJob() { damageTable = m_damageTable };

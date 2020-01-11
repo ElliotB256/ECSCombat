@@ -55,7 +55,7 @@ namespace Battle.AI
             copyJobs = JobHandle.CombineDependencies(copyJobs, targetTypesJH);
 
             // Once positions are copied over, we sort the positions into a hashmap.
-            var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = m_targetBins.ToConcurrent() }.Schedule(m_targetQuery, copyTargetPosJob);
+            var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = m_targetBins.AsParallelWriter() }.Schedule(m_targetQuery, copyTargetPosJob);
             var hashBarrier = JobHandle.CombineDependencies(hashTargetPosJob, copyJobs);
 
             // Having sorted entities into buckets by spatial pos, we loop through the entities and find nearby entities (in nearby buckets).
@@ -151,7 +151,7 @@ namespace Battle.AI
         [BurstCompile]
         struct HashPositions : IJobForEachWithEntity<LocalToWorld>
         {
-            public NativeMultiHashMap<int, int>.Concurrent hashMap;
+            public NativeMultiHashMap<int, int>.ParallelWriter hashMap;
             public float CellSize;
 
             public void Execute(Entity entity, int index, [ReadOnly] ref LocalToWorld localToWorld)
