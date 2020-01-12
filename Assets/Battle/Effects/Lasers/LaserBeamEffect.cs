@@ -12,8 +12,6 @@ namespace Battle.Effects
     {
         public float3 start;
         public float3 end;
-        public float width;
         public float lifetime;
-        public bool generated;
     }
 }

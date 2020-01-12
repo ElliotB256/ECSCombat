@@ -9,66 +9,126 @@ using Unity;
 
 using Battle.Combat;
 using System.Collections.Generic;
+using Unity.Rendering;
 
 namespace Battle.Effects
 {
-    /// <summary>
-    /// Render laser beam effects. Hacky.
-    /// </summary>
-    [AlwaysUpdateSystem]
     [
-        UpdateAfter(typeof(LaserEffectSystem)),
-        UpdateInGroup(typeof(AttackResultSystemsGroup))
-        ]
-    public class RenderAttackLaserSystem : JobComponentSystem
+    AlwaysUpdateSystem,
+    UpdateAfter(typeof(LaserEffectSystem)),
+    UpdateInGroup(typeof(AttackResultSystemsGroup))
+    ]
+    public class RenderLaserSystem : JobComponentSystem
     {
-        private RenderLaserComponent m_renderer;
         private EntityQuery m_query;
 
         protected override void OnCreateManager()
         {
             base.OnCreateManager();
-            m_renderer = Object.FindObjectOfType<RenderLaserComponent>();
             m_query = GetEntityQuery(new EntityQueryDesc
             {
-                All = new[] { ComponentType.ReadOnly<LaserBeamEffect>() }
+                All = new[] {
+                    ComponentType.ReadOnly<LaserBeamEffect>(),
+                    ComponentType.ReadOnly<BeamEffectStyle>()
+                }
             }
             );
         }
-        protected bool hasRunBefore = false;
 
-        protected struct ListLasersJob : IJobForEachWithEntity<LaserBeamEffect>
+        protected struct CreateLaserMeshJob : IJobForEachWithEntity<LaserBeamEffect,BeamEffectStyle>
         {
-            [WriteOnly] public NativeArray<LaserBeamEffect> lasers;
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Vertices;
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float2> UVs;
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<int> Triangles;
+            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Normals;
 
-            public void Execute(Entity e, int index, ref LaserBeamEffect laserBeam)
+            public void Execute(Entity e, int index, ref LaserBeamEffect laserBeam, ref BeamEffectStyle style)
             {
-                lasers[index] = laserBeam;
+                float3 transverseDir = math.normalize(math.cross((laserBeam.end - laserBeam.start), new float3(0.0f, 1.0f, 0.0f)));
+                float distance = math.length(laserBeam.end - laserBeam.start);
+
+                int number = 4; //number of vertices per beam. 
+                int vertexStartID = index * number;
+                float halfWidth = style.Width / 2.0f;
+                Vertices[vertexStartID+0] = laserBeam.start - transverseDir * halfWidth;
+                Vertices[vertexStartID+1] = laserBeam.start + transverseDir * halfWidth;
+                Vertices[vertexStartID+2] = laserBeam.end + transverseDir * halfWidth;
+                Vertices[vertexStartID+3] = laserBeam.end - transverseDir * halfWidth;
+
+                UVs[vertexStartID+0] = new float2(0.0f, 0.0f);
+                UVs[vertexStartID+1] = new float2(1.0f, 0.0f);
+                UVs[vertexStartID+2] = new float2(1.0f, distance);
+                UVs[vertexStartID+3] = new float2(0.0f, distance);
+
+                Normals[vertexStartID + 0] = new float3(0.0f, 1.0f, 0.0f);
+                Normals[vertexStartID + 1] = new float3(0.0f, 1.0f, 0.0f);
+                Normals[vertexStartID + 2] = new float3(0.0f, 1.0f, 0.0f);
+                Normals[vertexStartID + 3] = new float3(0.0f, 1.0f, 0.0f);
+
+                int triangleStartID = index * 6;
+                Triangles[triangleStartID + 0] = vertexStartID+0;
+                Triangles[triangleStartID + 1] = vertexStartID+1;
+                Triangles[triangleStartID + 2] = vertexStartID+2;
+                Triangles[triangleStartID + 3] = vertexStartID+0;
+                Triangles[triangleStartID + 4] = vertexStartID+2;
+                Triangles[triangleStartID + 5] = vertexStartID+3;
             }
+        }
+
+        [RequireComponentTag(typeof(LaserRenderer))]
+        protected struct UpdateMeshJob : IJob
+        {
+            //public ArchetypeChunkSharedComponentType<RenderMesh> Mesh;
+            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Vertices;
+            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Normals;
+            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float2> UVs;
+            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> Triangles;
+
+            //public void Execute(RenderMesh mesh, [ReadOnly] ref LaserRenderer renderer)
+            //{
+            //mesh.mesh.SetVertices(Vertices);
+            //mesh.mesh.SetUVs(0, UVs);
+            //mesh.mesh.SetTriangles(Triangles.ToArray(), 0);
+            //mesh.mesh.SetNormals(Normals);
+            //}
+
+            public void Execute()
+            { }
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (m_renderer == null)
+            int numberOfBeams = m_query.CalculateEntityCount();
+            var Vertices = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var Normals = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var UVs = new NativeArray<float2>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var Triangles = new NativeArray<int>(numberOfBeams * 6, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var createMeshJob = new CreateLaserMeshJob() {
+                Vertices = Vertices,
+                Normals = Normals,
+                UVs = UVs,
+                Triangles = Triangles
+            }.Schedule(m_query, inputDeps);
+            createMeshJob.Complete();
+
+            Entities.ForEach(
+                (RenderMesh mesh, ref LaserRenderer renderer) => 
             {
-                Debug.LogWarning("You must add a GameObject with RenderLaserComponent to the scene.");
-                return inputDeps;
+                mesh.mesh.Clear();
+                mesh.mesh.SetVertices(Vertices);
+                mesh.mesh.SetUVs(0, UVs);
+                mesh.mesh.SetTriangles(Triangles.ToArray(), 0);
+                mesh.mesh.SetNormals(Normals);
             }
-
-            if (hasRunBefore)
-                m_renderer.Beams.Dispose();
-
-            m_renderer.Beams = new NativeArray<LaserBeamEffect>(m_query.CalculateEntityCount(), Allocator.TempJob);
-            hasRunBefore = true;
-            var jobHandle = new ListLasersJob() { lasers = m_renderer.Beams }.Schedule(m_query, inputDeps);
-            m_renderer.LaserSystemJob = jobHandle;
-            return jobHandle;
-        }
-
-        protected override void OnStopRunning()
-        {
-            if (hasRunBefore)
-                m_renderer.Beams.Dispose();
+            ).WithoutBurst().Run();
+            var deleteJob = new UpdateMeshJob()
+            {
+                Vertices = Vertices,
+                Normals = Normals,
+                UVs = UVs,
+                Triangles = Triangles
+            }.Schedule(createMeshJob);
+            return deleteJob;
         }
     }
 }

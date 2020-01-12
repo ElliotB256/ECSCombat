@@ -57,3 +57,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d7e1bca3e47e6ef4c96acb2d455bfa94, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Width: 0.3
+  PrimaryColor: {r: 0, g: 0, b: 0, a: 0}
+  SecondaryColor: {r: 0, g: 0, b: 0, a: 0}

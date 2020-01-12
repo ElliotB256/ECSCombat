@@ -4,11 +4,11 @@ using Unity.Entities;
 namespace Battle.Effects
 {
     /// <summary>
-    /// A laser beam
+    /// Aesthetic properties of a Beam effect.
     /// </summary>
     [Serializable]
-    public struct LaserBeam : IComponentData
+    public struct BeamEffectStyle : IComponentData
     {
-        byte dummy;
+        public float Width;
     }
 }

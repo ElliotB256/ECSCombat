@@ -20,20 +20,19 @@ namespace Battle.Effects
         /// Spawns laser effects for each laser-based attack.
         /// </summary>
         //[BurstCompile]
-        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, LaserBeam>
+        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, BeamEffectStyle>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
             public Unity.Mathematics.Random random;
 
-            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref LaserBeam beam)
+            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref BeamEffectStyle style)
             {
                 var laserEffect = new LaserBeamEffect()
                 {
                     start = worldTransforms[attacker.Value].Position,
                     end = worldTransforms[target.Value].Position,
-                    lifetime = 0.2f,
-                    width = 0.3f
+                    lifetime = 0.2f
                 };
 
                 // if attack missed, move the end position randomly.
@@ -45,6 +44,7 @@ namespace Battle.Effects
 
                 Entity effect = buffer.CreateEntity(index);
                 buffer.AddComponent(index, effect, laserEffect);
+                buffer.AddComponent(index, effect, style);
                 buffer.AddComponent(index, effect, new Instigator() { Value = attacker.Value });
                 buffer.AddComponent(index, effect, new Target() { Value = target.Value });
             }
