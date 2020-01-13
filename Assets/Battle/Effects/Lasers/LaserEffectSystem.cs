@@ -28,6 +28,9 @@ namespace Battle.Effects
 
             public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref BeamEffectStyle style)
             {
+                if (!worldTransforms.HasComponent(target.Value) || !worldTransforms.HasComponent(attacker.Value))
+                    return;
+
                 var laserEffect = new LaserBeamEffect()
                 {
                     start = worldTransforms[attacker.Value].Position,

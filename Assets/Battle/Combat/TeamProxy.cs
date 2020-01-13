@@ -21,7 +21,7 @@ namespace Battle.Combat
             {
                 default: color = new float4(1.0f, 1.0f, 1.0f, 1.0f); break;
                 case 1: color = new float4(0.5f, 0.7f, 1.0f, 1.0f); break;
-                case 2: color = new float4(1.0f, 0.5f, 0.5f, 1.0f); break;
+                case 2: color = new float4(1.0f, 0.0f, 0.0f, 1.0f); break;
             }
             dstManager.AddComponentData(entity, new MaterialColor { Value = color });
         }

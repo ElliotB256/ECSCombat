@@ -36,6 +36,15 @@ namespace Battle.Combat.AttackSources
         }
 
         [BurstCompile]
+        struct RemovingFiring : IJobForEach<TargettedTool>
+        {
+            public void Execute(ref TargettedTool tool)
+            {
+                tool.Firing = false;
+            }
+        }
+
+        [BurstCompile]
         struct FireTargettedToolsJob : IJobForEachWithEntity<LocalToWorld, Target, TargettedTool, Cooldown>
         {
             [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> targetPositions;
@@ -49,8 +58,6 @@ namespace Battle.Combat.AttackSources
                 ref Cooldown cooldown
                 )
             {
-                tool.Firing = false;
-
                 if (target.Value == Entity.Null)
                     return;
 
@@ -97,15 +104,18 @@ namespace Battle.Combat.AttackSources
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
             m_targetPositions = new NativeArray<float3>(m_query.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var getTargetPositionsJH = new GetTargetPositions
+            var getTargetPositions = new GetTargetPositions
             {
                 targetPositions = m_targetPositions,
                 targetWorldTransforms = GetComponentDataFromEntity<LocalToWorld>(true)
             }.Schedule(m_query, inputDependencies);
+            var removeFiring = new RemovingFiring().Schedule(this, inputDependencies);
             var fireToolsJH = new FireTargettedToolsJob()
             {
                 targetPositions = m_targetPositions
-            }.Schedule(m_query, getTargetPositionsJH);
+            }.Schedule(m_query,          
+                JobHandle.CombineDependencies(getTargetPositions, removeFiring)
+            );
             return fireToolsJH;
         }
     }

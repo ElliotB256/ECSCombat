@@ -463,8 +463,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 5
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 4
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -547,7 +547,7 @@ MonoBehaviour:
   m_PointlightHDType: 0
   m_SpotLightShape: 0
   m_AreaLightShape: 0
-  m_Intensity: 5
+  m_Intensity: 4
   m_EnableSpotReflector: 0
   m_LuxAtDistance: 1
   m_InnerSpotPercent: 0
@@ -1529,6 +1529,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Plasma Barge
+      objectReference: {fileID: 0}
+    - target: {fileID: 1515459080734109432, guid: 20c38ee1f4d3e7240a4715511aca0e07,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4447818809322385133, guid: 20c38ee1f4d3e7240a4715511aca0e07,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4447818809322385133, guid: 20c38ee1f4d3e7240a4715511aca0e07,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6258236866226168649, guid: 20c38ee1f4d3e7240a4715511aca0e07,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20c38ee1f4d3e7240a4715511aca0e07, type: 3}
