@@ -76,21 +76,13 @@ namespace Battle.Effects
         }
 
         [RequireComponentTag(typeof(LaserRenderer))]
-        protected struct UpdateMeshJob : IJob
+        protected struct DeleteNativeArrays : IJob
         {
             //public ArchetypeChunkSharedComponentType<RenderMesh> Mesh;
             [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Vertices;
             [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Normals;
             [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float2> UVs;
             [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> Triangles;
-
-            //public void Execute(RenderMesh mesh, [ReadOnly] ref LaserRenderer renderer)
-            //{
-            //mesh.mesh.SetVertices(Vertices);
-            //mesh.mesh.SetUVs(0, UVs);
-            //mesh.mesh.SetTriangles(Triangles.ToArray(), 0);
-            //mesh.mesh.SetNormals(Normals);
-            //}
 
             public void Execute()
             { }
@@ -121,7 +113,7 @@ namespace Battle.Effects
                 mesh.mesh.SetNormals(Normals);
             }
             ).WithoutBurst().Run();
-            var deleteJob = new UpdateMeshJob()
+            var deleteJob = new DeleteNativeArrays()
             {
                 Vertices = Vertices,
                 Normals = Normals,

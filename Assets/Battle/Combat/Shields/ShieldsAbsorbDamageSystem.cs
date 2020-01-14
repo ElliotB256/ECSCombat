@@ -46,6 +46,8 @@ namespace Battle.Combat
                     ComponentType.ReadOnly<Damage>(),
                     ComponentType.ReadOnly<Target>(),
                     ComponentType.ReadOnly<Instigator>(),
+                    ComponentType.ReadOnly<SourceLocation>(),
+                    ComponentType.ReadWrite<HitLocation>(),
                 },
                 None = new [] {
                     ComponentType.ReadOnly<ShieldBypass>()
@@ -86,7 +88,7 @@ namespace Battle.Combat
         }
         
         [BurstCompile]
-        struct CollectShieldHitsJob : IJobForEachWithEntity<Attack, Damage, Instigator, Target>
+        struct CollectShieldHitsJob : IJobForEachWithEntity<Attack, Damage, SourceLocation, Target>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> WorldTransforms;
             [ReadOnly] public ComponentDataFromEntity<Shield> Shields;
@@ -97,10 +99,10 @@ namespace Battle.Combat
                 int index,
                 ref Attack attack,
                 ref Damage damage,
-                ref Instigator attacker,
+                ref SourceLocation sourceLoc,
                 ref Target target)
             {
-                if (!Shields.HasComponent(target.Value) || !WorldTransforms.HasComponent(attacker.Value) || !WorldTransforms.HasComponent(target.Value))
+                if (!Shields.HasComponent(target.Value) || !WorldTransforms.HasComponent(target.Value))
                     return;
                 var shield = Shields[target.Value];
 
@@ -108,11 +110,10 @@ namespace Battle.Combat
                 if (shield.Health <= 0f)
                     return;
 
-                var sourcePosition = WorldTransforms[attacker.Value];
                 var targetPosition = WorldTransforms[target.Value];
 
                 // attack comes from within shield - no shield protection.
-                var delta = targetPosition.Position - sourcePosition.Position;
+                var delta = targetPosition.Position - sourceLoc.Position;
                 if (math.lengthsq(delta) < math.pow(shield.Radius, 2.0f))
                     return;
 
@@ -161,7 +162,8 @@ namespace Battle.Combat
                     ShieldHitResult result = new ShieldHitResult
                     {
                         Damage = damage,
-                        Blocked = blocked
+                        Blocked = blocked,
+                        HitLocation = new HitLocation { Position = localToWorld.Position + shield.Radius * shieldHit.FromDirection }
                     };
                     Results.TryAdd(shieldHit.Attack, result);
                 } while (ShieldHits.TryGetNextValue(out shieldHit, ref iter));
@@ -169,17 +171,18 @@ namespace Battle.Combat
         }
 
         [BurstCompile]
-        struct ModifyShieldedAttacksJob : IJobForEachWithEntity<Damage>
+        struct ModifyShieldedAttacksJob : IJobForEachWithEntity<Damage, HitLocation>
         {
             [ReadOnly] public NativeHashMap<Entity, ShieldHitResult> Results;
 
-            public void Execute(Entity e, int index, ref Damage damage)
+            public void Execute(Entity e, int index, ref Damage damage, ref HitLocation hitLoc)
             {
                 if (!Results.ContainsKey(e))
                     return;
                 if (!Results[e].Blocked)
                     return;
                 damage = Results[e].Damage;
+                hitLoc = Results[e].HitLocation;
             }
         }
 
@@ -193,6 +196,7 @@ namespace Battle.Combat
         struct ShieldHitResult
         {
             public Damage Damage;
+            public HitLocation HitLocation;
             public bool Blocked;
         }
     }

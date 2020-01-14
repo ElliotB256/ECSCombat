@@ -24,6 +24,4 @@ namespace Battle.Combat
             return new Attack { Accuracy = Accuracy, Result = eResult.Hit };
         }
     }
-
-    // Ideas - ShieldSystem would just redirect an attack intended for the owning entity into the shield entity.
 }

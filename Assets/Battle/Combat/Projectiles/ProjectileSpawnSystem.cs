@@ -1,6 +1,7 @@
 ﻿using Battle.Combat.AttackSources;
 using Battle.Combat.Calculations;
 using Battle.Equipment;
+using Battle.Movement;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -41,7 +42,7 @@ namespace Battle.Combat.AttackSources
                 Entity attack = buffer.Instantiate(index, weapon.Projectile);
                 buffer.SetComponent(index, attack, target);
                 buffer.SetComponent(index, attack, new Translation { Value = worldTransform.Position });
-                buffer.SetComponent(index, attack, new Rotation { Value = new quaternion(worldTransform.Value) });
+                buffer.SetComponent(index, attack, new Rotation { Value = worldTransform.Rotation });
                 buffer.SetComponent(index, attack, new Instigator() { Value = attacker });
             }
         }

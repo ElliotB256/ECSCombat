@@ -17,11 +17,10 @@ namespace Battle.Effects
             var positions = GetComponentDataFromEntity<LocalToWorld>(true);
 
             Entities.ForEach(
-                (ParticleBeamEffect effect, ref Attack attack, ref Instigator instigator, ref Target target) =>
+                (ParticleBeamEffect effect, ref Attack attack, ref HitLocation hitLoc, ref SourceLocation sourceLoc) =>
                 {
-                    Vector3 start = positions[instigator.Value].Position;
-                    //start = start - (0.01f * Vector3.up);
-                    Vector3 end = positions[target.Value].Position;
+                    Vector3 start = sourceLoc.Position;
+                    Vector3 end = hitLoc.Position;
 
                     // if attack missed, move the end position randomly.
                     if (attack.Result == Attack.eResult.Miss)

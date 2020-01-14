@@ -21,9 +21,11 @@ namespace Battle.Combat.AttackSources
     {
         protected WeaponEntityBufferSystem m_entityBufferSystem;
 
+        [BurstCompile]
         struct ApplyInstantEffectsJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, InstantEffect>
         {
             public EntityCommandBuffer.Concurrent buffer;
+            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Transforms;
 
             public void Execute(
                 Entity attacker,
@@ -37,6 +39,9 @@ namespace Battle.Combat.AttackSources
                 if (!tool.Firing)
                     return;
 
+                if (target.Value == Entity.Null)
+                    return;
+
                 // Create the effect
                 Entity attack = buffer.Instantiate(index, effect.AttackTemplate);
                 buffer.AddComponent(index, attack, Attack.New(effect.Accuracy));
@@ -44,6 +49,9 @@ namespace Battle.Combat.AttackSources
                 buffer.AddComponent(index, attack, new Instigator() { Value = attacker });
                 buffer.AddComponent(index, attack, new EffectSourceLocation { Value = worldTransform.Position });
                 buffer.AddComponent(index, attack, new Effectiveness { Value = 1f });
+                buffer.AddComponent(index, attack, new SourceLocation { Position = worldTransform.Position });
+                if (Transforms.HasComponent(target.Value))
+                    buffer.AddComponent(index, attack, new HitLocation { Position = Transforms[target.Value].Position });
             }
         }
 
@@ -57,6 +65,7 @@ namespace Battle.Combat.AttackSources
             var applyEffectsJH = new ApplyInstantEffectsJob()
             {
                 buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                Transforms = GetComponentDataFromEntity<LocalToWorld>(true)
             }.Schedule(this, inputDependencies);
             m_entityBufferSystem.AddJobHandleForProducer(applyEffectsJH);
             return applyEffectsJH;

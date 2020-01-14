@@ -20,21 +20,17 @@ namespace Battle.Effects
         /// Spawns laser effects for each laser-based attack.
         /// </summary>
         //[BurstCompile]
-        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, BeamEffectStyle>
+        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, BeamEffectStyle, HitLocation, SourceLocation>
         {
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public EntityCommandBuffer.Concurrent buffer;
             public Unity.Mathematics.Random random;
 
-            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref BeamEffectStyle style)
+            public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref BeamEffectStyle style, ref HitLocation hitLoc, ref SourceLocation sourceLoc)
             {
-                if (!worldTransforms.HasComponent(target.Value) || !worldTransforms.HasComponent(attacker.Value))
-                    return;
-
                 var laserEffect = new LaserBeamEffect()
                 {
-                    start = worldTransforms[attacker.Value].Position,
-                    end = worldTransforms[target.Value].Position,
+                    start = sourceLoc.Position,
+                    end = hitLoc.Position,
                     lifetime = 0.2f
                 };
 
@@ -56,7 +52,7 @@ namespace Battle.Effects
         /// <summary>
         /// Updates laser effects, and despawns them once they are dead.
         /// </summary>
-        //[BurstCompile]
+        [BurstCompile]
         protected struct UpdateLaserEffectsJob : IJobForEachWithEntity<LaserBeamEffect, Instigator, Target>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
@@ -67,8 +63,6 @@ namespace Battle.Effects
             {
                 if (worldTransforms.Exists(attacker.Value))
                     beamEffect.start = worldTransforms[attacker.Value].Position;
-                //if (worldTransforms.Exists(target.Value))
-                //    beamEffect.end = worldTransforms[target.Value].Position;
 
                 beamEffect.lifetime -= deltaTime;
                 if (beamEffect.lifetime < 0f)
@@ -89,7 +83,6 @@ namespace Battle.Effects
             // Create laser effects
             var pos = GetComponentDataFromEntity<LocalToWorld>(true);
             var createJob = new CreateLaserEffectJob() {
-                worldTransforms = pos,
                 buffer = m_laserEffectBufferSystem.CreateCommandBuffer().ToConcurrent(),
                 random = random
             };
