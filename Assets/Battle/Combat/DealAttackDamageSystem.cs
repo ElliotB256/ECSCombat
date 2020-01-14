@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using Battle.Effects;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -45,18 +46,21 @@ namespace Battle.Combat
         /// Deals attack damage to all entities with health
         /// </summary>
         [BurstCompile]
-        struct DealAttackDamageJob : IJobForEachWithEntity<Health>
+        struct DealAttackDamageJob : IJobForEachWithEntity<Health, LastHitTimer>
         {
             [ReadOnly] public NativeMultiHashMap<Entity, float> damageTable;
 
             public void Execute(
                 Entity target,
                 int index,
-                ref Health health
+                ref Health health,
+                ref LastHitTimer timer
                 )
             {
                 if (!damageTable.TryGetFirstValue(target, out float amount, out var it))
                     return;
+
+                timer.Value = 0f;
 
                 health.Value -= amount;
                 while (damageTable.TryGetNextValue(out amount, ref it))

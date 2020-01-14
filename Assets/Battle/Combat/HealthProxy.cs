@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Battle.Effects;
+using Unity.Entities;
 using UnityEngine;
 
 namespace Battle.Combat
@@ -14,6 +15,7 @@ namespace Battle.Combat
             dstManager.AddComponentData(entity, new Health { Value = MaxHealth });
             if (IsMortal)
                 dstManager.AddComponentData(entity, new Mortal());
+            dstManager.AddComponentData(entity, new LastHitTimer { Value = 100f });
         }
     }
 }
