@@ -120,7 +120,7 @@ namespace Battle.Combat
                 {
                     Attack = entity,
                     Damage = damage,
-                    FromDirection = -delta
+                    FromDirection = -math.normalize(delta)
                 };
                 ShieldHits.Add(target.Value, hit);
             }

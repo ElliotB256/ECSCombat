@@ -60,7 +60,8 @@ namespace Battle.Combat
                 if (!damageTable.TryGetFirstValue(target, out float amount, out var it))
                     return;
 
-                timer.Value = 0f;
+                if (amount > 0f)
+                    timer.Value = 0f;
 
                 health.Value -= amount;
                 while (damageTable.TryGetNextValue(out amount, ref it))

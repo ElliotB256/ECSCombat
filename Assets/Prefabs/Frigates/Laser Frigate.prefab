@@ -26,8 +26,9 @@ GameObject:
   - component: {fileID: 4627266511939275407}
   - component: {fileID: 3335930550228550739}
   - component: {fileID: 675098689723379347}
+  - component: {fileID: 9016064289863211624}
   m_Layer: 0
-  m_Name: Frigate
+  m_Name: Laser Frigate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -221,7 +222,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 713217497150845611}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 678b719f920581d4aa07da35c1a5d8d5, type: 3}
+  m_Script: {fileID: 11500000, guid: 3ab03b763d0ecac44a799cbfb9e76668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ParticleSystem: {fileID: 8959642655804248576, guid: 8d770f0c24a09c04f8fae2bb70b455c3,
@@ -293,6 +294,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   BaseEvasionRating: 1
+--- !u!114 &9016064289863211624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 713217497150845611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3fbb01e6d75c0147b1cb991831d1a5a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Capacity: 50
+  Radius: 3
 --- !u!1001 &713217495970673815
 PrefabInstance:
   m_ObjectHideFlags: 0

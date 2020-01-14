@@ -220,7 +220,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8957202151549055417}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 678b719f920581d4aa07da35c1a5d8d5, type: 3}
+  m_Script: {fileID: 11500000, guid: 3ab03b763d0ecac44a799cbfb9e76668, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ParticleSystem: {fileID: 8959642655804248576, guid: 8d770f0c24a09c04f8fae2bb70b455c3,
