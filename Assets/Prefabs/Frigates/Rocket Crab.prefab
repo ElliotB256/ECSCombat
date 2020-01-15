@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 2849265327219472904}
   - component: {fileID: 44871341575557320}
   - component: {fileID: -3937121121503242698}
+  - component: {fileID: -3234964059210127106}
   m_Layer: 0
   m_Name: Rocket Crab
   m_TagString: Untagged
@@ -306,8 +307,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3fbb01e6d75c0147b1cb991831d1a5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Capacity: 400
-  Radius: 0.5
+  Capacity: 100
+  Radius: 4
+--- !u!114 &-3234964059210127106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10378401105513712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a85288a799273146a148a4282062238, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Size: 2.5
 --- !u!1001 &3095150739571575763
 PrefabInstance:
   m_ObjectHideFlags: 0

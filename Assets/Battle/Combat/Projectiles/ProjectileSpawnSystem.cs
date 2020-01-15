@@ -22,7 +22,7 @@ namespace Battle.Combat.AttackSources
     {
         protected WeaponEntityBufferSystem m_entityBufferSystem;
 
-        struct ProjectileSpawnJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, ProjectileWeapon>
+        struct ProjectileSpawnJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, ProjectileWeapon, Team>
         {
             public EntityCommandBuffer.Concurrent buffer;
 
@@ -32,18 +32,21 @@ namespace Battle.Combat.AttackSources
                 [ReadOnly] ref Target target,
                 [ReadOnly] ref LocalToWorld worldTransform,
                 [ReadOnly] ref TargettedTool tool,
-                [ReadOnly] ref ProjectileWeapon weapon
+                [ReadOnly] ref ProjectileWeapon weapon,
+                [ReadOnly] ref Team team
                 )
             {
                 if (!tool.Firing)
                     return;
 
                 // Create the projectile
-                Entity attack = buffer.Instantiate(index, weapon.Projectile);
-                buffer.SetComponent(index, attack, target);
-                buffer.SetComponent(index, attack, new Translation { Value = worldTransform.Position });
-                buffer.SetComponent(index, attack, new Rotation { Value = worldTransform.Rotation });
-                buffer.SetComponent(index, attack, new Instigator() { Value = attacker });
+                Entity projectile = buffer.Instantiate(index, weapon.Projectile);
+                buffer.SetComponent(index, projectile, target);
+                buffer.SetComponent(index, projectile, new Translation { Value = worldTransform.Position });
+                buffer.SetComponent(index, projectile, new Rotation { Value = worldTransform.Rotation });
+                buffer.SetComponent(index, projectile, worldTransform);
+                buffer.SetComponent(index, projectile, new Instigator() { Value = attacker });
+                buffer.AddComponent(index, projectile, team);
             }
         }
 

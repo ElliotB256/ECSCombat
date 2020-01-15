@@ -15,7 +15,8 @@ namespace Battle.AI
             Fighters = (1 << 0),
             Frigates = (1 << 1),
             Cruisers = (1 << 2),
-            Turrets = (1 << 3)
+            Turrets = (1 << 3),
+            Missile = (1 << 4)
         }
 
         public eType Type;

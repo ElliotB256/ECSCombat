@@ -16,6 +16,9 @@ GameObject:
   - component: {fileID: 1178037602351066481}
   - component: {fileID: 5677436315713673679}
   - component: {fileID: -4298276486812559283}
+  - component: {fileID: 4985701511996415254}
+  - component: {fileID: 5130545637829704167}
+  - component: {fileID: -5966685207265854413}
   m_Layer: 0
   m_Name: Rocket
   m_TagString: Untagged
@@ -151,3 +154,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Lifetime: 10
+--- !u!114 &4985701511996415254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282203341236571935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d98289d03cc2884a966c6f5da175912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxHealth: 1
+  IsMortal: 1
+--- !u!114 &5130545637829704167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282203341236571935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed70dfa2b0a03b4b97b12fb8bc1e4ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-5966685207265854413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282203341236571935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11e55438286ac6b46964f5deb56b136d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AgentType: 16
