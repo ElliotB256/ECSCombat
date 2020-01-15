@@ -308,7 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Capacity: 400
-  Radius: 0.5
+  Radius: 5
 --- !u!114 &-3234964059210127106
 MonoBehaviour:
   m_ObjectHideFlags: 0
