@@ -11,23 +11,23 @@ using Unity.Rendering;
 namespace Battle.Effects
 {
     /// <summary>
-    /// Create laser effects between attacker and target entity.
+    /// Create beam effects between attacker and target entity.
     /// </summary>
     [UpdateInGroup(typeof(AttackResultSystemsGroup))]
-    public class LaserEffectSystem : JobComponentSystem
+    public class BeamEffectSystem : JobComponentSystem
     {
         /// <summary>
-        /// Spawns laser effects for each laser-based attack.
+        /// Spawns beam effects for each beam-based attack.
         /// </summary>
         //[BurstCompile]
-        protected struct CreateLaserEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, BeamEffectStyle, HitLocation, SourceLocation>
+        protected struct CreateBeamEffectJob : IJobForEachWithEntity<Attack, Instigator, Target, BeamEffectStyle, HitLocation, SourceLocation>
         {
             public EntityCommandBuffer.Concurrent buffer;
             public Unity.Mathematics.Random random;
 
             public void Execute(Entity e, int index, ref Attack attack, ref Instigator attacker, ref Target target, ref BeamEffectStyle style, ref HitLocation hitLoc, ref SourceLocation sourceLoc)
             {
-                var laserEffect = new LaserBeamEffect()
+                var laserEffect = new BeamEffect()
                 {
                     start = sourceLoc.Position,
                     end = hitLoc.Position,
@@ -53,13 +53,13 @@ namespace Battle.Effects
         /// Updates laser effects, and despawns them once they are dead.
         /// </summary>
         [BurstCompile]
-        protected struct UpdateLaserEffectsJob : IJobForEachWithEntity<LaserBeamEffect, Instigator, Target>
+        protected struct UpdateBeamEffectsJob : IJobForEachWithEntity<BeamEffect, Instigator, Target>
         {
             [ReadOnly] public ComponentDataFromEntity<LocalToWorld> worldTransforms;
             public float deltaTime;
             public EntityCommandBuffer.Concurrent buffer;
 
-            public void Execute(Entity e, int index, ref LaserBeamEffect beamEffect, ref Instigator attacker, ref Target target)
+            public void Execute(Entity e, int index, ref BeamEffect beamEffect, ref Instigator attacker, ref Target target)
             {
                 if (worldTransforms.Exists(attacker.Value))
                     beamEffect.start = worldTransforms[attacker.Value].Position;
@@ -70,11 +70,11 @@ namespace Battle.Effects
             }
         }
 
-        private PostAttackEntityBuffer m_laserEffectBufferSystem;
+        private PostAttackEntityBuffer PostEntityBuffer;
 
         protected override void OnCreateManager()
         {
-            m_laserEffectBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
+            PostEntityBuffer = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
@@ -82,22 +82,22 @@ namespace Battle.Effects
             var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
             // Create laser effects
             var pos = GetComponentDataFromEntity<LocalToWorld>(true);
-            var createJob = new CreateLaserEffectJob() {
-                buffer = m_laserEffectBufferSystem.CreateCommandBuffer().ToConcurrent(),
+            var createJob = new CreateBeamEffectJob() {
+                buffer = PostEntityBuffer.CreateCommandBuffer().ToConcurrent(),
                 random = random
             };
             var createJobHandle = createJob.Schedule(this, inputDependencies);
-            m_laserEffectBufferSystem.AddJobHandleForProducer(createJobHandle);
+            PostEntityBuffer.AddJobHandleForProducer(createJobHandle);
 
-            // Expire laser effects
-            var expireJob = new UpdateLaserEffectsJob()
+            // Expire beam effects
+            var expireJob = new UpdateBeamEffectsJob()
             {
                 worldTransforms = pos,
-                buffer = m_laserEffectBufferSystem.CreateCommandBuffer().ToConcurrent(),
+                buffer = PostEntityBuffer.CreateCommandBuffer().ToConcurrent(),
                 deltaTime = Time.fixedDeltaTime
             };
             var expireJobHandle = expireJob.Schedule(this, createJobHandle);
-            m_laserEffectBufferSystem.AddJobHandleForProducer(expireJobHandle);
+            PostEntityBuffer.AddJobHandleForProducer(expireJobHandle);
 
             return expireJobHandle;
         }

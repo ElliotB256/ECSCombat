@@ -10,5 +10,8 @@ namespace Battle.Effects
     public struct BeamEffectStyle : IComponentData
     {
         public float Width;
+        //public float PrimaryColor;
+        //public float SecondaryColor;
+        //public float Pattern;
     }
 }

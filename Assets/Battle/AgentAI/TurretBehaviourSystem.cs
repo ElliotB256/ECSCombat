@@ -33,12 +33,8 @@ namespace Battle.AI
                 [ReadOnly] ref TargettedTool tool
                 )
             {
-
                 if (target.Value == Entity.Null)
                     return;
-
-                if (!Positions.Exists(target.Value))
-                    target.Value = Entity.Null;
 
                 var targetPos = Positions[target.Value].Position;
 

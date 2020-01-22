@@ -15,7 +15,7 @@ namespace Battle.Effects
 {
     [
     AlwaysUpdateSystem,
-    UpdateAfter(typeof(LaserEffectSystem)),
+    UpdateAfter(typeof(BeamEffectSystem)),
     UpdateInGroup(typeof(AttackResultSystemsGroup))
     ]
     public class RenderLaserSystem : JobComponentSystem
@@ -28,21 +28,21 @@ namespace Battle.Effects
             m_query = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[] {
-                    ComponentType.ReadOnly<LaserBeamEffect>(),
+                    ComponentType.ReadOnly<BeamEffect>(),
                     ComponentType.ReadOnly<BeamEffectStyle>()
                 }
             }
             );
         }
 
-        protected struct CreateLaserMeshJob : IJobForEachWithEntity<LaserBeamEffect,BeamEffectStyle>
+        protected struct CreateLaserMeshJob : IJobForEachWithEntity<BeamEffect,BeamEffectStyle>
         {
             [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Vertices;
             [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float2> UVs;
             [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<int> Triangles;
             [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Normals;
 
-            public void Execute(Entity e, int index, ref LaserBeamEffect laserBeam, ref BeamEffectStyle style)
+            public void Execute(Entity e, int index, ref BeamEffect laserBeam, ref BeamEffectStyle style)
             {
                 float3 transverseDir = math.normalize(math.cross((laserBeam.end - laserBeam.start), new float3(0.0f, 1.0f, 0.0f)));
                 float distance = math.length(laserBeam.end - laserBeam.start);
@@ -111,6 +111,7 @@ namespace Battle.Effects
                 mesh.mesh.SetUVs(0, UVs);
                 mesh.mesh.SetTriangles(Triangles.ToArray(), 0);
                 mesh.mesh.SetNormals(Normals);
+                mesh.mesh.bounds = new Bounds(Vector3.zero, new Vector3(1f, 1f, 1f) * 10000f);
             }
             ).WithoutBurst().Run();
             var deleteJob = new DeleteNativeArrays()

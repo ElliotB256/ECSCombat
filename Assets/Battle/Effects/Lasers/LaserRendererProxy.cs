@@ -16,4 +16,9 @@ namespace Battle.Effects
                 mesh = new Mesh(), castShadows = UnityEngine.Rendering.ShadowCastingMode.Off, material = Material, receiveShadows = false, subMesh = 0 });
         }
     }
+
+    public struct LaserRenderer : IComponentData
+    {
+        bool dummy;
+    }
 }
