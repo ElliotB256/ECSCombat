@@ -36,14 +36,19 @@ namespace Battle.AI
             {
                 if (target.Value == Entity.Null)
                     return;
+                if (!Positions.Exists(target.Value))
+                {
+                    target.Value = Entity.Null;
+                    return;
+                }
 
                 var targetPos = Positions[target.Value].Position;
 
-                // If target is outside fighter range, disengage.
+                // Disengage if target is outside range.
                 if (math.lengthsq(targetPos - localToWorld.Position) > tool.Range * tool.Range)
                     target.Value = Entity.Null;
 
-                // set Turret destination to be target
+                // Point turret to target
                 turnTo.Destination = targetPos;
             }
         }
