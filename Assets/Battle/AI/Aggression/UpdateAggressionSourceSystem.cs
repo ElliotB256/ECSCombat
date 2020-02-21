@@ -10,6 +10,7 @@ namespace Battle.AI
     /// For entities without a target, updates the location from which the target search should be taken.
     /// </summary>
     [UpdateBefore(typeof(SelectTargetSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class UpdateAggressionSourceSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
@@ -36,7 +37,7 @@ namespace Battle.AI
 
                     source.Position = positions[guard.Target].Position;
                 }
-                ).Schedule(standard);
+                ).WithReadOnly(positions).Schedule(standard);
 
             return guarding;
         }

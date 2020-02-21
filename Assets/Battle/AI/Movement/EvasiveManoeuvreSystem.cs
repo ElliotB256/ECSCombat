@@ -13,6 +13,7 @@ namespace Battle.AI
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
     [UpdateBefore(typeof(TurnToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class EvasiveManoeuvreSystem : JobComponentSystem
     {
         public const float ENGAGEMENT_RADIUS = 10f;

@@ -14,6 +14,7 @@ namespace Battle.AI
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
     [UpdateBefore(typeof(TurnToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class PursueBehaviourSystem : JobComponentSystem
     {
         public const float PROXIMITY_RADIUS = 4f;

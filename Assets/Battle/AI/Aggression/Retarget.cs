@@ -28,6 +28,7 @@ namespace Battle.AI
     /// Periodically clears the current target from entities with a RetargettingBehaviour component.
     /// </summary>
     [UpdateBefore(typeof(SelectTargetSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class RetargetBehaviourSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)

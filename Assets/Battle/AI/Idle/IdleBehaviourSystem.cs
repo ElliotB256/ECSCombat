@@ -15,6 +15,7 @@ namespace Battle.AI
     /// When idle, entity random walks
     /// </summary>
     [UpdateBefore(typeof(PursueBehaviourSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class IdleBehaviourSystem : JobComponentSystem
     {
         public const float ARRIVAL_TOLERANCE = 1f;

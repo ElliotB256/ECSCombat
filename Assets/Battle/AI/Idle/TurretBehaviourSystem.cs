@@ -16,6 +16,7 @@ namespace Battle.AI
     /// A turret searches for targets when it does not have one or the target is outside of range.
     /// </summary>
     [UpdateBefore(typeof(PursueBehaviourSystem))]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class TurretBehaviourSystem : JobComponentSystem
     {
         [BurstCompile]

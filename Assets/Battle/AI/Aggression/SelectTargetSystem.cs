@@ -12,6 +12,7 @@ namespace Battle.AI
     /// Selects targets for entities.
     /// </summary>
     [AlwaysUpdateSystem]
+    [UpdateInGroup(typeof(AISystemGroup))]
     public class SelectTargetSystem : JobComponentSystem
     {
         private EntityQuery TargetQuery;
