@@ -7,6 +7,7 @@ namespace Battle.AI
     /// A set of hints as to how an entity should choose targets.
     /// </summary>
     [Serializable]
+    [GenerateAuthoringComponent]
     public struct TargetingOrders : IComponentData
     {
         /// <summary>

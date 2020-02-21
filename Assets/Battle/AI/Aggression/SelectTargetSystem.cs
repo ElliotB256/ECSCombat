@@ -9,21 +9,13 @@ using Battle.Combat;
 namespace Battle.AI
 {
     /// <summary>
-    /// Searches for target entities.
-    /// 'Pickers' are entities that are currently choosing targets.
-    /// 'Targets' are all entities that are acceptable to be chosen as targets.
+    /// Selects targets for entities.
     /// </summary>
     [AlwaysUpdateSystem]
-    public class SearchForTargetSystem : JobComponentSystem
+    public class SelectTargetSystem : JobComponentSystem
     {
-        bool hasRunBefore = false;
-        private EntityQuery m_targetQuery;
-        private EntityQuery m_pickerQuery;
-        private NativeArray<LocalToWorld> m_targetPositions;
-        private NativeArray<Team> m_targetTeams;
-        private NativeArray<Entity> m_targetIds;
-        private NativeArray<AgentCategory.eType> m_targetTypes;
-        private NativeMultiHashMap<int, int> m_targetBins;
+        private EntityQuery TargetQuery;
+        private EntityQuery PickerQuery;
 
         /// <summary>
         /// Cell size used for hash map sorting
@@ -32,75 +24,62 @@ namespace Battle.AI
 
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            // Dispose of memory allocated on previous iteration.
-            if (hasRunBefore)
-                DisposeNatives();
+            TargetQuery.AddDependency(inputDependencies);
+            PickerQuery.AddDependency(inputDependencies);
+            int targetN = TargetQuery.CalculateEntityCount();
+            int pickerN = PickerQuery.CalculateEntityCount();
 
-            m_targetQuery.AddDependency(inputDependencies);
-            m_pickerQuery.AddDependency(inputDependencies);
-            int targetNum = m_targetQuery.CalculateEntityCount();
-            int pickerNum = m_pickerQuery.CalculateEntityCount();
-            m_targetBins = new NativeMultiHashMap<int, int>(targetNum, Allocator.TempJob);
+            // Allocate arrays used by the system
+            var pickerPositions = PickerQuery.ToComponentDataArray<AggroLocation>(Allocator.TempJob, out var pposJH);
+            var targetPositions = TargetQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob, out var tposJH);
+            var targetTeams = TargetQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var tteamJH);
+            var targetIDs = TargetQuery.ToEntityArray(Allocator.TempJob, out JobHandle tidJH);
+            var targetBins = new NativeMultiHashMap<int, int>(targetN, Allocator.TempJob);
 
-            m_targetTypes = new NativeArray<AgentCategory.eType>(targetNum, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var targetTypesJH = new GetTargetTypesJob
+            // Get target types
+            var targetTypes = new NativeArray<AgentCategory.eType>(targetN, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var ttypeJH = new GetTargetTypesJob
             {
                 TargetCategories = GetArchetypeChunkComponentType<AgentCategory>(true),
-                TargetTypes = m_targetTypes
-            }.Schedule(m_targetQuery, inputDependencies);
-            m_targetPositions = m_targetQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob, out var copyTargetPosJob);
-            m_targetTeams = m_targetQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var copyTargetTeamsJob);
-            m_targetIds = m_targetQuery.ToEntityArray(Allocator.TempJob, out JobHandle copyTargetEntityJob);
-            var copyJobs = JobHandle.CombineDependencies(copyTargetEntityJob, copyTargetTeamsJob);
-            copyJobs = JobHandle.CombineDependencies(copyJobs, targetTypesJH);
+                TargetTypes = targetTypes
+            }.Schedule(TargetQuery, inputDependencies);
 
-            // Once positions are copied over, we sort the positions into a hashmap.
-            var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = m_targetBins.AsParallelWriter() }.Schedule(m_targetQuery, copyTargetPosJob);
-            var hashBarrier = JobHandle.CombineDependencies(hashTargetPosJob, copyJobs);
+            var initialiseJH = JobHandle.CombineDependencies(pposJH, tposJH, JobHandle.CombineDependencies(tteamJH, tidJH, ttypeJH));
 
-            // Having sorted entities into buckets by spatial pos, we loop through the entities and find nearby entities (in nearby buckets).
+            // Sort target positions into a hashmap.
+            var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = targetBins.AsParallelWriter() }.Schedule(TargetQuery, tposJH);
+            var hashBarrier = JobHandle.CombineDependencies(hashTargetPosJob, initialiseJH);
+
+            // Loop through picker entities and find suitable targets.
             var findTargetsJH = new IdentifyBestTargetChunkJob()
             {
                 CellSize = HASH_CELL_SIZE,
                 PickerAggroRadii = GetArchetypeChunkComponentType<AggroRadius>(true),
-                PickerLocalToWorld = GetArchetypeChunkComponentType<LocalToWorld>(true),
+                PickerLocalToWorld = GetArchetypeChunkComponentType<AggroLocation>(true),
                 PickerTargets = GetArchetypeChunkComponentType<Target>(false),
                 PickerTeams = GetArchetypeChunkComponentType<Team>(true),
                 PickerOrders = GetArchetypeChunkComponentType<TargetingOrders>(true),
-                Targets = m_targetIds,
-                TargetPositions = m_targetPositions,
-                TargetTeams = m_targetTeams,
-                TargetMap = m_targetBins,
-                TargetTypes = m_targetTypes,
-            }.Schedule(m_pickerQuery, hashBarrier);
+                Targets = targetIDs,
+                TargetPositions = targetPositions,
+                TargetTeams = targetTeams,
+                TargetMap = targetBins,
+                TargetTypes = targetTypes,
+            }.Schedule(PickerQuery, hashBarrier);
 
-            hasRunBefore = true;
+            // Dispose of native arrays
+            pickerPositions.Dispose(findTargetsJH);
+            targetPositions.Dispose(findTargetsJH);
+            targetTeams.Dispose(findTargetsJH);
+            targetIDs.Dispose(findTargetsJH);
+            targetBins.Dispose(findTargetsJH);
+            targetTypes.Dispose(findTargetsJH);
 
             return findTargetsJH;
         }
 
-        /// <summary>
-        /// Clean up NativeArrays used in the job.
-        /// </summary>
-        public void DisposeNatives()
-        {
-            m_targetBins.Dispose();
-            m_targetPositions.Dispose();
-            m_targetTeams.Dispose();
-            m_targetIds.Dispose();
-            m_targetTypes.Dispose();
-        }
-
-        protected override void OnStopRunning()
-        {
-            // if memory exists, dispose of memory allocated on previous iteration.
-            if (hasRunBefore)
-                DisposeNatives();
-        }
-
         protected override void OnCreate()
         {
-            m_targetQuery = GetEntityQuery(new EntityQueryDesc
+            TargetQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[] {
                     ComponentType.ReadOnly<LocalToWorld>(),
@@ -109,12 +88,13 @@ namespace Battle.AI
                 }
             });
 
-            m_pickerQuery = GetEntityQuery(new EntityQueryDesc
+            PickerQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[] {
                     ComponentType.ReadOnly<LocalToWorld>(),
                     ComponentType.ReadOnly<Team>(),
                     ComponentType.ReadOnly<AggroRadius>(),
+                    ComponentType.ReadOnly<AggroLocation>(),
                     ComponentType.ReadWrite<Target>()
                 }
             });
@@ -183,7 +163,7 @@ namespace Battle.AI
             public float CellSize;
 
             //Picker components
-            [ReadOnly] public ArchetypeChunkComponentType<LocalToWorld> PickerLocalToWorld;
+            [ReadOnly] public ArchetypeChunkComponentType<AggroLocation> PickerLocalToWorld;
             [ReadOnly] public ArchetypeChunkComponentType<AggroRadius> PickerAggroRadii;
             [ReadOnly] public ArchetypeChunkComponentType<Team> PickerTeams;
             [ReadOnly] public ArchetypeChunkComponentType<TargetingOrders> PickerOrders;

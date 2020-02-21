@@ -6,6 +6,7 @@ namespace Battle.AI
     /// <summary>
     /// Descriptive category of an entity 
     /// </summary>
+    [GenerateAuthoringComponent]
     [Serializable]
     public struct AgentCategory : IComponentData
     {
