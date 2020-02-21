@@ -138,6 +138,7 @@ namespace Battle.AI
             {
                 var position = localToWorld.Position;
                 float2 vec = new float2(position.x, position.z);
+                int2 rounded = new int2(math.floor(vec / CellSize));
                 var hash = Hash(BinCoordinates(vec, CellSize));
                 hashMap.Add(hash, index);
             }
