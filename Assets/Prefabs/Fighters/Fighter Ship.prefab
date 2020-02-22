@@ -29,6 +29,7 @@ GameObject:
   - component: {fileID: 6000928292293924844}
   - component: {fileID: 3963615632825268347}
   - component: {fileID: 5750364976108589696}
+  - component: {fileID: -7216072463823055425}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -336,6 +337,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Radius: 10
+--- !u!114 &-7216072463823055425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208510331489906793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35fad3ae28e474c4facc085e3c041959, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Centre:
+    x: 0
+    y: 0
+    z: 0
   Radius: 10
 --- !u!1 &5895549097753276612
 GameObject:
