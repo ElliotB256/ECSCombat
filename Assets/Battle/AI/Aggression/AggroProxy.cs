@@ -10,10 +10,15 @@ namespace Battle.AI
     {
         public float Radius = 10f;
 
+        [Tooltip("Time in seconds between retargetting. 0 to disable.")]
+        public float RetargetTime = 0.0f;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponentData(entity, new AggroRadius { Value = Radius });
             dstManager.AddComponentData(entity, new AggroLocation());
+            if (RetargetTime > 0.0f)
+                dstManager.AddComponentData(entity, new RetargetBehaviour { Interval = RetargetTime, RemainingTime = RetargetTime });
         }
     }
 

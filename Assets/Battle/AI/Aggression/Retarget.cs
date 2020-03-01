@@ -9,7 +9,6 @@ namespace Battle.AI
     /// <summary>
     /// A behaviour that periodically recalculates the choice of target.
     /// </summary>
-    [GenerateAuthoringComponent]
     [Serializable]
     public struct RetargetBehaviour : IComponentData
     {

@@ -27,13 +27,16 @@ namespace Battle.AI
 
             var positions = GetComponentDataFromEntity<LocalToWorld>(true);
             var guarding = Entities.ForEach(
-                (ref AggroLocation source, in GuardBehaviour guard, in Target target) =>
+                (Entity e, ref AggroLocation source, in GuardBehaviour guard, in Target target) =>
                 {
                     if (target.Value == Entity.Null)
                         return;
 
                     if (!positions.HasComponent(guard.Target))
+                    {
+                        source.Position = positions[e].Position;
                         return;
+                    }
 
                     source.Position = positions[guard.Target].Position;
                 }
