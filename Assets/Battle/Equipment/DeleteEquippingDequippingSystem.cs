@@ -5,7 +5,7 @@ using Unity.Jobs;
 namespace Battle.Equipment
 {
     /// <summary>
-    /// Deletes the Equipping/Dequipping flag components
+    /// Removes the Equipping/Dequipping flag components
     /// </summary>
     [
         UpdateAfter(typeof(EquipmentUpdateGroup)),
@@ -34,21 +34,6 @@ namespace Battle.Equipment
 
             return combinedJH;
         }
-
-        //internal struct DeleteJob<T> : IJobForEachWithEntity<T>
-        //    where T : struct, IComponentData
-        //{
-        //    public EntityCommandBuffer.Concurrent Buffer;
-
-        //    public void Execute(
-        //        Entity e,
-        //        int index,
-        //        [ReadOnly] ref T comp
-        //        )
-        //    {
-        //        Buffer.RemoveComponent<T>(index, e);
-        //    }
-        //}
 
         internal struct DeleteEquippingJob : IJobForEachWithEntity<Equipping>
         {
