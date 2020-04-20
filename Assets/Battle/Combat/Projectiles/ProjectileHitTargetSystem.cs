@@ -1,10 +1,8 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Battle.AI;
 using Unity.Transforms;
 using Unity.Mathematics;
-using Unity.Burst;
 using Battle.Movement;
 
 namespace Battle.Combat
@@ -15,85 +13,62 @@ namespace Battle.Combat
     [
         UpdateInGroup(typeof(WeaponSystemsGroup))
         ]
-    public class ProjectileHitTargetSystem : JobComponentSystem
+    public class ProjectileHitTargetSystem : SystemBase
     {
-        EntityQuery ProjectileQuery;
         WeaponEntityBufferSystem CommandBufferSystem;
 
         protected override void OnCreate()
         {
-            ProjectileQuery = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] {
-                    ComponentType.ReadWrite<Projectile>(),
-                    ComponentType.ReadOnly<Target>(),
-                    ComponentType.ReadOnly<LocalToWorld>(),
-                    ComponentType.ReadOnly<Speed>(),
-                    ComponentType.ReadOnly<TurnSpeed>()
-                }
-            });
             CommandBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var jobHandle = new CheckProjectileReachedTargetJob
-            {
-                Transforms = GetComponentDataFromEntity<LocalToWorld>(true),
-                Radii = GetComponentDataFromEntity<SizeRadius>(true),
-                dT = UnityEngine.Time.fixedDeltaTime,
-                CommandBuffer = CommandBufferSystem.CreateCommandBuffer().ToConcurrent()
-            }.Schedule(ProjectileQuery, inputDependencies);
-            CommandBufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
-        }
+            var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
+            var sizeRadii = GetComponentDataFromEntity<SizeRadius>(true);
+            float dT = UnityEngine.Time.fixedDeltaTime;
+            var buffer = CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
 
-        [BurstCompile]
-        struct CheckProjectileReachedTargetJob : IJobForEachWithEntity<Projectile, Target, LocalToWorld, Speed, TurnSpeed>
-        {
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Transforms;
-            [ReadOnly] public ComponentDataFromEntity<SizeRadius> Radii;
-            public float dT;
-            public EntityCommandBuffer.Concurrent CommandBuffer;
-
-            public void Execute(
+            Entities
+                .ForEach(
+                (
                 Entity e,
-                int index,
+                int entityInQueryIndex,
                 ref Projectile projectile,
-                [ReadOnly] ref Target target,
-                [ReadOnly] ref LocalToWorld transform,
-                [ReadOnly] ref Speed speed,
-                [ReadOnly] ref TurnSpeed turnSpeed
-                )
-            {
-                if (!Transforms.Exists(target.Value))
-                    return; // Target does not exist?
+                in Target target,
+                in LocalToWorld transform,
+                in Speed speed,
+                in TurnSpeed turnSpeed
+                ) =>
+                {
 
-                var tPos = Transforms[target.Value].Position;
-                var delta = (tPos - transform.Position);
+                    if (!transforms.Exists(target.Value))
+                        return; // Target does not exist?
 
-                var projectileDistance = speed.Value * dT;
+                    var tPos = transforms[target.Value].Position;
+                    var delta = (tPos - transform.Position);
 
-                float radius = (Radii.HasComponent(target.Value)) ? Radii[target.Value].Value : 0f;
+                    var projectileDistance = speed.Value * dT;
 
-                // If target out of range, return
-                if (math.length(delta) - radius > projectileDistance)
-                    return;
+                    float radius = (sizeRadii.HasComponent(target.Value)) ? sizeRadii[target.Value].Value : 0f;
 
-                // Check if projectile could steer to reach target.
-                //float transverse = math.sqrt(math.lengthsq(delta) - math.pow(math.dot(delta, transform.Forward), 2.0f));
-                //float transverseRange = (speed.Value * dT) * (turnSpeed.RadiansPerSecond * dT);
-                //if (transverse - radius > transverseRange)
-                //    return;
+                    // If target out of range, return
+                    if (math.length(delta) - radius > projectileDistance)
+                        return;
 
-                // Projectile has reached the target.
-                projectile.ReachedTarget = true;
+                    // Projectile has reached the target.
+                    projectile.ReachedTarget = true;
 
-                CommandBuffer.AddComponent(index, e, new Delete());
-                var effect = CommandBuffer.Instantiate(index, projectile.AttackEntity);
-                CommandBuffer.AddComponent(index, effect, target);
-                CommandBuffer.AddComponent(index, effect, new Instigator { Value = e });
-            }
+                    buffer.AddComponent(entityInQueryIndex, e, new Delete());
+                    var effect = buffer.Instantiate(entityInQueryIndex, projectile.AttackEntity);
+                    buffer.AddComponent(entityInQueryIndex, effect, target);
+                    buffer.AddComponent(entityInQueryIndex, effect, new Instigator { Value = e });
+                })
+                .WithReadOnly(sizeRadii)
+                .WithReadOnly(transforms)
+                .Schedule();
+
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

@@ -1,12 +1,6 @@
-﻿using Battle.Combat.AttackSources;
-using Battle.Combat.Calculations;
-using Battle.Equipment;
-using Battle.Movement;
-using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Battle.Combat.AttackSources
@@ -18,51 +12,44 @@ namespace Battle.Combat.AttackSources
         UpdateInGroup(typeof(WeaponSystemsGroup)),
         UpdateAfter(typeof(FireTargettedToolsSystem))
         ]
-    public class ProjectileSpawnSystem : JobComponentSystem
+    public class ProjectileSpawnSystem : SystemBase
     {
         protected WeaponEntityBufferSystem m_entityBufferSystem;
-
-        struct ProjectileSpawnJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, ProjectileWeapon, Team>
-        {
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity attacker,
-                int index,
-                [ReadOnly] ref Target target,
-                [ReadOnly] ref LocalToWorld worldTransform,
-                [ReadOnly] ref TargettedTool tool,
-                [ReadOnly] ref ProjectileWeapon weapon,
-                [ReadOnly] ref Team team
-                )
-            {
-                if (!tool.Firing)
-                    return;
-
-                // Create the projectile
-                Entity projectile = buffer.Instantiate(index, weapon.Projectile);
-                buffer.SetComponent(index, projectile, target);
-                buffer.SetComponent(index, projectile, new Translation { Value = worldTransform.Position });
-                buffer.SetComponent(index, projectile, new Rotation { Value = worldTransform.Rotation });
-                buffer.SetComponent(index, projectile, worldTransform);
-                buffer.SetComponent(index, projectile, new Instigator() { Value = attacker });
-                buffer.AddComponent(index, projectile, team);
-            }
-        }
 
         protected override void OnCreate()
         {
             m_entityBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var spawnJH = new ProjectileSpawnJob()
-            {
-                buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(),
-            }.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(spawnJH);
-            return spawnJH;
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+
+            Entities
+                .ForEach((
+                Entity attacker,
+                int entityInQueryIndex,
+                in Target target,
+                in LocalToWorld worldTransform,
+                in TargettedTool tool,
+                in ProjectileWeapon weapon,
+                in Team team
+                ) =>
+                {
+                    if (!tool.Firing)
+                        return;
+
+                    // Create the projectile
+                    Entity projectile = buffer.Instantiate(entityInQueryIndex, weapon.Projectile);
+                    buffer.SetComponent(entityInQueryIndex, projectile, target);
+                    buffer.SetComponent(entityInQueryIndex, projectile, new Translation { Value = worldTransform.Position });
+                    buffer.SetComponent(entityInQueryIndex, projectile, new Rotation { Value = worldTransform.Rotation });
+                    buffer.SetComponent(entityInQueryIndex, projectile, worldTransform);
+                    buffer.SetComponent(entityInQueryIndex, projectile, new Instigator() { Value = attacker });
+                    buffer.AddComponent(entityInQueryIndex, projectile, team);
+                })
+                .Schedule();
+            m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

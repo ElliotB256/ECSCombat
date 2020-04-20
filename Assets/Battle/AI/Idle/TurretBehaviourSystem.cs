@@ -1,11 +1,8 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-
-using Battle.Movement;
 
 using Battle.Combat;
 using Battle.Combat.AttackSources;
@@ -17,48 +14,43 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(PursueBehaviourSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class TurretBehaviourSystem : JobComponentSystem
+    public class TurretBehaviourSystem : SystemBase
     {
-        [BurstCompile]
-        struct IdleJob : IJobForEachWithEntity<TurretBehaviour, LocalToWorld, Target, TurnToDestinationBehaviour, TargettedTool>
+        protected override void OnUpdate()
         {
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Positions;
+            var positions = GetComponentDataFromEntity<LocalToWorld>(true);
 
-            public void Execute(
+            Entities.ForEach(
+                (
                 Entity e,
-                int index,
-                [ReadOnly] ref TurretBehaviour behaviour,
-                [ReadOnly] ref LocalToWorld localToWorld,
+                int entityInQueryIndex,
                 ref Target target,
                 ref TurnToDestinationBehaviour turnTo,
-                [ReadOnly] ref TargettedTool tool
-                )
-            {
-                if (target.Value == Entity.Null)
-                    return;
-                if (!Positions.Exists(target.Value))
+                in TurretBehaviour behaviour,
+                in LocalToWorld localToWorld,
+                in TargettedTool tool
+                ) =>
                 {
-                    target.Value = Entity.Null;
-                    return;
+                    if (target.Value == Entity.Null)
+                        return;
+                    if (!positions.Exists(target.Value))
+                    {
+                        target.Value = Entity.Null;
+                        return;
+                    }
+
+                    var targetPos = positions[target.Value].Position;
+
+                    // Disengage if target is outside range.
+                    if (math.lengthsq(targetPos - localToWorld.Position) > tool.Range * tool.Range)
+                        target.Value = Entity.Null;
+
+                    // Point turret to target
+                    turnTo.Destination = targetPos;
                 }
-
-                var targetPos = Positions[target.Value].Position;
-
-                // Disengage if target is outside range.
-                if (math.lengthsq(targetPos - localToWorld.Position) > tool.Range * tool.Range)
-                    target.Value = Entity.Null;
-
-                // Point turret to target
-                turnTo.Destination = targetPos;
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var pos = GetComponentDataFromEntity<LocalToWorld>(true);
-            var job = new IdleJob() { Positions = pos };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            return jobHandle;
+                )
+                .WithReadOnly(positions)
+                .Schedule();
         }
     }
 }
