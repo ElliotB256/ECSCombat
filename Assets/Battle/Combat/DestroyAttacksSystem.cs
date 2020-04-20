@@ -1,47 +1,29 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Jobs;
+﻿using Unity.Entities;
 
 namespace Battle.Combat
 {
     /// <summary>
-    /// Deletes all attacks (entities with Attack component).
+    /// Deletes all entities with Attack component.
     /// </summary>
     [
         UpdateAfter(typeof(AttackResultSystemsGroup)),
         UpdateBefore(typeof(PostAttackEntityBuffer))
         ]
-    public class DestroyAttacksSystem : JobComponentSystem
+    public class DestroyAttacksSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem m_endSimBufferSystem;
-
-        [BurstCompile]
-        struct CleanUpAttackJob : IJobForEachWithEntity<Attack>
-        {
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity attack,
-                int index,
-                [ReadOnly] ref Attack attackComp
-                )
-            {
-                buffer.DestroyEntity(index, attack);
-            }
-        }
+        private EntityQuery AttackQuery;
 
         protected override void OnCreate()
         {
             m_endSimBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            AttackQuery = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Attack>());
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var job = new CleanUpAttackJob() { buffer = m_endSimBufferSystem.CreateCommandBuffer().ToConcurrent() };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            m_endSimBufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            var buffer = m_endSimBufferSystem.CreateCommandBuffer();
+            buffer.DestroyEntity(AttackQuery);
         }
     }
 }

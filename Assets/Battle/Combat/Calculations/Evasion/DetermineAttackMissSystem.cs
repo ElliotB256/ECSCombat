@@ -10,36 +10,28 @@ namespace Battle.Combat.AttackSources
     /// Determines whether attacks hit or miss their target.
     /// </summary>
     [UpdateInGroup(typeof(AttackSystemsGroup))]
-    public class DetermineAttackMissSystem : JobComponentSystem
+    public class DetermineAttackMissSystem : SystemBase
     {
-        struct DetermineAttackMissJob : IJobForEach<Attack, Target>
-        {
-            public Random random;
-            [ReadOnly] public ComponentDataFromEntity<Evasion> Evasions;
-
-            public void Execute(
-                ref Attack attack,
-                [ReadOnly] ref Target target
-                )
-            {
-                if (Evasions.HasComponent(target.Value))
-                {
-                    float evasion = Evasions[target.Value].GetEvasionRating();
-                    float hitChance = math.exp(-evasion / attack.Accuracy);
-                    if (random.NextFloat() > hitChance)
-                        attack.Result = Attack.eResult.Miss;
-                }
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
-            var job = new DetermineAttackMissJob {
-                Evasions = GetComponentDataFromEntity<Evasion>(true),
-                random = random
-            };
-            return job.Schedule(this, inputDependencies);
+            var evasions = GetComponentDataFromEntity<Evasion>(true);
+
+            Entities
+                .ForEach(
+                (ref Attack attack, in Target target) =>
+                {
+                    if (evasions.HasComponent(target.Value))
+                    {
+                        float evasion = evasions[target.Value].GetEvasionRating();
+                        float hitChance = math.exp(-evasion / attack.Accuracy);
+                        if (random.NextFloat() > hitChance)
+                            attack.Result = Attack.eResult.Miss;
+                    }
+                }
+                )
+                .WithReadOnly(evasions)
+                .Schedule();
         }
     }
 }

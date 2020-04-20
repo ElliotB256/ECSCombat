@@ -1,10 +1,8 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Battle.Movement
 {
@@ -12,27 +10,20 @@ namespace Battle.Movement
     /// Updates the Translation of all entities with speed.
     /// </summary>
     [UpdateInGroup(typeof(MovementUpdateSystemsGroup))]
-    public class UpdateTranslationSystem : JobComponentSystem
+    public class UpdateTranslationSystem : SystemBase
     {
-        [BurstCompile]
-        struct UpdateTranslationJob : IJobForEach<Translation, Rotation, Speed>
+        protected override void OnUpdate()
         {
-            public float DeltaTime;
+            float dT = Time.DeltaTime;
 
-            public void Execute(
-                ref Translation translation,
-                [ReadOnly] ref Rotation rot,
-                [ReadOnly] ref Speed speed)
-            {
-                float3 displacement = DeltaTime * speed.Value * math.forward(rot.Value);
-                translation.Value = translation.Value + displacement;
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var job = new UpdateTranslationJob() { DeltaTime = Time.fixedDeltaTime };
-            return job.Schedule(this, inputDependencies);
+            Entities.ForEach(
+                (ref Translation translation, in Rotation rot, in Speed speed) =>
+                {
+                    float3 displacement = dT * speed.Value * math.forward(rot.Value);
+                    translation.Value = translation.Value + displacement;
+                }
+                )
+                .Schedule();
         }
     }
 }

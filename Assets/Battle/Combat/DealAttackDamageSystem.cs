@@ -1,118 +1,47 @@
 ﻿using Battle.Effects;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Transforms;
 
 namespace Battle.Combat
 {
     /// <summary>
     /// Deals damage for all Attack entities with a Damage component.
-    /// 
-    /// Note that multiple attacks may refer to a single target, so some care is required with concurrently writing to Health.
     /// </summary>
-    [   
+    [
         UpdateInGroup(typeof(AttackResultSystemsGroup))
         ]
-    public class DealAttackDamageSystem : JobComponentSystem
+    public class DealAttackDamageSystem : SystemBase
     {
-        private NativeMultiHashMap<Entity, float> m_damageTable;
-
-        /// <summary>
-        /// Sorts attack damage into a hash map by target ID.
-        /// </summary>
-        [BurstCompile]
-        struct SortAttackDamageJob : IJobForEachWithEntity<Attack, Target, Damage>
+        protected override void OnUpdate()
         {
-            public NativeMultiHashMap<Entity, float>.ParallelWriter damageTable;
+            var lastHitTimers = GetComponentDataFromEntity<LastHitTimer>();
+            var healths = GetComponentDataFromEntity<Health>();
 
-            public void Execute(
-                Entity attack,
-                int index,
-                [ReadOnly] ref Attack attackFlag,
-                [ReadOnly] ref Target target,
-                [ReadOnly] ref Damage damage
-                )
-            {
-                var amount = damage.Value;
-                if (attackFlag.Result == Attack.eResult.Miss)
-                    amount = 0f;
-                damageTable.Add(target.Value, amount);
-            }
-        }
+            Entities
+                .ForEach(
+                (
+                    in Attack attack,
+                    in Target target,
+                    in Damage damage
+                    ) =>
+                {
+                    var amount = damage.Value;
+                    if (attack.Result == Attack.eResult.Miss)
+                        return;
 
-        /// <summary>
-        /// Deals attack damage to all entities with health
-        /// </summary>
-        [BurstCompile]
-        struct DealAttackDamageJob : IJobForEachWithEntity<Health, LastHitTimer>
-        {
-            [ReadOnly] public NativeMultiHashMap<Entity, float> damageTable;
+                    if (lastHitTimers.HasComponent(target.Value))
+                        lastHitTimers[target.Value] = new LastHitTimer { Value = 0f };
 
-            public void Execute(
-                Entity target,
-                int index,
-                ref Health health,
-                ref LastHitTimer timer
-                )
-            {
-                if (!damageTable.TryGetFirstValue(target, out float amount, out var it))
-                    return;
-
-                if (amount > 0f)
-                    timer.Value = 0f;
-
-                health.Value -= amount;
-                while (damageTable.TryGetNextValue(out amount, ref it))
-                    health.Value -= amount;
-            }
-        }
-
-        private bool hasRunAtLeastOnce = false;
-
-        public void TryDisposeNatives()
-        {
-            if (hasRunAtLeastOnce)
-            {
-                m_damageTable.Dispose();
-            }
-        }
-
-        protected override void OnCreate()
-        {
-            m_attackQuery = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] {
-                    ComponentType.ReadOnly<Attack>(),
-                    ComponentType.ReadOnly<Target>(),
-                    ComponentType.ReadOnly<Damage>()
+                    if (healths.HasComponent(target.Value))
+                    {
+                        var health = healths[target.Value];
+                        health.Value -= amount;
+                        healths[target.Value] = health;
+                    }
                 }
-            });
-        }
-
-        protected EntityQuery m_attackQuery;
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            TryDisposeNatives();
-            m_damageTable = new NativeMultiHashMap<Entity, float>(m_attackQuery.CalculateEntityCount(), Allocator.TempJob);
-
-            var sortJob = new SortAttackDamageJob() { damageTable = m_damageTable.AsParallelWriter() };
-            var sortJobH = sortJob.Schedule(m_attackQuery, inputDependencies);
-
-            var dealJob = new DealAttackDamageJob() { damageTable = m_damageTable };
-            var dealJobH = dealJob.Schedule(this, sortJobH);
-
-            hasRunAtLeastOnce = true;
-
-            return dealJobH;
-        }
-
-        protected override void OnStopRunning()
-        {
-            TryDisposeNatives();
-            base.OnStopRunning();
+                )
+                .Schedule();
         }
     }
 }

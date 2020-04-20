@@ -1,10 +1,8 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Battle.Movement
 {
@@ -12,26 +10,19 @@ namespace Battle.Movement
     /// Updates the rotation of all entities with TurnSpeed
     /// </summary>
     [UpdateInGroup(typeof(MovementUpdateSystemsGroup))]
-    public class UpdateRotationSystem : JobComponentSystem
+    public class UpdateRotationSystem : SystemBase
     {
-        [BurstCompile]
-        struct UpdateRotationJob : IJobForEach<Rotation, TurnSpeed>
+        protected override void OnUpdate()
         {
-            public float DeltaTime;
-
-            public void Execute(
-                ref Rotation rot,
-                [ReadOnly] ref TurnSpeed turnSpeed
+            float dT = Time.DeltaTime;
+            Entities
+                .ForEach(
+                (ref Rotation rot, in TurnSpeed turnSpeed) =>
+                {
+                    rot.Value = math.mul(math.normalize(rot.Value), quaternion.AxisAngle(math.up(), turnSpeed.RadiansPerSecond * dT));
+                }
                 )
-            {
-                rot.Value = math.mul(math.normalize(rot.Value), quaternion.AxisAngle(math.up(), turnSpeed.RadiansPerSecond * DeltaTime));
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var job = new UpdateRotationJob() { DeltaTime = Time.fixedDeltaTime };
-            return job.Schedule(this, inputDependencies);
+                .Schedule();
         }
     }
 }

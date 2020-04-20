@@ -11,36 +11,22 @@ namespace Battle.Combat
     [
         UpdateInGroup(typeof(LateSimulationSystemGroup))
         ]
-    public class DeleteEntitiesSystem : JobComponentSystem
+    public class DeleteEntitiesSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem BufferSystem;
-
-        [BurstCompile]
-        struct DeleteEntitiesJob : IJobForEachWithEntity<Delete>
-        {
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity attack,
-                int index,
-                [ReadOnly] ref Delete destroy
-                )
-            {
-                buffer.DestroyEntity(index, attack);
-            }
-        }
+        private EntityQuery DeleteEntities;
 
         protected override void OnCreate()
         {
             BufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            DeleteEntities = EntityManager.CreateEntityQuery(ComponentType.ReadOnly<Delete>());
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var job = new DeleteEntitiesJob() { buffer = BufferSystem.CreateCommandBuffer().ToConcurrent() };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            BufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            var buff = BufferSystem.CreateCommandBuffer();
+            buff.DestroyEntity(DeleteEntities);
+            BufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

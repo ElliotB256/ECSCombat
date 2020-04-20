@@ -10,30 +10,8 @@ namespace Battle.Combat
     /// Destroys any entity whose Parent transform has died
     /// </summary>
     [UpdateInGroup(typeof(AttackResultSystemsGroup)), UpdateAfter(typeof(DealAttackDamageSystem))]
-    public class KillChildrenOnParentDeathSystem : JobComponentSystem
+    public class KillChildrenOnParentDeathSystem : SystemBase
     {
-        /// <summary>
-        /// God this sounds horrible
-        /// </summary>
-        [BurstCompile]
-        struct KillChildrenWithDeadParents : IJobForEachWithEntity<Parent>
-        {
-            [ReadOnly] public ComponentDataFromEntity<Health> health;
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity e,
-                int index,
-                [ReadOnly] ref Parent parent
-                )
-            {
-                if (!health.Exists(parent.Value))
-                    return;
-
-                if (health[parent.Value].Value < 0f)
-                    buffer.DestroyEntity(index, e);
-            }
-        }
 
         private PostAttackEntityBuffer m_entityBufferSystem;
 
@@ -42,13 +20,26 @@ namespace Battle.Combat
             m_entityBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var health = GetComponentDataFromEntity<Health>(true);
-            var job = new KillChildrenWithDeadParents() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(), health = health };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+
+            Entities
+                .ForEach(
+                (Entity e, int entityInQueryIndex, in Parent parent) =>
+                {
+                    if (!health.Exists(parent.Value))
+                        return;
+
+                    if (health[parent.Value].Value < 0f)
+                        buffer.DestroyEntity(entityInQueryIndex, e);
+                }
+                )
+                .WithReadOnly(health)
+                .Schedule();
+
+            m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

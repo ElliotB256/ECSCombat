@@ -6,28 +6,11 @@ using Unity.Jobs;
 namespace Battle.Combat
 {
     /// <summary>
-    /// Destroys any entity with health for which Health < 0
+    /// Destroys any entity with health for which Health \> 0
     /// </summary>
     [UpdateInGroup(typeof(AttackResultSystemsGroup)), UpdateAfter(typeof(DealAttackDamageSystem))]
-    public class KillMortalEntitiesWithNoHealthSystem : JobComponentSystem
+    public class DestroyMortalEntitiesWithNoHealthSystem : SystemBase
     {
-        [BurstCompile]
-        [RequireComponentTag(typeof(Mortal))]
-        struct KillEntitiesWithNoHealthJob : IJobForEachWithEntity<Health>
-        {
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity e,
-                int index,
-                [ReadOnly] ref Health health
-                )
-            {
-                if (health.Value < 0f)
-                    buffer.DestroyEntity(index, e);
-            }
-        }
-
         private PostAttackEntityBuffer m_entityBufferSystem;
 
         protected override void OnCreate()
@@ -35,12 +18,24 @@ namespace Battle.Combat
             m_entityBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var job = new KillEntitiesWithNoHealthJob() { buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent() };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+            Entities
+                .WithAll<Mortal>()
+                .ForEach(
+                (
+                    Entity e,
+                    int entityInQueryIndex,
+                    ref Health health
+                ) =>
+                {
+                    if (health.Value < 0f)
+                        buffer.DestroyEntity(entityInQueryIndex, e);
+                }
+                )
+                .Schedule();
+            m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -12,26 +11,21 @@ namespace Battle.Combat
         UpdateAfter(typeof(DeleteEntitiesSystem)),
         UpdateInGroup(typeof(LateSimulationSystemGroup))
     ]
-    public class RemoveDeadTargetReferencesSystem : JobComponentSystem
+    public class RemoveDeadTargetReferencesSystem : SystemBase
     {
-        [BurstCompile]
-        struct RemoveDeadTargetReferencesJob : IJobForEach<Target>
+        protected override void OnUpdate()
         {
-            [ReadOnly] public ComponentDataFromEntity<Targetable> targetables;
-
-            public void Execute(ref Target target)
-            {
-                //If target cannot be targetted, detarget it.
-                if (targetables.Exists(target.Value))
-                    return;
-                target.Value = Entity.Null;
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var targets = GetComponentDataFromEntity<Targetable>(true);
-            return new RemoveDeadTargetReferencesJob() { targetables = targets }.Schedule(this, inputDependencies);
+            var targetables = GetComponentDataFromEntity<Targetable>(true);
+            Entities
+                .ForEach(
+                (ref Target target) =>
+                {
+                    if (!targetables.Exists(target.Value))
+                        target.Value = Entity.Null;
+                }
+                )
+                .WithReadOnly(targetables)
+                .Schedule();
         }
     }
 }

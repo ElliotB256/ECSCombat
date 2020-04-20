@@ -17,58 +17,52 @@ namespace Battle.Combat.AttackSources
         UpdateInGroup(typeof(WeaponSystemsGroup)),
         UpdateAfter(typeof(FireTargettedToolsSystem))
         ]
-    public class ApplyInstantEffectsSystem : JobComponentSystem
+    public class ApplyInstantEffectsSystem : SystemBase
     {
         protected WeaponEntityBufferSystem m_entityBufferSystem;
-
-        [BurstCompile]
-        struct ApplyInstantEffectsJob : IJobForEachWithEntity<Target, LocalToWorld, TargettedTool, InstantEffect>
-        {
-            public EntityCommandBuffer.Concurrent buffer;
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> Transforms;
-
-            public void Execute(
-                Entity attacker,
-                int index,
-                [ReadOnly] ref Target target,
-                [ReadOnly] ref LocalToWorld worldTransform,
-                [ReadOnly] ref TargettedTool tool,
-                [ReadOnly] ref InstantEffect effect
-                )
-            {
-                if (!tool.Firing)
-                    return;
-
-                if (target.Value == Entity.Null)
-                    return;
-
-                // Create the effect
-                Entity attack = buffer.Instantiate(index, effect.AttackTemplate);
-                buffer.AddComponent(index, attack, Attack.New(effect.Accuracy));
-                buffer.AddComponent(index, attack, target);
-                buffer.AddComponent(index, attack, new Instigator() { Value = attacker });
-                buffer.AddComponent(index, attack, new EffectSourceLocation { Value = worldTransform.Position });
-                buffer.AddComponent(index, attack, new Effectiveness { Value = 1f });
-                buffer.AddComponent(index, attack, new SourceLocation { Position = worldTransform.Position });
-                if (Transforms.HasComponent(target.Value))
-                    buffer.AddComponent(index, attack, new HitLocation { Position = Transforms[target.Value].Position });
-            }
-        }
 
         protected override void OnCreate()
         {
             m_entityBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var applyEffectsJH = new ApplyInstantEffectsJob()
-            {
-                buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent(),
-                Transforms = GetComponentDataFromEntity<LocalToWorld>(true)
-            }.Schedule(this, inputDependencies);
-            m_entityBufferSystem.AddJobHandleForProducer(applyEffectsJH);
-            return applyEffectsJH;
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
+
+            Entities.ForEach(
+                (
+                    Entity attacker,
+                    int entityInQueryIndex,
+                    in Target target,
+                    in LocalToWorld localToWorld,
+                    in TargettedTool tool,
+                    in InstantEffect effect
+                ) =>
+                {
+                    if (!tool.Firing)
+                        return;
+
+                    if (target.Value == Entity.Null)
+                        return;
+
+                    // Create the effect
+                    Entity attack = buffer.Instantiate(entityInQueryIndex, effect.AttackTemplate);
+                    buffer.AddComponent(entityInQueryIndex, attack, Attack.New(effect.Accuracy));
+                    buffer.AddComponent(entityInQueryIndex, attack, target);
+                    buffer.AddComponent(entityInQueryIndex, attack, new Instigator() { Value = attacker });
+                    buffer.AddComponent(entityInQueryIndex, attack, new EffectSourceLocation { Value = localToWorld.Position });
+                    buffer.AddComponent(entityInQueryIndex, attack, new Effectiveness { Value = 1f });
+                    buffer.AddComponent(entityInQueryIndex, attack, new SourceLocation { Position = localToWorld.Position });
+                    if (transforms.HasComponent(target.Value))
+                        buffer.AddComponent(entityInQueryIndex, attack, new HitLocation { Position = transforms[target.Value].Position });
+                }
+                )
+                .WithReadOnly(transforms)
+                .Schedule();
+
+            m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }
 }
