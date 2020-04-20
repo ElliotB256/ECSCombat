@@ -34,7 +34,7 @@ namespace Battle.AI
 
         private AIStateChangeBufferSystem m_AIStateBuffer;
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_AIStateBuffer = World.GetOrCreateSystem<AIStateChangeBufferSystem>();
         }

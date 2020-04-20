@@ -50,7 +50,7 @@ namespace Battle.Combat.AttackSources
             }
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_entityBufferSystem = World.GetOrCreateSystem<WeaponEntityBufferSystem>();
         }

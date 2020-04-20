@@ -37,7 +37,7 @@ namespace Battle.Equipment
             return setTeamsJH;
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             Query = GetEntityQuery(
                 new EntityQueryDesc

@@ -12,7 +12,6 @@ namespace Battle.AI
     /// <summary>
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
-    [UpdateBefore(typeof(TurnToDestinationSystem)), UpdateBefore(typeof(AIStateChangeBufferSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
     public class EvasiveManoeuvreSystem : JobComponentSystem
     {
@@ -65,7 +64,7 @@ namespace Battle.AI
 
         private AIStateChangeBufferSystem m_AIStateBuffer;
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_AIStateBuffer = World.GetOrCreateSystem<AIStateChangeBufferSystem>();
         }

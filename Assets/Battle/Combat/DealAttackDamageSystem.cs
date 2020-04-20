@@ -79,7 +79,7 @@ namespace Battle.Combat
             }
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_attackQuery = GetEntityQuery(new EntityQueryDesc
             {

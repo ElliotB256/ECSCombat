@@ -9,7 +9,7 @@ namespace Battle.Combat
     /// Reduces lifetime, marks expired entities for deletion.
     /// </summary>
     [
-        UpdateBefore(typeof(EndSimulationEntityCommandBufferSystem))
+        UpdateBefore(typeof(LateSimulationSystemGroup))
         ]
     public class ReduceLifetimeSystem : JobComponentSystem
     {
@@ -33,7 +33,7 @@ namespace Battle.Combat
             }
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             BufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }

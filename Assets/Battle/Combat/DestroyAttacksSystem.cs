@@ -31,7 +31,7 @@ namespace Battle.Combat
             }
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_endSimBufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
         }

@@ -32,7 +32,7 @@ namespace Battle.Equipment
             return setTargetsJH;
         }
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             Query = GetEntityQuery(
                 new EntityQueryDesc

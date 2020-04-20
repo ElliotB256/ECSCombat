@@ -16,107 +16,57 @@ namespace Battle.Combat.AttackSources
     [
         UpdateInGroup(typeof(WeaponSystemsGroup))
         ]
-    public class FireTargettedToolsSystem : JobComponentSystem
+    public class FireTargettedToolsSystem : SystemBase
     {
-        /// <summary>
-        /// The position of each Target.
-        /// </summary>
-        protected NativeArray<float3> m_targetPositions;
-
-        [BurstCompile]
-        struct GetTargetPositions : IJobForEachWithEntity<Target>
+        protected override void OnUpdate()
         {
-            [WriteOnly] public NativeArray<float3> targetPositions;
-            [ReadOnly] public ComponentDataFromEntity<LocalToWorld> targetWorldTransforms;
+            var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
 
-            public void Execute(Entity entity, int index, [ReadOnly] ref Target target)
-            {
-                targetPositions[index] = target.Value != Entity.Null ? targetWorldTransforms[target.Value].Position : new float3(0f, 0f, 0f);
-            }
-        }
+            Entities
+                .ForEach((ref TargettedTool tool) => tool.Firing = false)
+                .Schedule();
 
-        [BurstCompile]
-        struct RemovingFiring : IJobForEach<TargettedTool>
-        {
-            public void Execute(ref TargettedTool tool)
-            {
-                tool.Firing = false;
-            }
-        }
+            Entities
+                .WithAll<Enabled>()
+                .WithStoreEntityQueryInField(ref m_query)
+                .WithReadOnly(worldTransforms)
+                .ForEach(
+                    (Entity attacker,
+                    int entityInQueryIndex,
+                    ref Cooldown cooldown,
+                    ref TargettedTool tool,
+                    in Target target,
+                    in LocalToWorld worldTransform) =>
+                {
+                    if (target.Value == Entity.Null)
+                        return;
 
-        [BurstCompile]
-        struct FireTargettedToolsJob : IJobForEachWithEntity<LocalToWorld, Target, TargettedTool, Cooldown>
-        {
-            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<float3> targetPositions;
+                    if (!tool.Armed)
+                        return;
 
-            public void Execute(
-                Entity attacker,
-                int index,
-                [ReadOnly] ref LocalToWorld worldTransform,
-                [ReadOnly] ref Target target,
-                ref TargettedTool tool,
-                ref Cooldown cooldown
-                )
-            {
-                if (target.Value == Entity.Null)
-                    return;
+                    if (!cooldown.IsReady())
+                        return;
 
-                if (!tool.Armed)
-                    return;
+                    var delta = worldTransforms[target.Value].Position - worldTransform.Position;
 
-                if (!cooldown.IsReady())
-                    return;
+                    // Cannot fire if out of weapon range
+                    if (math.lengthsq(delta) > tool.Range * tool.Range)
+                        return;
 
-                var delta = (targetPositions[index] - worldTransform.Position);
+                    // Only fire when target is within weapon cone.
+                    var projection = math.dot(math.normalize(delta), math.normalize(worldTransform.Forward));
+                    if (math.cos(tool.Cone / 2f) > projection)
+                        return;
 
-                // Cannot fire if out of weapon range
-                if (math.lengthsq(delta) > tool.Range * tool.Range)
-                    return;
+                    tool.Firing = true;
 
-                // Only fire when target is within weapon cone.
-                var projection = math.dot(math.normalize(delta), math.normalize(worldTransform.Forward));
-                if (math.cos(tool.Cone / 2f) > projection)
-                    return;
-
-                tool.Firing = true;
-
-                // Reset the cooldown
-                cooldown.Timer = cooldown.Duration;
-            }
-        }
-
-        protected override void OnCreateManager()
-        {
-            m_query = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] {
-                    ComponentType.ReadOnly<LocalToWorld>(),
-                    ComponentType.ReadOnly<Target>(),
-                    ComponentType.ReadOnly<TargettedTool>(),
-                    ComponentType.ReadWrite<Cooldown>(),
-                    ComponentType.ReadOnly<Enabled>(),
+                    // Reset the cooldown
+                    cooldown.Timer = cooldown.Duration;
                 }
-            });
+                )
+                .Schedule();
         }
 
         protected EntityQuery m_query;
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            m_targetPositions = new NativeArray<float3>(m_query.CalculateEntityCount(), Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var getTargetPositions = new GetTargetPositions
-            {
-                targetPositions = m_targetPositions,
-                targetWorldTransforms = GetComponentDataFromEntity<LocalToWorld>(true)
-            }.Schedule(m_query, inputDependencies);
-            var removeFiring = new RemovingFiring().Schedule(this, inputDependencies);
-            var fireToolsJH = new FireTargettedToolsJob()
-            {
-                targetPositions = m_targetPositions
-            }.Schedule(m_query,          
-                JobHandle.CombineDependencies(getTargetPositions, removeFiring)
-            );
-            return fireToolsJH;
-        }
     }
 }

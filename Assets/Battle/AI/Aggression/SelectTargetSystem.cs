@@ -31,10 +31,10 @@ namespace Battle.AI
             int pickerN = PickerQuery.CalculateEntityCount();
 
             // Allocate arrays used by the system
-            var pickerPositions = PickerQuery.ToComponentDataArray<AggroLocation>(Allocator.TempJob, out var pposJH);
-            var targetPositions = TargetQuery.ToComponentDataArray<LocalToWorld>(Allocator.TempJob, out var tposJH);
-            var targetTeams = TargetQuery.ToComponentDataArray<Team>(Allocator.TempJob, out var tteamJH);
-            var targetIDs = TargetQuery.ToEntityArray(Allocator.TempJob, out JobHandle tidJH);
+            var pickerPositions = PickerQuery.ToComponentDataArrayAsync<AggroLocation>(Allocator.TempJob, out var pposJH);
+            var targetPositions = TargetQuery.ToComponentDataArrayAsync<LocalToWorld>(Allocator.TempJob, out var tposJH);
+            var targetTeams = TargetQuery.ToComponentDataArrayAsync<Team>(Allocator.TempJob, out var tteamJH);
+            var targetIDs = TargetQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle tidJH);
             var targetBins = new NativeMultiHashMap<int, int>(targetN, Allocator.TempJob);
 
             // Get target types

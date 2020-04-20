@@ -13,7 +13,6 @@ namespace Battle.Combat
     /// Checks if projectiles have reached their target.
     /// </summary>
     [
-        UpdateBefore(typeof(WeaponEntityBufferSystem)),
         UpdateInGroup(typeof(WeaponSystemsGroup))
         ]
     public class ProjectileHitTargetSystem : JobComponentSystem

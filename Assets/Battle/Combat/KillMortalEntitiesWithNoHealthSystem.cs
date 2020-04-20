@@ -30,7 +30,7 @@ namespace Battle.Combat
 
         private PostAttackEntityBuffer m_entityBufferSystem;
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             m_entityBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }

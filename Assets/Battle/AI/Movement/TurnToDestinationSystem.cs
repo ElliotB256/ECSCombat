@@ -13,6 +13,7 @@ namespace Battle.AI
     /// Updates TurnSpeed to aim entity toward the intended Destination.
     /// </summary>
     [UpdateAfter(typeof(UpdateHeadingSystem))]
+    [UpdateAfter(typeof(AISystemGroup))]
     public class TurnToDestinationSystem : JobComponentSystem
     {
         [BurstCompile]

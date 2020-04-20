@@ -22,9 +22,9 @@ namespace Battle.Effects
     {
         private EntityQuery m_query;
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
-            base.OnCreateManager();
+            base.OnCreate();
             m_query = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[] {
@@ -35,73 +35,52 @@ namespace Battle.Effects
             );
         }
 
-        protected struct CreateLaserMeshJob : IJobForEachWithEntity<BeamEffect,BeamEffectStyle>
-        {
-            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Vertices;
-            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float2> UVs;
-            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<int> Triangles;
-            [NativeDisableParallelForRestriction] [WriteOnly] public NativeArray<float3> Normals;
-
-            public void Execute(Entity e, int index, ref BeamEffect laserBeam, ref BeamEffectStyle style)
-            {
-                float3 transverseDir = math.normalize(math.cross((laserBeam.end - laserBeam.start), new float3(0.0f, 1.0f, 0.0f)));
-                float distance = math.length(laserBeam.end - laserBeam.start);
-
-                int number = 4; //number of vertices per beam. 
-                int vertexStartID = index * number;
-                float halfWidth = style.Width / 2.0f;
-                Vertices[vertexStartID+0] = laserBeam.start - transverseDir * halfWidth;
-                Vertices[vertexStartID+1] = laserBeam.start + transverseDir * halfWidth;
-                Vertices[vertexStartID+2] = laserBeam.end + transverseDir * halfWidth;
-                Vertices[vertexStartID+3] = laserBeam.end - transverseDir * halfWidth;
-
-                UVs[vertexStartID+0] = new float2(0.0f, 0.0f);
-                UVs[vertexStartID+1] = new float2(1.0f, 0.0f);
-                UVs[vertexStartID+2] = new float2(1.0f, distance);
-                UVs[vertexStartID+3] = new float2(0.0f, distance);
-
-                Normals[vertexStartID + 0] = new float3(0.0f, 1.0f, 0.0f);
-                Normals[vertexStartID + 1] = new float3(0.0f, 1.0f, 0.0f);
-                Normals[vertexStartID + 2] = new float3(0.0f, 1.0f, 0.0f);
-                Normals[vertexStartID + 3] = new float3(0.0f, 1.0f, 0.0f);
-
-                int triangleStartID = index * 6;
-                Triangles[triangleStartID + 0] = vertexStartID+0;
-                Triangles[triangleStartID + 1] = vertexStartID+1;
-                Triangles[triangleStartID + 2] = vertexStartID+2;
-                Triangles[triangleStartID + 3] = vertexStartID+0;
-                Triangles[triangleStartID + 4] = vertexStartID+2;
-                Triangles[triangleStartID + 5] = vertexStartID+3;
-            }
-        }
-
-        [RequireComponentTag(typeof(LaserRenderer))]
-        protected struct DeleteNativeArrays : IJob
-        {
-            //public ArchetypeChunkSharedComponentType<RenderMesh> Mesh;
-            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Vertices;
-            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float3> Normals;
-            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<float2> UVs;
-            [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<int> Triangles;
-
-            public void Execute()
-            { }
-        }
+        private EntityQuery BeamQuery;
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            int numberOfBeams = m_query.CalculateEntityCount();
+            int numberOfBeams = BeamQuery.CalculateEntityCount();
             var Vertices = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var Normals = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var UVs = new NativeArray<float2>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var Triangles = new NativeArray<int>(numberOfBeams * 6, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
-            var createMeshJob = new CreateLaserMeshJob() {
-                Vertices = Vertices,
-                Normals = Normals,
-                UVs = UVs,
-                Triangles = Triangles
-            }.Schedule(m_query, inputDeps);
-            createMeshJob.Complete();
+
+            Entities
+                .WithStoreEntityQueryInField(ref BeamQuery)
+                .ForEach(
+                (Entity e, int entityInQueryIndex, in BeamEffect beam, in BeamEffectStyle style) =>
+                {
+                    float3 transverseDir = math.normalize(math.cross((beam.end - beam.start), new float3(0.0f, 1.0f, 0.0f)));
+                    float distance = math.length(beam.end - beam.start);
+
+                    int number = 4; //number of vertices per beam. 
+                    int vertexStartID = entityInQueryIndex * number;
+                    float halfWidth = style.Width / 2.0f;
+                    Vertices[vertexStartID + 0] = beam.start - transverseDir * halfWidth;
+                    Vertices[vertexStartID + 1] = beam.start + transverseDir * halfWidth;
+                    Vertices[vertexStartID + 2] = beam.end + transverseDir * halfWidth;
+                    Vertices[vertexStartID + 3] = beam.end - transverseDir * halfWidth;
+
+                    UVs[vertexStartID + 0] = new float2(0.0f, 0.0f);
+                    UVs[vertexStartID + 1] = new float2(1.0f, 0.0f);
+                    UVs[vertexStartID + 2] = new float2(1.0f, distance);
+                    UVs[vertexStartID + 3] = new float2(0.0f, distance);
+
+                    Normals[vertexStartID + 0] = new float3(0.0f, 1.0f, 0.0f);
+                    Normals[vertexStartID + 1] = new float3(0.0f, 1.0f, 0.0f);
+                    Normals[vertexStartID + 2] = new float3(0.0f, 1.0f, 0.0f);
+                    Normals[vertexStartID + 3] = new float3(0.0f, 1.0f, 0.0f);
+
+                    int triangleStartID = entityInQueryIndex * 6;
+                    Triangles[triangleStartID + 0] = vertexStartID + 0;
+                    Triangles[triangleStartID + 1] = vertexStartID + 1;
+                    Triangles[triangleStartID + 2] = vertexStartID + 2;
+                    Triangles[triangleStartID + 3] = vertexStartID + 0;
+                    Triangles[triangleStartID + 4] = vertexStartID + 2;
+                    Triangles[triangleStartID + 5] = vertexStartID + 3;
+                }
+                )
+                .Run();
 
             Entities.ForEach(
                 (RenderMesh mesh, ref LaserRenderer renderer) => 
@@ -114,14 +93,12 @@ namespace Battle.Effects
                 mesh.mesh.bounds = new Bounds(Vector3.zero, new Vector3(1f, 1f, 1f) * 10000f);
             }
             ).WithoutBurst().Run();
-            var deleteJob = new DeleteNativeArrays()
-            {
-                Vertices = Vertices,
-                Normals = Normals,
-                UVs = UVs,
-                Triangles = Triangles
-            }.Schedule(createMeshJob);
-            return deleteJob;
+            Vertices.Dispose();
+            Normals.Dispose();
+            UVs.Dispose();
+            Triangles.Dispose();
+
+            return inputDeps;
         }
     }
 }

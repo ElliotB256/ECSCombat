@@ -18,7 +18,7 @@ namespace Battle.Effects
     /// </summary>
     [
         UpdateAfter(typeof(PostAttackEntityBuffer)),
-        UpdateBefore(typeof(DeleteEntitiesSystem))
+        //UpdateBefore(typeof(LateSimulationSystemGroup))
     ]
     public class SpawnShieldEffectSystem : ComponentSystem
     {
@@ -26,33 +26,7 @@ namespace Battle.Effects
         Material ShieldMaterial;
         Mesh Mesh;
 
-        //protected struct CreateLaserEffectJob : IJobForEachWithEntity<ShieldHitEffect, LocalToWorld, Shield>
-        //{
-        //    public EntityCommandBuffer.Concurrent Buffer;
-
-        //    public void Execute(
-        //        Entity entity,
-        //        int i,
-        //        ref ShieldHitEffect effect,
-        //        ref LocalToWorld localToWorld,
-        //        ref Shield shield)
-        //    {
-        //        // Spawn the effect archetype.
-        //        var e = Buffer.CreateEntity(i);
-        //        Buffer.AddComponent(i, e, new Lifetime { Value = 0.3f });
-        //        Buffer.AddComponent(i, e, new Translation { Value = localToWorld.Position });
-        //        Buffer.AddComponent(i, e, new Rotation { Value = quaternion.LookRotation(effect.HitDirection, new float3(0.0f, 1.0f, 0.0f)) });
-        //        Buffer.AddComponent(i, e,
-        //            new RenderMesh {
-        //                castShadows = UnityEngine.Rendering.ShadowCastingMode.Off,
-        //                receiveShadows = false,
-        //                mesh = ,
-        //                material =
-        //        });
-        //    }
-        //}
-
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             BufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
             ShieldMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets/Art/Effects/Shields/ShieldMaterial.mat", typeof(Material));

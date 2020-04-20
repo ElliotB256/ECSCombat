@@ -17,7 +17,7 @@ namespace Battle.Combat
         EntityQuery AttackQuery;
         NativeArray<Entity> Attacks;
 
-        protected override void OnCreateManager()
+        protected override void OnCreate()
         {
             AttackQuery = GetEntityQuery(
                 new EntityQueryDesc

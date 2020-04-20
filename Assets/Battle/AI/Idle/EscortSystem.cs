@@ -8,7 +8,7 @@ namespace Battle.AI
     /// <summary>
     /// Causes entities to walk randomly about.
     /// </summary>
-    [UpdateBefore(typeof(RandomWalkBehaviour))]
+    [UpdateBefore(typeof(RandomWalkSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
     public class EscortSystem : JobComponentSystem
     {
