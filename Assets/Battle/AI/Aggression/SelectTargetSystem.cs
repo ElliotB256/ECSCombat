@@ -13,7 +13,7 @@ namespace Battle.AI
     /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class SelectTargetSystem : JobComponentSystem
+    public class SelectTargetSystem : SystemBase
     {
         private EntityQuery TargetQuery;
         private EntityQuery PickerQuery;
@@ -23,10 +23,10 @@ namespace Battle.AI
         /// </summary>
         public const float HASH_CELL_SIZE = 10.0f;
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            TargetQuery.AddDependency(inputDependencies);
-            PickerQuery.AddDependency(inputDependencies);
+            TargetQuery.AddDependency(Dependency);
+            PickerQuery.AddDependency(Dependency);
             int targetN = TargetQuery.CalculateEntityCount();
             int pickerN = PickerQuery.CalculateEntityCount();
 
@@ -43,13 +43,32 @@ namespace Battle.AI
             {
                 TargetCategories = GetArchetypeChunkComponentType<AgentCategory>(true),
                 TargetTypes = targetTypes
-            }.Schedule(TargetQuery, inputDependencies);
+            }.Schedule(TargetQuery, Dependency);
 
             var initialiseJH = JobHandle.CombineDependencies(pposJH, tposJH, JobHandle.CombineDependencies(tteamJH, tidJH, ttypeJH));
 
-            // Sort target positions into a hashmap.
-            var hashTargetPosJob = new HashPositions() { CellSize = HASH_CELL_SIZE, hashMap = targetBins.AsParallelWriter() }.Schedule(TargetQuery, tposJH);
-            var hashBarrier = JobHandle.CombineDependencies(hashTargetPosJob, initialiseJH);
+            // Sort targetable entities into bins (key=int hash, value=entityIndices)
+            var targetBinsWriter = targetBins.AsParallelWriter();
+            var hashTargetsJobHandle = 
+                Entities
+                .WithStoreEntityQueryInField(ref TargetQuery)
+                .WithAll<Team, Targetable>()
+                .ForEach((
+                Entity entity,
+                int entityInQueryIndex,
+                in LocalToWorld localToWorld
+                ) =>
+                {
+                    var position = localToWorld.Position;
+                    float2 vec = position.xz;
+                    int2 rounded = new int2(math.floor(vec / HASH_CELL_SIZE));
+                    var hash = Hash(BinCoordinates(vec, HASH_CELL_SIZE));
+                    targetBinsWriter.Add(hash, entityInQueryIndex);
+                }
+                )
+                .Schedule(Dependency);
+
+            var hashBarrier = JobHandle.CombineDependencies(hashTargetsJobHandle, initialiseJH);
 
             // Loop through picker entities and find suitable targets.
             var findTargetsJH = new IdentifyBestTargetChunkJob()
@@ -75,20 +94,21 @@ namespace Battle.AI
             targetBins.Dispose(findTargetsJH);
             targetTypes.Dispose(findTargetsJH);
 
-            return findTargetsJH;
+            Dependency = findTargetsJH;
+        }
+
+        public static int2 BinCoordinates(float2 position, float CellSize)
+        {
+            return new int2(math.floor(position / CellSize));
+        }
+
+        public static int Hash(int2 binCoords)
+        {
+            return (int)math.hash(binCoords);
         }
 
         protected override void OnCreate()
         {
-            TargetQuery = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] {
-                    ComponentType.ReadOnly<LocalToWorld>(),
-                    ComponentType.ReadOnly<Team>(),
-                    ComponentType.ReadOnly<Targetable>()
-                }
-            });
-
             PickerQuery = GetEntityQuery(new EntityQueryDesc
             {
                 All = new[] {
@@ -123,35 +143,6 @@ namespace Battle.AI
                     for (int i = 0; i < chunk.Count; i++)
                         TargetTypes[i + firstEntityIndex] = AgentCategory.eType.None;
                 }
-            }
-        }
-
-        /// <summary>
-        /// Sorts positions into a hashmap.
-        /// </summary>
-        [BurstCompile]
-        struct HashPositions : IJobForEachWithEntity<LocalToWorld>
-        {
-            public NativeMultiHashMap<int, int>.ParallelWriter hashMap;
-            public float CellSize;
-
-            public void Execute(Entity entity, int index, [ReadOnly] ref LocalToWorld localToWorld)
-            {
-                var position = localToWorld.Position;
-                float2 vec = new float2(position.x, position.z);
-                int2 rounded = new int2(math.floor(vec / CellSize));
-                var hash = Hash(BinCoordinates(vec, CellSize));
-                hashMap.Add(hash, index);
-            }
-
-            public static int2 BinCoordinates(float2 position, float CellSize)
-            {
-                return new int2(math.floor(position / CellSize));
-            }
-
-            public static int Hash(int2 binCoords)
-            {
-                return (int)math.hash(binCoords);
             }
         }
 
@@ -205,8 +196,8 @@ namespace Battle.AI
                     float radius = aggroRadii[picker].Value;
                     var pickerPosition = localToWorlds[picker].Position;
                     float2 vec = new float2(pickerPosition.x, pickerPosition.z);
-                    var minBinCoords = HashPositions.BinCoordinates(vec - radius, CellSize);
-                    var maxBinCoords = HashPositions.BinCoordinates(vec + radius, CellSize);
+                    var minBinCoords = BinCoordinates(vec - radius, CellSize);
+                    var maxBinCoords = BinCoordinates(vec + radius, CellSize);
 
                     var orders = hasPickerOrders ? pickerOrders[picker] : defaultPickerOrders;
 
@@ -215,7 +206,7 @@ namespace Battle.AI
                         for (int y = minBinCoords.y; y <= maxBinCoords.y; y++)
                         {
                             // Identify bucket to search
-                            var hash = HashPositions.Hash(new int2(x, y));
+                            var hash = Hash(new int2(x, y));
 
                             // Check targets within each bucket.
                             if (!TargetMap.TryGetFirstValue(hash, out int targetIndex, out NativeMultiHashMapIterator<int> iterator))

@@ -1,8 +1,5 @@
 ﻿using Battle.Movement;
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
@@ -14,35 +11,32 @@ namespace Battle.AI
     /// </summary>
     [UpdateAfter(typeof(UpdateHeadingSystem))]
     [UpdateAfter(typeof(AISystemGroup))]
-    public class TurnToDestinationSystem : JobComponentSystem
+    public class TurnToDestinationSystem : SystemBase
     {
-        [BurstCompile]
-        struct TurnToDestinationJob : IJobForEach<TurnToDestinationBehaviour, LocalToWorld, Heading, MaxTurnSpeed, TurnSpeed>
-        {
-            public float DeltaTime;
 
-            public void Execute(
-                [ReadOnly] ref TurnToDestinationBehaviour dest,
-                [ReadOnly] ref LocalToWorld localToWorld,
-                [ReadOnly] ref Heading heading,
-                [ReadOnly] ref MaxTurnSpeed maxTurnSpeed,
-                ref TurnSpeed turnSpeed
+        protected override void OnUpdate()
+        {
+            float dT = Time.DeltaTime;
+
+            Entities
+                .ForEach(
+                (
+                    ref TurnSpeed turnSpeed,
+                    in TurnToDestinationBehaviour dest,
+                    in LocalToWorld localToWorld,
+                    in Heading heading,
+                    in MaxTurnSpeed maxTurnSpeed
+                ) => {
+                    // Determine desired heading to target
+                    Vector3 dx = dest.Destination - localToWorld.Position;
+                    float desiredHeading = MathUtil.GetHeadingToPoint(dx);
+
+                    // Adjust rotation speed to aim for desired heading.
+                    float diff = MathUtil.GetAngleDifference(desiredHeading, heading.Value);
+                    turnSpeed.RadiansPerSecond = math.sign(diff) * math.min(maxTurnSpeed.RadiansPerSecond, math.abs(diff) / dT);
+                }
                 )
-            {
-                // Determine desired heading to target
-                Vector3 dx = dest.Destination - localToWorld.Position;
-                float desiredHeading = MathUtil.GetHeadingToPoint(dx);
-
-                // Adjust rotation speed to aim for desired heading.
-                float diff = MathUtil.GetAngleDifference(desiredHeading, heading.Value);
-                turnSpeed.RadiansPerSecond = math.sign(diff) * math.min(maxTurnSpeed.RadiansPerSecond, math.abs(diff) / DeltaTime);
-            }
-        }
-
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
-        {
-            var job = new TurnToDestinationJob() { DeltaTime = Time.fixedDeltaTime };
-            return job.Schedule(this, inputDependencies);
+                .Schedule();
         }
     }
 }

@@ -1,11 +1,8 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Battle.Movement;
 using Battle.Combat;
 using Unity.Transforms;
-using UnityEngine;
 using Unity.Mathematics;
 
 namespace Battle.AI
@@ -14,45 +11,9 @@ namespace Battle.AI
     /// Fighter behaviour when in pursuit of a target.
     /// </summary>
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class PursueBehaviourSystem : JobComponentSystem
+    public class PursueBehaviourSystem : SystemBase
     {
         public const float PROXIMITY_RADIUS = 4f;
-
-        //[BurstCompile]
-        struct PursueBehaviourJob : IJobForEachWithEntity<PursueBehaviour, Target, Translation, TurnToDestinationBehaviour>
-        {
-            [ReadOnly] public ComponentDataFromEntity<Translation> Positions;
-            public EntityCommandBuffer.Concurrent buffer;
-
-            public void Execute(
-                Entity e,
-                int index,
-                [ReadOnly] ref PursueBehaviour pursue,
-                [ReadOnly] ref Target target,
-                [ReadOnly] ref Translation pos,
-                ref TurnToDestinationBehaviour destination
-                )
-            {
-                if (target.Value == Entity.Null || !Positions.Exists(target.Value))
-                {
-                    // Go to idle state
-                    buffer.RemoveComponent<PursueBehaviour>(index, e);
-                    buffer.AddComponent(index, e, new IdleBehaviour());
-                    return;
-                }
-
-                // Set entity destination to target position
-                destination.Destination = Positions[target.Value].Value;
-
-                // if too close to target, evasive manoeuvre
-                if (math.lengthsq(destination.Destination - pos.Value) < PROXIMITY_RADIUS * PROXIMITY_RADIUS)
-                {
-                    buffer.RemoveComponent<PursueBehaviour>(index, e);
-                    buffer.RemoveComponent<TurnToDestinationBehaviour>(index, e);
-                    buffer.AddComponent(index, e, new PeelManoeuvre());
-                }
-            }
-        }
 
         private AIStateChangeBufferSystem m_AIStateBuffer;
 
@@ -61,13 +22,46 @@ namespace Battle.AI
             m_AIStateBuffer = World.GetOrCreateSystem<AIStateChangeBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var pos = GetComponentDataFromEntity<Translation>(true);
-            var job = new PursueBehaviourJob() { Positions = pos, buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent() };
-            var jobHandle = job.Schedule(this, inputDependencies);
-            m_AIStateBuffer.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            var positions = GetComponentDataFromEntity<Translation>(true);
+            var buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent();
+
+            Entities
+                .ForEach(
+                (
+                Entity e,
+                int entityInQueryIndex,
+                ref TurnToDestinationBehaviour destination,
+                in PursueBehaviour pursue,
+                in Target target,
+                in Translation pos
+                ) =>
+                {
+                    if (target.Value == Entity.Null || !positions.Exists(target.Value))
+                    {
+                        // Go to idle state
+                        buffer.RemoveComponent<PursueBehaviour>(entityInQueryIndex, e);
+                        buffer.AddComponent(entityInQueryIndex, e, new IdleBehaviour());
+                        return;
+                    }
+
+                    // Set entity destination to target position
+                    destination.Destination = positions[target.Value].Value;
+
+                    // if too close to target, evasive manoeuvre
+                    if (math.lengthsq(destination.Destination - pos.Value) < PROXIMITY_RADIUS * PROXIMITY_RADIUS)
+                    {
+                        buffer.RemoveComponent<PursueBehaviour>(entityInQueryIndex, e);
+                        buffer.RemoveComponent<TurnToDestinationBehaviour>(entityInQueryIndex, e);
+                        buffer.AddComponent(entityInQueryIndex, e, new PeelManoeuvre());
+                    }
+                }
+                )
+                .WithReadOnly(positions)
+                .Schedule();
+
+            m_AIStateBuffer.AddJobHandleForProducer(Dependency);
         }
     }
 }

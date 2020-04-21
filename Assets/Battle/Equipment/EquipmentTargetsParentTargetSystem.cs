@@ -8,76 +8,33 @@ using Unity.Transforms;
 namespace Battle.Equipment
 {
     /// <summary>
-    /// Sets the target of all equipment to follow that of the parent. Eg for weapons, etc.
-    /// 
-    /// Foreach over all entities with parent+equipment+Target. Set target equal to parent target.
-    /// 
-    /// TODO: In future, only required when parent changes target.
+    /// Sets the target of all equipment to the target of the parent entity. Eg for weapons, etc.
     /// </summary>
     [
         UpdateInGroup(typeof(EquipmentUpdateGroup))
     ]
-    public class EquipmentTargetsParentTargetSystem : JobComponentSystem
+    public class EquipmentTargetsParentTargetSystem : SystemBase
     {
         public EntityQuery Query;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
-            var targetArray = new NativeArray<Entity>(Query.CalculateEntityCount(), Allocator.TempJob);
-            var getTargetsJH = new GetParentTargets {
-                ParentTargets = targetArray,
-                Targets = GetComponentDataFromEntity<Target>(true)
-            }.Schedule(Query, inputDeps);
-            var setTargetsJH = new SetTargets { ParentTargets = targetArray }.Schedule(Query, getTargetsJH);
-            return setTargetsJH;
-        }
+            var targets = GetComponentDataFromEntity<Target>();
+            Entities
+                .WithAll<Equipment, Target>()
+                .ForEach(
+                (
+                    Entity e,
+                    in Parent parent
+                ) => {
 
-        protected override void OnCreate()
-        {
-            Query = GetEntityQuery(
-                new EntityQueryDesc
-                {
-                    All = new[] { ComponentType.ReadOnly<Equipment>(), ComponentType.ReadOnly<Parent>(), ComponentType.ReadWrite<Target>() }
-                });
-        }
+                    if (!targets.HasComponent(e) || !targets.HasComponent(parent.Value))
+                        return;
 
-
-        [BurstCompile]
-        [RequireComponentTag(typeof(Equipment))]
-        struct GetParentTargets : IJobForEachWithEntity<Parent,Target>
-        {
-            [ReadOnly] public ComponentDataFromEntity<Target> Targets;
-            [WriteOnly] public NativeArray<Entity> ParentTargets;
-
-            public void Execute(
-                Entity attack,
-                int index,
-                [ReadOnly] ref Parent parent,
-                [ReadOnly] ref Target target
+                    targets[e] = targets[parent.Value];
+                }
                 )
-            {
-                if (!Targets.Exists(parent.Value))
-                    ParentTargets[index] = Entity.Null;
-                else
-                    ParentTargets[index] = Targets[parent.Value].Value;
-            }
+                .Schedule();
         }
-
-        [BurstCompile]
-        [RequireComponentTag(typeof(Equipment))]
-        struct SetTargets : IJobForEachWithEntity<Target>
-        {
-            [DeallocateOnJobCompletion] [ReadOnly] public NativeArray<Entity> ParentTargets;
-
-            public void Execute(
-                Entity attack,
-                int index,
-                [WriteOnly] ref Target target
-                )
-            {
-                target = new Target { Value = ParentTargets[index] };
-            }
-        }
-
     }
 }

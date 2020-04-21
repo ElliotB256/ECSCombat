@@ -13,7 +13,7 @@ namespace Battle.Equipment
     [
         UpdateInGroup(typeof(EarlyEquipmentUpdateGroup))
         ]
-    public class DisableBrokenEquipment : JobComponentSystem
+    public class DisableBrokenEquipment : SystemBase
     {
         protected EarlyEquipmentBufferSystem EquipmentBuffer;
 
@@ -22,31 +22,26 @@ namespace Battle.Equipment
             EquipmentBuffer = World.GetOrCreateSystem<EarlyEquipmentBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            var disableBuffer = EquipmentBuffer.CreateCommandBuffer();
-            var disableJH = new DisableEntities { Buffer = disableBuffer.ToConcurrent() }.Schedule(this, inputDependencies);
-            EquipmentBuffer.AddJobHandleForProducer(disableJH);
-            return disableJH;
-        }
+            var buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent();
 
-        /// <summary>
-        /// Disable enabled equipment with less than zero health.
-        /// </summary>
-        [RequireComponentTag(typeof(Enabled))]
-        struct DisableEntities : IJobForEachWithEntity<Health>
-        {
-            public EntityCommandBuffer.Concurrent Buffer;
-
-            public void Execute(
-                Entity e,
-                int index,
-                [ReadOnly] ref Health health
+            Entities
+                .WithAll<Enabled>()
+                .ForEach(
+                (
+                    Entity e,
+                    int entityInQueryIndex,
+                    in Health health
+                    ) =>
+                {
+                    if (health.Value <= 0f)
+                        buffer.AddComponent(entityInQueryIndex, e, new Disabling());
+                }
                 )
-            {
-                if (health.Value <= 0f)
-                    Buffer.AddComponent(index, e, new Disabling());
-            }
+                .Schedule();
+
+            EquipmentBuffer.AddJobHandleForProducer(Dependency);
         }
     }
 }

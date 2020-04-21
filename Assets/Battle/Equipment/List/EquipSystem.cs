@@ -17,7 +17,7 @@ namespace Battle.Equipment
     /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EarlyEquipmentUpdateGroup))]
-    public class EquipSystem : JobComponentSystem
+    public class EquipSystem : SystemBase
     {
         protected EntityQuery EntitiesToEquip;
         protected EarlyEquipmentBufferSystem EquipmentBuffer;
@@ -27,78 +27,46 @@ namespace Battle.Equipment
         /// </summary>
         protected NativeMultiHashMap<Entity, Entity> EquipmentMap;
 
-        /// <summary>
-        /// Boolean that stores if system has run previously.
-        /// </summary>
-        bool hasRunBefore = false;
-
         protected override void OnCreate()
         {
-            EntitiesToEquip = GetEntityQuery(new EntityQueryDesc
-            {
-                All = new[] {
-                    ComponentType.ReadOnly<Equipment>(),
-                    ComponentType.ReadOnly<Parent>(),
-                },
-                None = new []
-                {
-                    ComponentType.ReadOnly<Equipped>()
-                },
-            });
             EquipmentBuffer = World.GetOrCreateSystem<EarlyEquipmentBufferSystem>();
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
-            if (hasRunBefore)
-                EquipmentMap.Dispose();
             EquipmentMap = new NativeMultiHashMap<Entity, Entity>(EntitiesToEquip.CalculateEntityCount(), Allocator.TempJob);
 
             // Start by sorting newly added equipment by parent entity.
-            var mapJH = new MapEquipmentToParent
-            {
-                EquipmentMap = EquipmentMap.AsParallelWriter(),
-                Buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent()
-            }.Schedule(EntitiesToEquip, inputDependencies);
-            EquipmentBuffer.AddJobHandleForProducer(mapJH);
+            var equipmentMapWriter = EquipmentMap.AsParallelWriter();
+            var buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent();
+            Dependency = 
+                Entities
+                .WithAll<Equipment>()
+                .WithNone<Equipped>()
+                .WithStoreEntityQueryInField(ref EntitiesToEquip)
+                .ForEach(
+                (
+                    Entity e,
+                    int entityInQueryIndex,
+                    ref Parent parent
+                    ) =>
+                {
+                    equipmentMapWriter.Add(parent.Value, e);
+                    buffer.AddComponent(entityInQueryIndex, e, new Equipping());
+                    buffer.AddComponent(entityInQueryIndex, e, new Equipped());
+                }
+                )
+                .Schedule(Dependency);
 
-            var updateJH = new UpdateEquipmentLists
+            EquipmentBuffer.AddJobHandleForProducer(Dependency);
+
+            Dependency = new UpdateEquipmentLists
             {
                 EquipmentLists = GetBufferFromEntity<EquipmentList>(false),
                 EquipmentMap = EquipmentMap
-            }.Schedule(mapJH);
+            }.Schedule(Dependency);
 
-            hasRunBefore = true;
-            return updateJH;
-        }
-
-        protected override void OnStopRunning()
-        {
-            if (hasRunBefore)
-            {
-                EquipmentMap.Dispose();
-            }
-        }
-
-        struct MapEquipmentToParent : IJobForEachWithEntity<Parent>
-        {
-            public EntityCommandBuffer.Concurrent Buffer;
-
-            /// <summary>
-            /// Key is parent entity, value is equipment entity.
-            /// </summary>
-            public NativeMultiHashMap<Entity, Entity>.ParallelWriter EquipmentMap;
-
-            public void Execute(
-                Entity e,
-                int index,
-                [ReadOnly] ref Parent parent
-                )
-            {
-                EquipmentMap.Add(parent.Value, e);
-                Buffer.AddComponent(index, e, new Equipping());
-                Buffer.AddComponent(index, e, new Equipped());
-            }
+            EquipmentMap.Dispose(Dependency);
         }
 
         /// <summary>
@@ -119,23 +87,8 @@ namespace Battle.Equipment
                 // For now, I'll fall back to doing this one entity at a time. In future we can make it loop over parents.
                 var parents = EquipmentMap.GetKeyArray(Allocator.Temp);
                 var values = EquipmentMap.GetValueArray(Allocator.Temp);
-                
-                //foreach (Entity parent in parents)
-                //{
-                //    if (!EquipmentLists.Exists(parent))
-                //        continue;
 
-                //    DynamicBuffer<EquipmentList> equipmentList = EquipmentLists[parent];
-                //    Debug.Log(string.Format("Equipment list of length={0}", equipmentList.Length));
-
-                //    EquipmentMap.TryGetFirstValue(parent, out Entity item, out var iter);
-                //    do
-                //    {
-                //        equipmentList.Add(item);
-                //    } while (EquipmentMap.TryGetNextValue(out item, ref iter));
-                //}
-
-                for  (int i = 0; i < parents.Length; i++)
+                for (int i = 0; i < parents.Length; i++)
                 {
                     var parent = parents[i];
 
