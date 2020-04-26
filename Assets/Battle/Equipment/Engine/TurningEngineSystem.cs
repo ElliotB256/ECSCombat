@@ -1,10 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
-using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
-using Battle.Combat;
+﻿using Unity.Entities;
 using Battle.Movement;
 
 namespace Battle.Equipment
@@ -14,23 +8,23 @@ namespace Battle.Equipment
     /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EquipmentUpdateGroup))]
-    public class TurningEngineSystem : AggregateEquipmentSystem<MaxTurnSpeed, TurningEngine, TurningEngineAggregator>
+    public class TurningEngineSystem : AggregateEquipmentSystem<TurningEngine>
     {
         protected override AggregationScenario Scenario => AggregationScenario.OnEnableAndDisable;
     }
 
-    public struct TurningEngineAggregator : IAggregator<MaxTurnSpeed, TurningEngine>
+    [AlwaysUpdateSystem]
+    [UpdateInGroup(typeof(EquipmentUpdateGroup))]
+    [UpdateAfter(typeof(TurningEngineSystem))]
+    public class CalculateTurningSpeedSystem : SystemBase
     {
-        public MaxTurnSpeed Combine(MaxTurnSpeed original, TurningEngine component)
+        protected override void OnUpdate()
         {
-            original.RadiansPerSecond += component.TurnSpeedRadians;
-            return original;
-        }
-
-        public MaxTurnSpeed Remove(MaxTurnSpeed original, TurningEngine component)
-        {
-            original.RadiansPerSecond -= component.TurnSpeedRadians;
-            return original;
+            Entities
+                .ForEach(
+                (ref MaxTurnSpeed speed, in TurningEngine engine) => speed.RadiansPerSecond = engine.TurnSpeedRadians
+                )
+                .Schedule();
         }
     }
 }

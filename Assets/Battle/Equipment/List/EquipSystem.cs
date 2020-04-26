@@ -85,22 +85,22 @@ namespace Battle.Equipment
                 // with HashMaps using Entity Key:
                 // NativeHashMapExtensions.GetUniqueKeyArray(EquipmentMap, Allocator.Temp);
                 // For now, I'll fall back to doing this one entity at a time. In future we can make it loop over parents.
-                var parents = EquipmentMap.GetKeyArray(Allocator.Temp);
-                var values = EquipmentMap.GetValueArray(Allocator.Temp);
+                //var parents = EquipmentMap.GetKeyArray(Allocator.Temp);
+                //var values = EquipmentMap.GetValueArray(Allocator.Temp);
 
-                for (int i = 0; i < parents.Length; i++)
-                {
-                    var parent = parents[i];
+                //for (int i = 0; i < parents.Length; i++)
+                //{
+                //    var parent = parents[i];
 
-                    if (!EquipmentLists.Exists(parent))
-                        continue;
+                //    if (!EquipmentLists.Exists(parent))
+                //        continue;
 
-                    DynamicBuffer<EquipmentList> equipmentList = EquipmentLists[parent];
-                    equipmentList.Add(values[i]);
-                }
+                //    var equipmentList = EquipmentLists[parent];
+                //    equipmentList.Add(values[i]);
+                //}
 
-                values.Dispose();
-                parents.Dispose();
+                //values.Dispose();
+                //parents.Dispose();
             }
         }
     }

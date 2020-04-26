@@ -1,10 +1,6 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
-using Unity.Transforms;
-using Battle.Combat;
 using Battle.Movement;
 
 namespace Battle.Equipment
@@ -14,23 +10,23 @@ namespace Battle.Equipment
     /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EquipmentUpdateGroup))]
-    public class EngineSystem : AggregateEquipmentSystem<Speed, Engine, EngineAggregator>
+    public class EngineSystem : AggregateEquipmentSystem<Engine>
     {
         protected override AggregationScenario Scenario => AggregationScenario.OnEnableAndDisable;
     }
 
-    public struct EngineAggregator : IAggregator<Speed, Engine>
+    [AlwaysUpdateSystem]
+    [UpdateInGroup(typeof(EquipmentUpdateGroup))]
+    [UpdateAfter(typeof(EngineSystem))]
+    public class CalculateSpeedSystem : SystemBase
     {
-        public Speed Combine(Speed original, Engine component)
+        protected override void OnUpdate()
         {
-            original.Value += component.Thrust;
-            return original;
-        }
-
-        public Speed Remove(Speed original, Engine component)
-        {
-            original.Value -= component.Thrust;
-            return original;
+            Entities
+                .ForEach(
+                (ref Speed speed, in Engine engine) => speed.Value = engine.Thrust
+                )
+                .Schedule();
         }
     }
 }
