@@ -80,13 +80,12 @@ namespace Battle.Equipment
 
             var barrier = JobHandle.CombineDependencies(addMapJobHandle, removeMapJobHandle);
 
-            //var updateJH = new AggregateJob()
-            //{
-            //    AddedEquipmentMap = addedEquipment,
-            //    RemovedEquipmentMap = removedEquipment,
-            //    ParentComponents = GetComponentDataFromEntity<TEquipment>(false)
-            //}.Schedule(barrier);
-            var updateJH = barrier;
+            var updateJH = new AggregateJob()
+            {
+                AddedEquipmentMap = addedEquipment,
+                RemovedEquipmentMap = removedEquipment,
+                ParentComponents = GetComponentDataFromEntity<TEquipment>(false)
+            }.Schedule(barrier);
 
             Dependency = updateJH;
 
@@ -113,45 +112,45 @@ namespace Battle.Equipment
             }
         }
 
-        ////[BurstCompile]
-        //struct AggregateJob : IJob
-        //{
-        //    public ComponentDataFromEntity<TEquipment> ParentComponents;
-        //    [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> AddedEquipmentMap;
-        //    [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> RemovedEquipmentMap;
+        //[BurstCompile]
+        struct AggregateJob : IJob
+        {
+            public ComponentDataFromEntity<TEquipment> ParentComponents;
+            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> AddedEquipmentMap;
+            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> RemovedEquipmentMap;
 
-        //    public void Execute()
-        //    {
-        //        var parents = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
-        //        var addedEquipments = AddedEquipmentMap.GetValueArray(Allocator.Temp);
+            public void Execute()
+            {
+                var parents = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
+                var addedEquipments = AddedEquipmentMap.GetValueArray(Allocator.Temp);
 
-        //        for (int i = 0; i < parents.Length; i++)
-        //        {
-        //            var parent = parents[i];
-        //            if (!ParentComponents.Exists(parent))
-        //                continue;
-        //            var parentComponent = ParentComponents[parent];
-        //            parentComponent.Combine(addedEquipments[i]);
-        //            ParentComponents[parent] = parentComponent;
-        //        }
-        //        addedEquipments.Dispose();
-        //        parents.Dispose();
+                for (int i = 0; i < parents.Length; i++)
+                {
+                    var parent = parents[i];
+                    if (!ParentComponents.Exists(parent))
+                        continue;
+                    var parentComponent = ParentComponents[parent];
+                    parentComponent.Combine(addedEquipments[i]);
+                    ParentComponents[parent] = parentComponent;
+                }
+                addedEquipments.Dispose();
+                parents.Dispose();
 
-        //        parents = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
-        //        var removedEquipments = RemovedEquipmentMap.GetValueArray(Allocator.Temp);
-        //        for (int i = 0; i < parents.Length; i++)
-        //        {
-        //            var parent = parents[i];
-        //            if (!ParentComponents.Exists(parent))
-        //                continue;
-        //            var parentComponent = ParentComponents[parent];
-        //            parentComponent.Decombine(removedEquipments[i]);
-        //            ParentComponents[parent] = parentComponent;
-        //        }
-        //        removedEquipments.Dispose();
-        //        parents.Dispose();
-        //    }
-        //}
+                parents = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
+                var removedEquipments = RemovedEquipmentMap.GetValueArray(Allocator.Temp);
+                for (int i = 0; i < parents.Length; i++)
+                {
+                    var parent = parents[i];
+                    if (!ParentComponents.Exists(parent))
+                        continue;
+                    var parentComponent = ParentComponents[parent];
+                    parentComponent.Decombine(removedEquipments[i]);
+                    ParentComponents[parent] = parentComponent;
+                }
+                removedEquipments.Dispose();
+                parents.Dispose();
+            }
+        }
     }
 
     public interface ICombineable<T> { void Combine(T other); void Decombine(T other); }
