@@ -16,9 +16,11 @@ namespace Battle.AI
             dstManager.AddComponentData(entity, category);
         }
 
+#if UNITY_EDITOR
         void OnGUI()
         {
             AgentType = (AgentCategory.eType)EditorGUILayout.EnumFlagsField("Type of this entity", AgentType);
         }
+#endif
     }
 }

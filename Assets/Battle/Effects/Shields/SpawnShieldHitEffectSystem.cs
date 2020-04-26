@@ -29,8 +29,10 @@ namespace Battle.Effects
         protected override void OnCreate()
         {
             BufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            ShieldMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets/Art/Effects/Shields/ShieldMaterial.mat", typeof(Material));
-            Mesh = (Mesh)AssetDatabase.LoadAssetAtPath("Assets/Art/Misc/ScalePlane.fbx", typeof(Mesh));
+            //ShieldMaterial = (Material)AssetDatabase.LoadAssetAtPath("Assets/Art/Effects/Shields/ShieldMaterial.mat", typeof(Material));
+            ShieldMaterial = Resources.Load<Material>("ShieldMaterial");
+            //Mesh = (Mesh)AssetDatabase.LoadAssetAtPath("Assets/Art/Misc/ScalePlane.fbx", typeof(Mesh));
+            Mesh = Resources.Load<Mesh>("ScalePlane");
 
             if (Mesh == null)
                 throw new System.Exception("Could not load mesh.");

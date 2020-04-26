@@ -20,10 +20,12 @@ namespace Battle.AI
             dstManager.AddComponentData(entity, targetOrders);
         }
 
+#if UNITY_EDITOR
         void OnGUI()
         {
             PreferredTargets = (AgentCategory.eType)EditorGUILayout.EnumFlagsField("Preferred Targets", PreferredTargets);
             DiscouragedTargets = (AgentCategory.eType)EditorGUILayout.EnumFlagsField("Discouraged Targets", DiscouragedTargets);
         }
+#endif
     }
 }
