@@ -61,36 +61,51 @@ namespace Battle.Equipment
             var addedCount = ComponentsToBeEnabled.CalculateEntityCount();
             var removedCount = ComponentsToBeDisabled.CalculateEntityCount();
 
-            var addedEquipment = new NativeMultiHashMap<Entity, TEquipment>(addedCount, Allocator.TempJob);
-            var removedEquipment = new NativeMultiHashMap<Entity, TEquipment>(removedCount, Allocator.TempJob);
+            var addedToEntities = new NativeArray<Entity>(addedCount, Allocator.TempJob);
+            var addedEquipment = new NativeArray<TEquipment>(addedCount, Allocator.TempJob);
+            var removedFromEntities = new NativeArray<Entity>(removedCount, Allocator.TempJob);
+            var removedEquipment = new NativeArray<TEquipment>(removedCount, Allocator.TempJob);
 
             var addMapJobHandle = new AddToMapJob
             {
                 Equipment = GetArchetypeChunkComponentType<TEquipment>(true),
                 Parent = GetArchetypeChunkComponentType<Parent>(true),
-                EquipmentMap = addedEquipment.AsParallelWriter()
+                Entities = addedToEntities,
+                ChangedEquipment = addedEquipment
             }.Schedule(ComponentsToBeEnabled, Dependency);
 
             var removeMapJobHandle = new AddToMapJob
             {
                 Equipment = GetArchetypeChunkComponentType<TEquipment>(true),
                 Parent = GetArchetypeChunkComponentType<Parent>(true),
-                EquipmentMap = removedEquipment.AsParallelWriter()
+                Entities = removedFromEntities,
+                ChangedEquipment = removedEquipment
             }.Schedule(ComponentsToBeDisabled, Dependency);
 
             var barrier = JobHandle.CombineDependencies(addMapJobHandle, removeMapJobHandle);
 
-            var updateJH = new AggregateJob()
+            var addJH = new AggregateJob()
             {
-                AddedEquipmentMap = addedEquipment,
-                RemovedEquipmentMap = removedEquipment,
-                ParentComponents = GetComponentDataFromEntity<TEquipment>(false)
+                Entities = addedToEntities,
+                ChangedEquipment = addedEquipment,
+                EquipmentComponents = GetComponentDataFromEntity<TEquipment>(false),
+                Added = true
             }.Schedule(barrier);
 
-            Dependency = updateJH;
+            var removeJH = new AggregateJob()
+            {
+                Entities = removedFromEntities,
+                ChangedEquipment = removedEquipment,
+                EquipmentComponents = GetComponentDataFromEntity<TEquipment>(false),
+                Added = false
+            }.Schedule(addJH);
 
-            addedEquipment.Dispose(updateJH);
-            removedEquipment.Dispose(updateJH);
+            Dependency = removeJH;
+
+            addedEquipment.Dispose(removeJH);
+            addedToEntities.Dispose(removeJH);
+            removedEquipment.Dispose(removeJH);
+            removedFromEntities.Dispose(removeJH);
         }
 
         [BurstCompile]
@@ -98,16 +113,18 @@ namespace Battle.Equipment
         {
             [ReadOnly] public ArchetypeChunkComponentType<TEquipment> Equipment;
             [ReadOnly] public ArchetypeChunkComponentType<Parent> Parent;
-            public NativeMultiHashMap<Entity, TEquipment>.ParallelWriter EquipmentMap;
+            [NativeDisableParallelForRestriction] public NativeArray<Entity> Entities;
+            [NativeDisableParallelForRestriction] public NativeArray<TEquipment> ChangedEquipment;
 
             public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
                 var equipments = chunk.GetNativeArray(Equipment);
-                var parent = chunk.GetNativeArray(Parent);
+                var parents = chunk.GetNativeArray(Parent);
 
                 for (int i = 0; i < chunk.Count; i++)
                 {
-                    EquipmentMap.Add(parent[i].Value, equipments[i]);
+                    Entities[firstEntityIndex+i] = parents[i].Value;
+                    ChangedEquipment[firstEntityIndex+i] = equipments[i];
                 }
             }
         }
@@ -115,40 +132,25 @@ namespace Battle.Equipment
         //[BurstCompile]
         struct AggregateJob : IJob
         {
-            public ComponentDataFromEntity<TEquipment> ParentComponents;
-            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> AddedEquipmentMap;
-            [ReadOnly] public NativeMultiHashMap<Entity, TEquipment> RemovedEquipmentMap;
+            public ComponentDataFromEntity<TEquipment> EquipmentComponents;
+            [ReadOnly] public NativeArray<Entity> Entities;
+            [ReadOnly] public NativeArray<TEquipment> ChangedEquipment;
+            public bool Added;
 
             public void Execute()
             {
-                var parents = AddedEquipmentMap.GetKeyArray(Allocator.Temp);
-                var addedEquipments = AddedEquipmentMap.GetValueArray(Allocator.Temp);
-
-                for (int i = 0; i < parents.Length; i++)
+                for (int i = 0; i < Entities.Length; i++)
                 {
-                    var parent = parents[i];
-                    if (!ParentComponents.Exists(parent))
+                    var parent = Entities[i];
+                    if (!EquipmentComponents.Exists(parent))
                         continue;
-                    var parentComponent = ParentComponents[parent];
-                    parentComponent.Combine(addedEquipments[i]);
-                    ParentComponents[parent] = parentComponent;
+                    var parentComponent = EquipmentComponents[parent];
+                    if (Added)
+                        parentComponent.Combine(ChangedEquipment[i]);
+                    else
+                        parentComponent.Decombine(ChangedEquipment[i]);
+                    EquipmentComponents[parent] = parentComponent;
                 }
-                addedEquipments.Dispose();
-                parents.Dispose();
-
-                parents = RemovedEquipmentMap.GetKeyArray(Allocator.Temp);
-                var removedEquipments = RemovedEquipmentMap.GetValueArray(Allocator.Temp);
-                for (int i = 0; i < parents.Length; i++)
-                {
-                    var parent = parents[i];
-                    if (!ParentComponents.Exists(parent))
-                        continue;
-                    var parentComponent = ParentComponents[parent];
-                    parentComponent.Decombine(removedEquipments[i]);
-                    ParentComponents[parent] = parentComponent;
-                }
-                removedEquipments.Dispose();
-                parents.Dispose();
             }
         }
     }
