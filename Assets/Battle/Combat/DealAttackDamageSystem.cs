@@ -30,7 +30,7 @@ namespace Battle.Combat
                     if (attack.Result == Attack.eResult.Miss)
                         return;
 
-                    if (lastHitTimers.HasComponent(target.Value))
+                    if (lastHitTimers.HasComponent(target.Value) && damage.Value > 0f)
                         lastHitTimers[target.Value] = new LastHitTimer { Value = 0f };
 
                     if (healths.HasComponent(target.Value))

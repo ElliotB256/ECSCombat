@@ -65,6 +65,8 @@ namespace Battle.Combat
 
                 bool blocked = absorbed > 0f;
 
+                shields[target.Value] = shield;
+
                 //generate aesthetic effect.
                 if (blocked)
                 {

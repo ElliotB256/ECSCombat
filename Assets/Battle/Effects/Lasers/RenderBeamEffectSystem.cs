@@ -1,22 +1,19 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
-using Unity.Transforms;
 using UnityEngine;
-using Unity;
 
 using Battle.Combat;
-using System.Collections.Generic;
 using Unity.Rendering;
 
 namespace Battle.Effects
 {
     [
-    AlwaysUpdateSystem,
-    UpdateAfter(typeof(BeamEffectSystem)),
-    UpdateInGroup(typeof(AttackResultSystemsGroup))
+        AlwaysUpdateSystem,
+        UpdateAfter(typeof(ShieldsAbsorbDamageSystem)),
+        UpdateAfter(typeof(BeamEffectSystem)),
+        UpdateInGroup(typeof(AttackResultSystemsGroup))
     ]
     public class RenderLaserSystem : JobComponentSystem
     {

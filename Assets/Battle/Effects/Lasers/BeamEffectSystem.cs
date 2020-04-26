@@ -13,7 +13,10 @@ namespace Battle.Effects
     /// <summary>
     /// Create beam effects between attacker and target entity.
     /// </summary>
-    [UpdateInGroup(typeof(AttackResultSystemsGroup))]
+    [
+        UpdateInGroup(typeof(AttackResultSystemsGroup)),
+        UpdateAfter(typeof(ShieldsAbsorbDamageSystem))
+        ]
     public class BeamEffectSystem : SystemBase
     {
         protected override void OnUpdate()

@@ -50,6 +50,7 @@ namespace Battle.Effects
                     Buffer.AddComponent(e, new Rotation { Value = quaternion.LookRotation(effect.HitDirection, new float3(0.0f, 1.0f, 0.0f)) });
                     Buffer.AddComponent(e, new Scale { Value = shield.Radius });
                     Buffer.AddComponent(e, new LocalToWorld { });
+                    Buffer.AddComponent(e, new RenderBounds {  });
                     Buffer.AddSharedComponent(e,
                     new RenderMesh
                     {
