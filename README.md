@@ -2,9 +2,9 @@
 
 A sci-fi battle simulation, using Unity's ECS framework.
 
-![A preview image of a battle](Screenshots/preview.png)
+[![A preview image](https://img.youtube.com/vi/S2RJfbJly_A/0.jpg)](https://www.youtube.com/watch?v=S2RJfbJly_A)
 
-A video of a battle can be seen [here](https://www.youtube.com/watch?v=NhxL0a7bS8k).
+A video of an infinite battle can be seen [here](https://www.youtube.com/watch?v=S2RJfbJly_A).
 
 ## Suggestions of what to look at:
 
