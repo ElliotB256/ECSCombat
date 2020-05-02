@@ -18,8 +18,8 @@ namespace Battle.AI
             var standard = Entities.WithNone<GuardBehaviour>().ForEach(
                 (ref AggroLocation source, in Target target, in LocalToWorld l2w) =>
                 {
-                    if (target.Value == Entity.Null)
-                        return;
+                    //if (target.Value == Entity.Null)
+                    //    return;
 
                     source.Position = l2w.Position;
                 }

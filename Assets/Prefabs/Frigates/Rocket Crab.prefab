@@ -74,6 +74,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -98,6 +99,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &10378401105513702
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37f37e0dfdcf28499b3c34a2745a597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TeamID: 0
+  TeamID: 2
 --- !u!114 &10378401105513708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,6 +257,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 20
+  RetargetTime: 0
 --- !u!114 &5329551600221189332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -389,6 +392,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8947973473940646042, guid: 7cd0919d78ce2184d93f9e0acd7f70df,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7cd0919d78ce2184d93f9e0acd7f70df, type: 3}
 --- !u!4 &6258236866226168646 stripped
@@ -463,6 +471,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8947973473940646042, guid: 7cd0919d78ce2184d93f9e0acd7f70df,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7cd0919d78ce2184d93f9e0acd7f70df, type: 3}

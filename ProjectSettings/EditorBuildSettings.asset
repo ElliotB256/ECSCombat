@@ -5,7 +5,7 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/tiny.unity
     guid: d59eb1244d96c6544bc84fb874d60ee9
   m_configObjects: {}

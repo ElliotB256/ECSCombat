@@ -32,6 +32,7 @@ GameObject:
   - component: {fileID: -7216072463823055425}
   - component: {fileID: 4601794649529609242}
   - component: {fileID: 3809752198800316694}
+  - component: {fileID: 1593211064}
   m_Layer: 0
   m_Name: Fighter Ship
   m_TagString: Untagged
@@ -170,7 +171,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37f37e0dfdcf28499b3c34a2745a597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TeamID: 0
+  TeamID: 2
 --- !u!114 &2048746456120661744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -359,7 +360,7 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  Radius: 10
+  Radius: 8
 --- !u!114 &4601794649529609242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,6 +387,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Thrust: 2
   TurningRate: 2
+--- !u!114 &1593211064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1208510331489906793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb028c6b285f46f469af539ef5beeaab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Target: {fileID: 0}
 --- !u!1 &5895549097753276612
 GameObject:
   m_ObjectHideFlags: 0

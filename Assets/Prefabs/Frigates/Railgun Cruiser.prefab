@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c37f37e0dfdcf28499b3c34a2745a597, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TeamID: 0
+  TeamID: 2
 --- !u!114 &10378401105513708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -332,6 +332,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 10378401105513699}
     m_Modifications:
+    - target: {fileID: 1202677402638425766, guid: 57e9a5af2fd72d149a6259ee28141929,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1202677402638425769, guid: 57e9a5af2fd72d149a6259ee28141929,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -407,6 +412,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 10378401105513699}
     m_Modifications:
+    - target: {fileID: 1202677402638425766, guid: 81dfee7c9a57d394c89aa38283e60153,
+        type: 3}
+      propertyPath: TeamID
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 1202677402638425769, guid: 81dfee7c9a57d394c89aa38283e60153,
         type: 3}
       propertyPath: m_LocalPosition.x
