@@ -243,6 +243,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9023896012975919465, guid: 40fa5b340a8f3644996c6f4e6a1a1c54,
+        type: 3}
+      propertyPath: TimeBetweenWaves
+      value: 10
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40fa5b340a8f3644996c6f4e6a1a1c54, type: 3}
 --- !u!1 &324526668

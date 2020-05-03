@@ -56,8 +56,9 @@ namespace Battle.Spawner
             ) =>
             {
                 // Spawn entities from wave
-                foreach (SpawnWaveComponent c in waveComponents)
+                for (int ci = 0; ci < waveComponents.Length; ci++)
                 {
+                    SpawnWaveComponent c = waveComponents[ci];
                     for (int i= 0; i < c.Number; i++)
                     {
                         var spawnedEntity = buffer.Instantiate(c.Template);
