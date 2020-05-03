@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Battle.AI;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -45,6 +46,7 @@ namespace Battle.Combat
                     buffer.SetComponent(entityInQueryIndex, ship, new Translation { Value = localToWorld.Position - new float3(0f, -0.1f, 0f) });
                     buffer.SetComponent(entityInQueryIndex, ship, new Rotation { Value = new quaternion(localToWorld.Value) });
                     buffer.SetComponent(entityInQueryIndex, ship, team);
+                    buffer.AddComponent(entityInQueryIndex, ship, new Escort { Target = entity });
                 })
                 .Schedule();
 

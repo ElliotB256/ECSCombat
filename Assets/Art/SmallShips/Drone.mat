@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Pointy
+  m_Name: Drone
   m_Shader: {fileID: -6465566751694194690, guid: 2632fd6d2921cc24da2514d20224c081,
     type: 3}
   m_ShaderKeywords: _ALPHATEST_ON
@@ -73,7 +73,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Mask:
-        m_Texture: {fileID: 2800000, guid: 39df4c079a4a51e4d8232dd30fc4648e, type: 3}
+        m_Texture: {fileID: 2800000, guid: 81c5228ab39f45445b63c7619564ccc3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskMap:
@@ -89,7 +89,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Ship:
-        m_Texture: {fileID: 2800000, guid: 82242b9b5b4f18948b78ae8870ad09ac, type: 3}
+        m_Texture: {fileID: 2800000, guid: ad8cbd21062c8d2438dcf0eeae62906c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularColorMap:

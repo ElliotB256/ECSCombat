@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 10
-  RetargetTime: 0
+  RetargetTime: 5
 --- !u!114 &-7216072463823055425
 MonoBehaviour:
   m_ObjectHideFlags: 0

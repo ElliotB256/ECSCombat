@@ -342,7 +342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533aa9beebbc6124fbe812c5ce914b15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 10
+  Radius: 15
   RetargetTime: 0
 --- !u!114 &-7216072463823055425
 MonoBehaviour:
