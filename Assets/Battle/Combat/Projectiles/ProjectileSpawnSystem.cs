@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Mathematics;
 using Unity.Transforms;
 
 namespace Battle.Combat.AttackSources
@@ -38,13 +39,12 @@ namespace Battle.Combat.AttackSources
                 {
                     if (!tool.Firing)
                         return;
-
+                    
                     // Create the projectile
                     Entity projectile = buffer.Instantiate(entityInQueryIndex, weapon.Projectile);
                     buffer.SetComponent(entityInQueryIndex, projectile, target);
                     buffer.SetComponent(entityInQueryIndex, projectile, new Translation { Value = worldTransform.Position });
-                    buffer.SetComponent(entityInQueryIndex, projectile, new Rotation { Value = worldTransform.Rotation });
-                    buffer.SetComponent(entityInQueryIndex, projectile, worldTransform);
+                    buffer.SetComponent(entityInQueryIndex, projectile, new Rotation { Value = quaternion.LookRotation(worldTransform.Forward, new float3(0f,1f,0f)) });
                     buffer.SetComponent(entityInQueryIndex, projectile, new Instigator() { Value = attacker });
                     buffer.AddComponent(entityInQueryIndex, projectile, team);
                 })
