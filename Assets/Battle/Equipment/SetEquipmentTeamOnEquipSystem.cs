@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Transforms;
-using UnityEngine;
 
 namespace Battle.Equipment
 {
@@ -21,19 +20,14 @@ namespace Battle.Equipment
 
         protected override void OnUpdate()
         {
-            var teams = GetComponentDataFromEntity<Team>();
-
             Entities
-                .WithAll<Equipment, Equipping>()
+                .WithAll<Team, Equipment, Equipping>()
                 .ForEach(
-                (ref Team team, in Parent parent) =>
+                (Entity e, in Parent parent) =>
                 {
-                    if (!teams.Exists(parent.Value))
-                    {
-                        Debug.LogWarning("Parent entity does not have a team component.");
+                    if (!HasComponent<Team>(parent.Value))
                         return;
-                    }
-                    team = teams[parent.Value];
+                    SetComponent(e, GetComponent<Team>(parent.Value));
                 }
                 )
                 .Schedule();
