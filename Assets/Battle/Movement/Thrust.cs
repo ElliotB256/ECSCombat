@@ -7,6 +7,7 @@ namespace Battle.Movement
     /// The weight of an entity
     /// </summary>
     [Serializable]
+    [GenerateAuthoringComponent]
     public struct Thrust : IComponentData
     {
         /// <summary>
