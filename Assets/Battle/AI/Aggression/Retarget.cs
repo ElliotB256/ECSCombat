@@ -26,13 +26,13 @@ namespace Battle.AI
     /// <summary>
     /// Periodically clears the current target from entities with a RetargettingBehaviour component.
     /// </summary>
-    [UpdateBefore(typeof(SelectTargetSystem))]
+    [UpdateBefore(typeof(SelectTargetsSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
     public class RetargetBehaviourSystem : JobComponentSystem
     {
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
             return Entities.ForEach(
                 (ref RetargetBehaviour retarget, ref Target target) =>
                 {

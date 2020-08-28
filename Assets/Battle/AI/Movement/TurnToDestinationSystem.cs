@@ -1,4 +1,5 @@
-﻿using Battle.Movement;
+﻿using Battle.Combat;
+using Battle.Movement;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -16,7 +17,7 @@ namespace Battle.AI
 
         protected override void OnUpdate()
         {
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
 
             Entities
                 .ForEach(

@@ -12,7 +12,7 @@ namespace Battle.Combat
     {
         protected override void OnUpdate()
         {
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
             Entities
                 .ForEach(
                 (ref Cooldown cooldown) =>

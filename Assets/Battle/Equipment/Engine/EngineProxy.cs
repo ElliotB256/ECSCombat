@@ -7,15 +7,12 @@ namespace Battle.Equipment
     [RequireComponent(typeof(EnabledProxy))]
     public class EngineProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
-        public float Thrust;
-
-        [Tooltip("Turning rate, in degrees")]
-        public float TurningRate;
+        public float ForwardThrust;
+        public float TurningThrust;
 
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            dstManager.AddComponentData(entity, new Engine { Thrust = Thrust });
-            dstManager.AddComponentData(entity, new TurningEngine { TurnSpeedRadians = Mathf.Deg2Rad * TurningRate });
+            dstManager.AddComponentData(entity, new Engine { ForwardThrust = ForwardThrust, TurningThrust = TurningThrust });
         }
     }
 }

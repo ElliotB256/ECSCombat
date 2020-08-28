@@ -53,7 +53,7 @@ namespace Battle.Effects
             // Update existing beam effects, eg to follow target or despawn.
             buffer = PostAttackEntityBuffer.CreateCommandBuffer().ToConcurrent();
             var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
-            var deltaTime = Time.DeltaTime;
+            var deltaTime = GetSingleton<GameTimeDelta>().dT;
             Dependency = Entities
                 .ForEach(
                 (Entity e, int entityInQueryIndex, ref BeamEffect beamEffect, in Instigator attacker) =>

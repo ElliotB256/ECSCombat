@@ -1,32 +1,38 @@
-﻿using Unity.Collections;
+﻿using Battle.Movement;
 using Unity.Entities;
-using Unity.Jobs;
-using Battle.Movement;
+using Unity.Transforms;
 
 namespace Battle.Equipment
 {
-    /// <summary>
-    /// Modifies a Parent's maximum speed as Engines are added/removed.
-    /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EquipmentUpdateGroup))]
-    public class EngineSystem : AggregateEquipmentSystem<Engine>
-    {
-        protected override AggregationScenario Scenario => AggregationScenario.OnEnableAndDisable;
-    }
-
-    [AlwaysUpdateSystem]
-    [UpdateInGroup(typeof(EquipmentUpdateGroup))]
-    [UpdateAfter(typeof(EngineSystem))]
-    public class CalculateSpeedSystem : SystemBase
+    public class EngineSystem : SystemBase
     {
         protected override void OnUpdate()
         {
             Entities
+                .WithAll<Enabling>()
                 .ForEach(
-                (ref Speed speed, in Engine engine) => speed.Value = engine.Thrust
-                )
-                .Schedule();
+                (in Engine engine, in Parent parent) =>
+                {
+                    var thrust = GetComponent<Thrust>(parent.Value);
+                    thrust.Forward += engine.ForwardThrust;
+                    thrust.Turning += engine.TurningThrust;
+                    SetComponent(parent.Value, thrust);
+                }
+                ).Schedule();
+
+            Entities
+                .WithAll<Disabling>()
+                .ForEach(
+                (in Engine engine, in Parent parent) =>
+                {
+                    var thrust = GetComponent<Thrust>(parent.Value);
+                    thrust.Forward -= engine.ForwardThrust;
+                    thrust.Turning -= engine.TurningThrust;
+                    SetComponent(parent.Value, thrust);
+                }
+                ).Schedule();
         }
     }
 }

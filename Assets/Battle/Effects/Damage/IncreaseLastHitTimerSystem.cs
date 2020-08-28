@@ -1,4 +1,5 @@
-﻿using Battle.Effects;
+﻿using Battle.Combat;
+using Battle.Effects;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -8,7 +9,7 @@ namespace Assets.Battle.Effects.Damage
     {
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
             return Entities.ForEach(
                 (ref LastHitTimer timer) =>
                 {

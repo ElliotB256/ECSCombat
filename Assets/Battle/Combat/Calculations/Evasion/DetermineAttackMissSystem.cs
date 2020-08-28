@@ -23,7 +23,7 @@ namespace Battle.Combat.AttackSources
                 {
                     if (evasions.HasComponent(target.Value))
                     {
-                        float evasion = evasions[target.Value].GetEvasionRating();
+                        float evasion = evasions[target.Value].Rating;
                         float hitChance = math.exp(-evasion / attack.Accuracy);
                         if (random.NextFloat() > hitChance)
                             attack.Result = Attack.eResult.Miss;

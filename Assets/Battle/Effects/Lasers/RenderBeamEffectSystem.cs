@@ -38,6 +38,7 @@ namespace Battle.Effects
         {
             int numberOfBeams = BeamQuery.CalculateEntityCount();
             var Vertices = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
+            var Colors = new NativeArray<float4>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var Normals = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var UVs = new NativeArray<float2>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var Triangles = new NativeArray<int>(numberOfBeams * 6, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -57,6 +58,11 @@ namespace Battle.Effects
                     Vertices[vertexStartID + 1] = beam.start + transverseDir * halfWidth;
                     Vertices[vertexStartID + 2] = beam.end + transverseDir * halfWidth;
                     Vertices[vertexStartID + 3] = beam.end - transverseDir * halfWidth;
+
+                    Colors[vertexStartID + 0] = style.PrimaryColor;
+                    Colors[vertexStartID + 1] = style.PrimaryColor;
+                    Colors[vertexStartID + 2] = style.PrimaryColor;
+                    Colors[vertexStartID + 3] = style.PrimaryColor;
 
                     UVs[vertexStartID + 0] = new float2(0.0f, 0.0f);
                     UVs[vertexStartID + 1] = new float2(1.0f, 0.0f);
@@ -87,6 +93,7 @@ namespace Battle.Effects
                 mesh.mesh.SetUVs(0, UVs);
                 mesh.mesh.SetTriangles(Triangles.ToArray(), 0);
                 mesh.mesh.SetNormals(Normals);
+                mesh.mesh.SetColors(Colors);
                 mesh.mesh.bounds = new Bounds(Vector3.zero, new Vector3(1f, 1f, 1f) * 10000f);
             }
             ).WithoutBurst().Run();
@@ -94,6 +101,7 @@ namespace Battle.Effects
             Normals.Dispose();
             UVs.Dispose();
             Triangles.Dispose();
+            Colors.Dispose();
 
             return inputDeps;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace Battle.Effects
 {
@@ -10,7 +11,7 @@ namespace Battle.Effects
     public struct BeamEffectStyle : IComponentData
     {
         public float Width;
-        //public float PrimaryColor;
+        public float4 PrimaryColor;
         //public float SecondaryColor;
         //public float Pattern;
     }

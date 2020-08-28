@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Battle.Combat;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -14,7 +15,7 @@ namespace Battle.Movement
     {
         protected override void OnUpdate()
         {
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
 
             Entities.ForEach(
                 (ref Translation translation, in Rotation rot, in Speed speed) =>

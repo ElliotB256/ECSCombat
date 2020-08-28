@@ -6,9 +6,6 @@ namespace Battle.Combat
     /// <summary>
     /// Reduces lifetime, marks expired entities for deletion.
     /// </summary>
-    [
-        UpdateBefore(typeof(LateSimulationSystemGroup))
-        ]
     public class ReduceLifetimeSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem BufferSystem;
@@ -21,7 +18,7 @@ namespace Battle.Combat
         protected override void OnUpdate()
         {
             var buffer = BufferSystem.CreateCommandBuffer().ToConcurrent();
-            float dT = Time.DeltaTime;
+            float dT = GetSingleton<GameTimeDelta>().dT;
             Entities
                 .ForEach(
                 (Entity e, int entityInQueryIndex, ref Lifetime lifetime) =>

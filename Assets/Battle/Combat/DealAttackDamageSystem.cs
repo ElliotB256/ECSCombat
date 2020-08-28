@@ -32,6 +32,8 @@ namespace Battle.Combat
 
                     if (lastHitTimers.HasComponent(target.Value) && damage.Value > 0f)
                         lastHitTimers[target.Value] = new LastHitTimer { Value = 0f };
+                    if (HasComponent<LastHitColor>(target.Value) && damage.Value > 0f)
+                        SetComponent(target.Value, new LastHitColor { Value = new Unity.Mathematics.float4(1f,1f,1f,1f) });
 
                     if (healths.HasComponent(target.Value))
                     {

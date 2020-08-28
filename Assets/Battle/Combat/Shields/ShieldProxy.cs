@@ -16,6 +16,7 @@ namespace Battle.Combat
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
             dstManager.AddComponentData(entity, new Shield { Health = Capacity, Radius = Radius });
+            dstManager.AddComponentData(entity, new MaxShield { Value = Capacity });
         }
     }
 }
