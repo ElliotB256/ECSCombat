@@ -14,9 +14,11 @@ namespace Battle.AI
         [Tooltip("Types of entity we are discouraged from targeting.")]
         public AgentCategory.eType DiscouragedTargets;
 
+        public bool TargetSameTeam = false;
+
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            var targetOrders = new TargetingOrders { Discouraged = DiscouragedTargets, Preferred = PreferredTargets };
+            var targetOrders = new TargetingOrders { Discouraged = DiscouragedTargets, Preferred = PreferredTargets, TargetSameTeam = TargetSameTeam };
             dstManager.AddComponentData(entity, targetOrders);
         }
 

@@ -8,5 +8,7 @@ namespace Battle.AI
     /// </summary>
     [Serializable]
     public struct TurretBehaviour : IComponentData
-    {}
+    {
+        public float Range;
+    }
 }

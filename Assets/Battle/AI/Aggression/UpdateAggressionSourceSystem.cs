@@ -9,7 +9,7 @@ namespace Battle.AI
     /// <summary>
     /// For entities without a target, updates the location from which the target search should be taken.
     /// </summary>
-    [UpdateBefore(typeof(SelectTargetSystem))]
+    [UpdateBefore(typeof(SelectTargetsSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
     public class UpdateAggressionSourceSystem : JobComponentSystem
     {

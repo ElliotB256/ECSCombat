@@ -19,5 +19,7 @@ namespace Battle.AI
         /// The categories that we do not want to engage.
         /// </summary>
         public AgentCategory.eType Discouraged;
+
+        public bool TargetSameTeam;
     }
 }

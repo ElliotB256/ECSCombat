@@ -22,13 +22,22 @@ namespace Battle.AI
 
             Entities.ForEach(
                 (
+                    ref TurretBehaviour behaviour,
+                    ref TargettedTool tool
+                    ) =>
+                {
+                    behaviour.Range = tool.Range;
+                }
+                ).Schedule();
+
+            Entities.ForEach(
+                (
                 Entity e,
                 int entityInQueryIndex,
                 ref Target target,
                 ref TurnToDestinationBehaviour turnTo,
                 in TurretBehaviour behaviour,
-                in LocalToWorld localToWorld,
-                in TargettedTool tool
+                in LocalToWorld localToWorld
                 ) =>
                 {
                     if (target.Value == Entity.Null)
@@ -42,7 +51,7 @@ namespace Battle.AI
                     var targetPos = positions[target.Value].Position;
 
                     // Disengage if target is outside range.
-                    if (math.lengthsq(targetPos - localToWorld.Position) > tool.Range * tool.Range)
+                    if (math.lengthsq(targetPos - localToWorld.Position) > behaviour.Range * behaviour.Range)
                         target.Value = Entity.Null;
 
                     // Point turret to target
