@@ -27,7 +27,7 @@ namespace Battle.Combat
             var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
             var sizeRadii = GetComponentDataFromEntity<SizeRadius>(true);
             float dT = UnityEngine.Time.fixedDeltaTime;
-            var buffer = CommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .ForEach(
@@ -42,7 +42,7 @@ namespace Battle.Combat
                 ) =>
                 {
 
-                    if (!transforms.Exists(target.Value))
+                    if (!transforms.HasComponent(target.Value))
                         return; // Target does not exist?
 
                     var tPos = transforms[target.Value].Position;

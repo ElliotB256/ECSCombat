@@ -17,7 +17,7 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var buffer = BufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = BufferSystem.CreateCommandBuffer().AsParallelWriter();
             float dT = GetSingleton<GameTimeDelta>().dT;
             Entities
                 .ForEach(

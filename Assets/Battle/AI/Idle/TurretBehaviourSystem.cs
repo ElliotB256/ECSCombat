@@ -42,7 +42,7 @@ namespace Battle.AI
                 {
                     if (target.Value == Entity.Null)
                         return;
-                    if (!positions.Exists(target.Value))
+                    if (!positions.HasComponent(target.Value))
                     {
                         target.Value = Entity.Null;
                         return;

@@ -68,16 +68,16 @@ namespace Battle.Equipment
 
             var addMapJobHandle = new AddToMapJob
             {
-                Equipment = GetArchetypeChunkComponentType<TEquipment>(true),
-                Parent = GetArchetypeChunkComponentType<Parent>(true),
+                Equipment = GetComponentTypeHandle<TEquipment>(true),
+                Parent = GetComponentTypeHandle<Parent>(true),
                 Entities = addedToEntities,
                 ChangedEquipment = addedEquipment
             }.Schedule(ComponentsToBeEnabled, Dependency);
 
             var removeMapJobHandle = new AddToMapJob
             {
-                Equipment = GetArchetypeChunkComponentType<TEquipment>(true),
-                Parent = GetArchetypeChunkComponentType<Parent>(true),
+                Equipment = GetComponentTypeHandle<TEquipment>(true),
+                Parent = GetComponentTypeHandle<Parent>(true),
                 Entities = removedFromEntities,
                 ChangedEquipment = removedEquipment
             }.Schedule(ComponentsToBeDisabled, Dependency);
@@ -111,8 +111,8 @@ namespace Battle.Equipment
         [BurstCompile]
         struct AddToMapJob : IJobChunk
         {
-            [ReadOnly] public ArchetypeChunkComponentType<TEquipment> Equipment;
-            [ReadOnly] public ArchetypeChunkComponentType<Parent> Parent;
+            [ReadOnly] public ComponentTypeHandle<TEquipment> Equipment;
+            [ReadOnly] public ComponentTypeHandle<Parent> Parent;
             [NativeDisableParallelForRestriction] public NativeArray<Entity> Entities;
             [NativeDisableParallelForRestriction] public NativeArray<TEquipment> ChangedEquipment;
 
@@ -142,7 +142,7 @@ namespace Battle.Equipment
                 for (int i = 0; i < Entities.Length; i++)
                 {
                     var parent = Entities[i];
-                    if (!EquipmentComponents.Exists(parent))
+                    if (!EquipmentComponents.HasComponent(parent))
                         continue;
                     var parentComponent = EquipmentComponents[parent];
                     if (Added)

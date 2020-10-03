@@ -20,7 +20,7 @@ namespace Battle.Combat
                 .ForEach(
                 (ref Target target) =>
                 {
-                    if (!targetables.Exists(target.Value))
+                    if (!targetables.HasComponent(target.Value))
                         target.Value = Entity.Null;
                 }
                 )

@@ -15,7 +15,7 @@ namespace Battle.AI
     {
         protected override JobHandle OnUpdate(JobHandle inputDependencies)
         {
-            var buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_AIStateBuffer.CreateCommandBuffer().AsParallelWriter();
 
             var jobHandle = Entities.WithAll<IdleBehaviour>().ForEach(
                 (int entityInQueryIndex, Entity e, in Target target) =>

@@ -20,7 +20,7 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().AsParallelWriter();
             Entities
                 .WithAll<Mortal>()
                 .ForEach(

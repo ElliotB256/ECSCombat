@@ -23,13 +23,13 @@ namespace Battle.Combat
         protected override void OnUpdate()
         {
             var health = GetComponentDataFromEntity<Health>(true);
-            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .ForEach(
                 (Entity e, int entityInQueryIndex, in Parent parent) =>
                 {
-                    if (!health.Exists(parent.Value))
+                    if (!health.HasComponent(parent.Value))
                         return;
 
                     if (health[parent.Value].Value < 0f)

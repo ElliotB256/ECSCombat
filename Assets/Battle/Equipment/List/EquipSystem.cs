@@ -34,7 +34,7 @@ namespace Battle.Equipment
             var ParentEntities = new NativeArray<Entity>(count, Allocator.TempJob);
 
             // Start by sorting newly added equipment by parent entity.
-            var buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = EquipmentBuffer.CreateCommandBuffer().AsParallelWriter();
             Dependency = 
                 Entities
                 .WithAll<Equipment>()
@@ -84,7 +84,7 @@ namespace Battle.Equipment
                 {
                     var parent = Parents[i];
 
-                    if (!EquipmentLists.Exists(parent))
+                    if (!EquipmentLists.HasComponent(parent))
                         continue;
 
                     var equipmentList = EquipmentLists[parent];

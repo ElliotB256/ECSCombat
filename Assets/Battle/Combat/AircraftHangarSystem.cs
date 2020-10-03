@@ -24,7 +24,7 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var buffer = m_EntityCommandBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_EntityCommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .ForEach(

@@ -24,7 +24,7 @@ namespace Battle.Equipment
 
         protected override void OnUpdate()
         {
-            var buffer = EquipmentBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = EquipmentBuffer.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .WithAll<Enabled>()

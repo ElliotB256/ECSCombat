@@ -22,7 +22,7 @@ namespace Battle.Effects
         protected override void OnUpdate()
         {
             var random = new Unity.Mathematics.Random((uint)Random.Range(1, 100000));
-            var buffer = PostAttackEntityBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = PostAttackEntityBuffer.CreateCommandBuffer().AsParallelWriter();
 
             Dependency = Entities.ForEach(
                 (Entity e, int entityInQueryIndex, in Attack attack, in Instigator attacker, in Target target, in BeamEffectStyle style, in HitLocation hitLoc, in SourceLocation sourceLoc) =>
@@ -51,14 +51,14 @@ namespace Battle.Effects
                 .Schedule(Dependency);
 
             // Update existing beam effects, eg to follow target or despawn.
-            buffer = PostAttackEntityBuffer.CreateCommandBuffer().ToConcurrent();
+            buffer = PostAttackEntityBuffer.CreateCommandBuffer().AsParallelWriter();
             var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
             var deltaTime = GetSingleton<GameTimeDelta>().dT;
             Dependency = Entities
                 .ForEach(
                 (Entity e, int entityInQueryIndex, ref BeamEffect beamEffect, in Instigator attacker) =>
                 {
-                    if (worldTransforms.Exists(attacker.Value))
+                    if (worldTransforms.HasComponent(attacker.Value))
                         beamEffect.start = worldTransforms[attacker.Value].Position;
 
                     beamEffect.lifetime -= deltaTime;

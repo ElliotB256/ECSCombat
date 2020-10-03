@@ -18,7 +18,7 @@ namespace Battle.AI
             return Entities.ForEach(
                 (ref RandomWalkBehaviour walk, in Escort escort) =>
                 {
-                    if (transforms.Exists(escort.Target))
+                    if (transforms.HasComponent(escort.Target))
                         walk.Centre = transforms[escort.Target].Position;
                 }
                 )

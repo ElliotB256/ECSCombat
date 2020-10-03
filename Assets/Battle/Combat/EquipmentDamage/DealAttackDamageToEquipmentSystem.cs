@@ -57,18 +57,18 @@ namespace Battle.Combat
                 {
                     var target = AttackTargets[attack];
 
-                    if (!EquipmentLists.Exists(target.Value))
+                    if (!EquipmentLists.HasComponent(target.Value))
                         continue;
 
                     var equipmentList = EquipmentLists[target.Value];
                     foreach (Entity equipment in equipmentList.AsNativeArray())
                     {
-                        if (!EquipmentHealths.Exists(equipment))
+                        if (!EquipmentHealths.HasComponent(equipment))
                             continue;
 
                         // If both target and equipment have sizes, determine chance based on their area.
                         var baseChance = 0.5f;
-                        if (CombatSize.Exists(equipment) && CombatSize.Exists(target.Value))
+                        if (CombatSize.HasComponent(equipment) && CombatSize.HasComponent(target.Value))
                         {
                             baseChance = math.pow(CombatSize[equipment].Value, 2f) / math.pow(CombatSize[target.Value].Value, 1f);
                         }

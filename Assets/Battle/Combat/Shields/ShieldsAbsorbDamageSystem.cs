@@ -24,7 +24,7 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var buffer = Buffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = Buffer.CreateCommandBuffer().AsParallelWriter();
             var shields = GetComponentDataFromEntity<Shield>(false);
             var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
             

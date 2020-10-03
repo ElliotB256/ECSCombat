@@ -28,7 +28,7 @@ namespace Battle.Combat.AttackSources
 
         protected override void OnUpdate()
         {
-            var buffer = m_entityBufferSystem.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_entityBufferSystem.CreateCommandBuffer().AsParallelWriter();
             var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
 
             Entities.ForEach(

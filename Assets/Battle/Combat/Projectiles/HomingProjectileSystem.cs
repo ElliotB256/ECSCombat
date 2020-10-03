@@ -22,7 +22,7 @@ namespace Battle.Combat
                     in Target target
                     ) =>
                 {
-                    if (target.Value == Entity.Null || !translations.Exists(target.Value))
+                    if (target.Value == Entity.Null || !translations.HasComponent(target.Value))
                         return;
 
                     destination.Destination = translations[target.Value].Value;

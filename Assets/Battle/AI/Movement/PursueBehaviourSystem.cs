@@ -25,7 +25,7 @@ namespace Battle.AI
         protected override void OnUpdate()
         {
             var positions = GetComponentDataFromEntity<Translation>(true);
-            var buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_AIStateBuffer.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .ForEach(
@@ -38,7 +38,7 @@ namespace Battle.AI
                 in Translation pos
                 ) =>
                 {
-                    if (target.Value == Entity.Null || !positions.Exists(target.Value))
+                    if (target.Value == Entity.Null || !positions.HasComponent(target.Value))
                     {
                         // Go to idle state
                         buffer.RemoveComponent<PursueBehaviour>(entityInQueryIndex, e);

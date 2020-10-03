@@ -26,7 +26,7 @@ namespace Battle.AI
         protected override void OnUpdate()
         {
             var positions = GetComponentDataFromEntity<Translation>(true);
-            var buffer = m_AIStateBuffer.CreateCommandBuffer().ToConcurrent();
+            var buffer = m_AIStateBuffer.CreateCommandBuffer().AsParallelWriter();
 
             Entities
                 .WithAll<PeelManoeuvre>()
@@ -41,7 +41,7 @@ namespace Battle.AI
                 in MaxTurnSpeed maxTurnSpeed
                 ) =>
                 {
-                    if (target.Value == Entity.Null || !positions.Exists(target.Value))
+                    if (target.Value == Entity.Null || !positions.HasComponent(target.Value))
                     {
                         buffer.RemoveComponent<PeelManoeuvre>(entityInQueryIndex, e);
                         buffer.AddComponent(entityInQueryIndex, e, new IdleBehaviour());
