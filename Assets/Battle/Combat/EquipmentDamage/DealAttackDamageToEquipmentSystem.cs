@@ -7,12 +7,12 @@ using Unity.Mathematics;
 namespace Battle.Combat
 {
     /// <summary>
-    /// Deals attack damage to equipment on a hit entity.
+    /// Deals attack damage to equipment when entities are hit.
     /// </summary>
     [
         UpdateInGroup(typeof(AttackResultSystemsGroup))
         ]
-    public class DealAttackDamageToEquipmentSystem : JobComponentSystem
+    public class DealAttackDamageToEquipmentSystem : SystemBase
     {
         EntityQuery AttackQuery;
         NativeArray<Entity> Attacks;
@@ -26,10 +26,10 @@ namespace Battle.Combat
                 });
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
             Attacks = AttackQuery.ToEntityArray(Allocator.TempJob);
-            return new UpdateJob()
+            Dependency = new UpdateJob()
             {
                 Random = new Random((uint)UnityEngine.Random.Range(1, 10000)),
             Attacks = Attacks,
@@ -38,7 +38,7 @@ namespace Battle.Combat
                 EquipmentLists = GetBufferFromEntity<EquipmentList>(true),
                 CombatSize = GetComponentDataFromEntity<CombatSize>(true),
                 EquipmentHealths = GetComponentDataFromEntity<Health>(false)                
-            }.Schedule(inputDeps);
+            }.Schedule(Dependency);
         }
 
         protected struct UpdateJob : IJob

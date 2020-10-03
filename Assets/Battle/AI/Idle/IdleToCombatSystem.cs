@@ -11,13 +11,13 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(PursueBehaviourSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class IdleToCombatSystem : JobComponentSystem
+    public class IdleToCombatSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var buffer = m_AIStateBuffer.CreateCommandBuffer().AsParallelWriter();
 
-            var jobHandle = Entities.WithAll<IdleBehaviour>().ForEach(
+            Dependency = Entities.WithAll<IdleBehaviour>().ForEach(
                 (int entityInQueryIndex, Entity e, in Target target) =>
                 {
                     if (target.Value != Entity.Null)
@@ -26,10 +26,9 @@ namespace Battle.AI
                         buffer.AddComponent(entityInQueryIndex, e, new PursueBehaviour());
                     }
                 }
-                ).Schedule(inputDependencies);
+                ).Schedule(Dependency);
 
-            m_AIStateBuffer.AddJobHandleForProducer(jobHandle);
-            return jobHandle;
+            m_AIStateBuffer.AddJobHandleForProducer(Dependency);
         }
 
         private AIStateChangeBufferSystem m_AIStateBuffer;

@@ -5,16 +5,16 @@ using Unity.Jobs;
 
 namespace Assets.Battle.Effects.Damage
 {
-    public class IncreaseLastHitTimerSystem : JobComponentSystem
+    public class IncreaseLastHitTimerSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             float dT = GetSingleton<GameTimeDelta>().dT;
-            return Entities.ForEach(
+            Dependency = Entities.ForEach(
                 (ref LastHitTimer timer) =>
                 {
                     timer.Value += dT;
-                }).Schedule(inputDependencies);
+                }).Schedule(Dependency);
         }
     }
 }

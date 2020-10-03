@@ -11,15 +11,15 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(PursueBehaviourSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class RandomWalkSystem : JobComponentSystem
+    public class RandomWalkSystem : SystemBase
     {
         public const float ARRIVAL_TOLERANCE = 3f;
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var randomGenerator = new Random((uint)UnityEngine.Random.Range(1, 10000));
 
-            return Entities.WithAll<IdleBehaviour>().ForEach(
+            Dependency = Entities.WithAll<IdleBehaviour>().ForEach(
                 (ref TurnToDestinationBehaviour movement, in LocalToWorld transform, in RandomWalkBehaviour walk) =>
                 {
                     bool newLocation = (math.lengthsq(movement.Destination - transform.Position) < ARRIVAL_TOLERANCE) ||
@@ -32,7 +32,7 @@ namespace Battle.AI
                         movement.Destination = dest;
                     }
                 }
-                ).Schedule(inputDependencies);
+                ).Schedule(Dependency);
         }
     }
 }

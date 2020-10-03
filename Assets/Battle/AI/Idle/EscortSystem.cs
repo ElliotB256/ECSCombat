@@ -10,12 +10,12 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(RandomWalkSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class EscortSystem : JobComponentSystem
+    public class EscortSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
-            return Entities.ForEach(
+            Dependency = Entities.ForEach(
                 (ref RandomWalkBehaviour walk, in Escort escort) =>
                 {
                     if (transforms.HasComponent(escort.Target))
@@ -23,7 +23,7 @@ namespace Battle.AI
                 }
                 )
                 .WithReadOnly(transforms)
-                .Schedule(inputDependencies);
+                .Schedule(Dependency);
         }
     }
 }

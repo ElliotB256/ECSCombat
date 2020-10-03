@@ -11,22 +11,19 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(SelectTargetsSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class UpdateAggressionSourceSystem : JobComponentSystem
+    public class UpdateAggressionSourceSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
-            var standard = Entities.WithNone<GuardBehaviour>().ForEach(
+            Dependency = Entities.WithNone<GuardBehaviour>().ForEach(
                 (ref AggroLocation source, in Target target, in LocalToWorld l2w) =>
                 {
-                    //if (target.Value == Entity.Null)
-                    //    return;
-
                     source.Position = l2w.Position;
                 }
-                ).Schedule(inputDeps);
+                ).Schedule(Dependency);
 
             var positions = GetComponentDataFromEntity<LocalToWorld>(true);
-            var guarding = Entities.ForEach(
+            Dependency = Entities.ForEach(
                 (Entity e, ref AggroLocation source, in GuardBehaviour guard, in Target target) =>
                 {
                     if (target.Value == Entity.Null)
@@ -40,9 +37,7 @@ namespace Battle.AI
 
                     source.Position = positions[guard.Target].Position;
                 }
-                ).WithReadOnly(positions).Schedule(standard);
-
-            return guarding;
+                ).WithReadOnly(positions).Schedule(Dependency);
         }
     }
 }

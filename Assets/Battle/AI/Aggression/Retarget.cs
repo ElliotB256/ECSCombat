@@ -1,5 +1,4 @@
-﻿using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
 using Battle.Combat;
 using System;
@@ -28,12 +27,12 @@ namespace Battle.AI
     /// </summary>
     [UpdateBefore(typeof(SelectTargetsSystem))]
     [UpdateInGroup(typeof(AISystemGroup))]
-    public class RetargetBehaviourSystem : JobComponentSystem
+    public class RetargetBehaviourSystem : SystemBase
     {
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
             float dT = GetSingleton<GameTimeDelta>().dT;
-            return Entities.ForEach(
+            Dependency = Entities.ForEach(
                 (ref RetargetBehaviour retarget, ref Target target) =>
                 {
                     retarget.RemainingTime -= dT;
@@ -43,7 +42,7 @@ namespace Battle.AI
                         target.Value = Entity.Null;
                     }
                 }
-            ).Schedule(inputDeps);
+            ).Schedule(Dependency);
         }
     }
 }

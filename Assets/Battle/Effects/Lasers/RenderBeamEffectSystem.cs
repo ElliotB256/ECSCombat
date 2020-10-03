@@ -15,7 +15,7 @@ namespace Battle.Effects
         UpdateAfter(typeof(BeamEffectSystem)),
         UpdateInGroup(typeof(AttackResultSystemsGroup))
     ]
-    public class RenderLaserSystem : JobComponentSystem
+    public class RenderLaserSystem : SystemBase
     {
         private EntityQuery m_query;
 
@@ -34,8 +34,10 @@ namespace Battle.Effects
 
         private EntityQuery BeamQuery;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override void OnUpdate()
         {
+            Dependency.Complete();
+
             int numberOfBeams = BeamQuery.CalculateEntityCount();
             var Vertices = new NativeArray<float3>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
             var Colors = new NativeArray<float4>(numberOfBeams * 4, Allocator.TempJob, NativeArrayOptions.UninitializedMemory);
@@ -102,8 +104,6 @@ namespace Battle.Effects
             UVs.Dispose();
             Triangles.Dispose();
             Colors.Dispose();
-
-            return inputDeps;
         }
     }
 }

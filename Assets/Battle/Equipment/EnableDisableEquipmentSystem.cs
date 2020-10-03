@@ -1,8 +1,5 @@
-﻿using Unity.Burst;
-using Unity.Collections;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Jobs;
-using Unity.Transforms;
 
 namespace Battle.Equipment
 {
@@ -13,7 +10,7 @@ namespace Battle.Equipment
         UpdateAfter(typeof(EquipmentUpdateGroup)),
         UpdateBefore(typeof(EquipmentBufferSystem))
         ]
-    public class EnableDisableEquipmentSystem : JobComponentSystem
+    public class EnableDisableEquipmentSystem : SystemBase
     {
         protected EquipmentBufferSystem EquipmentBuffer;
         protected EntityQuery EnablingQuery;
@@ -34,15 +31,14 @@ namespace Battle.Equipment
             });
         }
 
-        protected override JobHandle OnUpdate(JobHandle inputDependencies)
+        protected override void OnUpdate()
         {
             var buffer = EquipmentBuffer.CreateCommandBuffer();
             buffer.RemoveComponent<Enabled>(DisablingQuery);
             buffer.RemoveComponent<Disabling>(DisablingQuery);
             buffer.AddComponent<Enabled>(EnablingQuery);
             buffer.RemoveComponent<Enabling>(EnablingQuery);
-
-            return inputDependencies;
+            EquipmentBuffer.AddJobHandleForProducer(Dependency);
         }
     }
 }
