@@ -1,5 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -8,9 +7,6 @@ using Battle.Combat;
 
 namespace Battle.AI
 {
-    /// <summary>
-    /// THE REWRITE
-    /// </summary>
     [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(AISystemGroup))]
     public class SelectTargetsSystem : SystemBase
@@ -134,7 +130,7 @@ namespace Battle.AI
                 .ForEach(
                 (
                     ref Combat.Target currentTarget,
-                    in AggroLocation location, 
+                    in AggroLocation location,
                     in AggroRadius aggroRadius,
                     in Team team,
                     in TargetingOrders orders
@@ -150,7 +146,7 @@ namespace Battle.AI
                         Orders = orders,
                         Radius = aggroRadius.Value,
                         CurrentScore = float.PositiveInfinity,
-                        CurrentTarget = Entity.Null                        
+                        CurrentTarget = Entity.Null
                     };
 
                     var radius = targetter.Radius;

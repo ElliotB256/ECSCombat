@@ -1,5 +1,8 @@
 fileFormatVersion: 2
-guid: ce684fc9e8be635488428786cae96681
+guid: 954cb34012dbe14499d763b5d56101c6
+labels:
+- Turret
+- Weapon
 PrefabImporter:
   externalObjects: {}
   userData: 

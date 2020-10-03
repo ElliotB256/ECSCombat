@@ -1,5 +1,8 @@
 fileFormatVersion: 2
-guid: 20c38ee1f4d3e7240a4715511aca0e07
+guid: bb97f6dd6924f4f429b0d2b8abda6072
+labels:
+- Abstract
+- Turret
 PrefabImporter:
   externalObjects: {}
   userData: 
