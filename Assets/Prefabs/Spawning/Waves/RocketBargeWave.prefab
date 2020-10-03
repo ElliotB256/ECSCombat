@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Templates:
-  - {fileID: 1208510331489906793, guid: 40dc8fc0d7676014680fd0ef5c754ab7, type: 3}
-  - {fileID: 10378401105513712, guid: 20c38ee1f4d3e7240a4715511aca0e07, type: 3}
+  - {fileID: 8058570525927699055, guid: 577806c55d6590643a1b145b2bce0f83, type: 3}
+  - {fileID: 8058570525927699055, guid: 02bf8faced583c94b9798dfec73ee945, type: 3}
   Number:
   - 10
   - 5

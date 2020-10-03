@@ -18,7 +18,6 @@ GameObject:
   - component: {fileID: 1208510331489906788}
   - component: {fileID: 3171761909315709346}
   - component: {fileID: 4351908227970976735}
-  - component: {fileID: 3809752198800316694}
   - component: {fileID: 1260399118103042339}
   - component: {fileID: 7711724858087067754}
   - component: {fileID: 2048746456120661744}
@@ -170,10 +169,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5505cbfeef35944c8b488eb483f05cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Forward: 0
-  ForwardBase: 0
-  Turning: 0
-  TurningBase: 0
+  Forward: 5
+  ForwardBase: 5
+  Turning: 2
+  TurningBase: 2
 --- !u!114 &3171761909315709346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -200,20 +199,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   RadiansPerSecond: 0
---- !u!114 &3809752198800316694
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1208510331489906793}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8469fcee80fc34c44bbf829ca9a4354d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ForwardThrust: 5
-  TurningThrust: 2
 --- !u!114 &1260399118103042339
 MonoBehaviour:
   m_ObjectHideFlags: 0

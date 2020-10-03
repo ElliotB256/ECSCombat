@@ -1,5 +1,7 @@
 fileFormatVersion: 2
-guid: 774269cb2bf79e743a6fd71c34bf288d
+guid: 02bf8faced583c94b9798dfec73ee945
+labels:
+- Ship
 PrefabImporter:
   externalObjects: {}
   userData: 
