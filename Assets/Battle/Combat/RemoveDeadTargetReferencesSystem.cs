@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Transforms;
 
 namespace Battle.Combat
 {
@@ -16,15 +17,19 @@ namespace Battle.Combat
         protected override void OnUpdate()
         {
             var targetables = GetComponentDataFromEntity<Targetable>(true);
+            var deleting = GetComponentDataFromEntity<Delete>(true);
             Entities
                 .ForEach(
                 (ref Target target) =>
                 {
                     if (!targetables.HasComponent(target.Value))
                         target.Value = Entity.Null;
+                    if (deleting.HasComponent(target.Value))
+                        target.Value = Entity.Null;
                 }
                 )
                 .WithReadOnly(targetables)
+                .WithReadOnly(deleting)
                 .Schedule();
         }
     }

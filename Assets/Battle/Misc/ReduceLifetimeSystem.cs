@@ -8,11 +8,11 @@ namespace Battle.Combat
     /// </summary>
     public class ReduceLifetimeSystem : SystemBase
     {
-        private EndSimulationEntityCommandBufferSystem BufferSystem;
+        private LateSimulationCommandBufferSystem BufferSystem;
 
         protected override void OnCreate()
         {
-            BufferSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            BufferSystem = World.GetOrCreateSystem<LateSimulationCommandBufferSystem>();
         }
 
         protected override void OnUpdate()
@@ -25,7 +25,7 @@ namespace Battle.Combat
                 {
                     lifetime.Value -= dT;
                     if (lifetime.Value < 0f)
-                        buffer.AddComponent(entityInQueryIndex, e, new Delete());
+                        buffer.AddComponent<Delete>(entityInQueryIndex, e);
                 })
                 .ScheduleParallel();
             BufferSystem.AddJobHandleForProducer(Dependency);

@@ -1,7 +1,5 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
-using Unity.Jobs;
 
 namespace Battle.Combat
 {
@@ -9,6 +7,7 @@ namespace Battle.Combat
     /// Deletes all entities with Destroy component
     /// </summary>
     [
+        UpdateAfter(typeof(LateSimulationCommandBufferSystem)),
         UpdateInGroup(typeof(LateSimulationSystemGroup))
         ]
     public class DeleteEntitiesSystem : SystemBase
@@ -24,9 +23,9 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var buff = BufferSystem.CreateCommandBuffer();
-            buff.DestroyEntity(DeleteEntities);
-            BufferSystem.AddJobHandleForProducer(Dependency);
+            var entities = DeleteEntities.ToEntityArray(Allocator.TempJob);
+            EntityManager.DestroyEntity(entities);
+            entities.Dispose();
         }
     }
 }

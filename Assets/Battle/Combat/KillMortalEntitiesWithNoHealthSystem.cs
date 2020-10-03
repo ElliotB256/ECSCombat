@@ -31,7 +31,7 @@ namespace Battle.Combat
                 ) =>
                 {
                     if (health.Value < 0f)
-                        buffer.DestroyEntity(entityInQueryIndex, e);
+                        buffer.AddComponent(entityInQueryIndex, e, new Delete());
                 }
                 )
                 .Schedule();
