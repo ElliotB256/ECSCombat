@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.AI
 {
-    [RequiresEntityConversion]
     public class TurnToDestinationProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float3 Destination;

@@ -3,7 +3,6 @@ using Unity.Entities;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-[RequiresEntityConversion]
 public class ShieldEquipmentAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     public float HealthPercentBonus;

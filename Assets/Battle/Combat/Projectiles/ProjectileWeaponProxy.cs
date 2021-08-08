@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class ProjectileWeaponProxy : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         [Tooltip("Projectile created by this weapon.")]

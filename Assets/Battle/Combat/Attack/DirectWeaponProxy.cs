@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.Combat.AttackSources
 {
-    [RequiresEntityConversion]
     public class DirectWeaponProxy : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         [Tooltip("Ammunition used by this direct weapon.")]

@@ -9,7 +9,7 @@ namespace Battle.Equipment
     public class EngineSystem : SystemBase
     {
         protected override void OnUpdate()
-        {
+        { 
             Entities
                 .WithAll<Enabling>()
                 .ForEach(

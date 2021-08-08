@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat.AttackSources
 {
-    [RequiresEntityConversion]
     public class AttackProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Accuracy;

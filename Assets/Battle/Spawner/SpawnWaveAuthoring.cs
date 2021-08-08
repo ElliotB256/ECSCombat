@@ -5,7 +5,6 @@ using UnityEngine;
 namespace Battle.Spawner
 {
     [DisallowMultipleComponent]
-    [RequiresEntityConversion]
     public class SpawnWaveAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         public List<GameObject> SpawnWaves;

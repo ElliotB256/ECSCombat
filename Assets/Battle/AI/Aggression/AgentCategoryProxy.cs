@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.AI
 {
-    [RequiresEntityConversion]
     public class AgentCategoryProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Type of this entity.")]

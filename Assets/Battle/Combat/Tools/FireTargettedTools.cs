@@ -48,10 +48,6 @@ namespace Battle.Combat.AttackSources
                     if (!cooldown.IsReady())
                         return;
 
-                    if (!worldTransforms.HasComponent(target.Value))
-                    {
-                        Debug.Log("no transform:" + target.Value);
-                    }
                     var delta = worldTransforms[target.Value].Position - worldTransform.Position;
 
                     // Cannot fire if out of weapon range

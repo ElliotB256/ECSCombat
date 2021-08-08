@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Movement
 {
-    [RequiresEntityConversion]
     public class MassAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Mass of a ship.")]

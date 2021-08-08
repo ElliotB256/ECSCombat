@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class LifetimeProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Lifetime;

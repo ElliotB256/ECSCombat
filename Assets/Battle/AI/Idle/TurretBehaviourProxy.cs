@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.AI
 {
-    [RequiresEntityConversion]
     public class TurretBehaviourProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Range;

@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Movement
 {
-    [RequiresEntityConversion]
     public class HeadingProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)

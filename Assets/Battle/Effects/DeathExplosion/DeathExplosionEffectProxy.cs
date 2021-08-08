@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Effects
 {
-    [RequiresEntityConversion]
     public class DeathExplosionEffectProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Particle system generated when the entity dies.")]

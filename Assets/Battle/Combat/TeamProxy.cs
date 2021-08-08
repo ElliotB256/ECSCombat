@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class TeamProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public byte TeamID = 0;

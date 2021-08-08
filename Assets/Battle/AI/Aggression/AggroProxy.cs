@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Battle.AI
 {
-    [RequiresEntityConversion]
     public class AggroProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Radius = 10f;

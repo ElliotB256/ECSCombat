@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class AircraftHangarProxy : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         [Tooltip("Entity type spawned by this hangar.")]

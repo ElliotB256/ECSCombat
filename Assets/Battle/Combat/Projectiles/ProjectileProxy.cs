@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class ProjectileProxy : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         [Tooltip("Attack transferred by this projectile to the target.")]

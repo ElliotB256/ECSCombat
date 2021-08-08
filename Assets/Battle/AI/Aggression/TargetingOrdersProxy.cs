@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Battle.AI
 {
-    [RequiresEntityConversion]
     public class TargetingOrdersProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Types of entity we are encouraged to target.")]

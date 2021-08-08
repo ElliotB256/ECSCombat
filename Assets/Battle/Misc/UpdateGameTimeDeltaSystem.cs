@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [UpdateBefore(typeof(SimulationSystemGroup))]
     public class UpdateGameTimeDeltaSystem : SystemBase
     {
         protected override void OnUpdate()

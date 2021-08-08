@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.Effects
 {
-    [RequiresEntityConversion]
     public class LaserRendererProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public Material Material;

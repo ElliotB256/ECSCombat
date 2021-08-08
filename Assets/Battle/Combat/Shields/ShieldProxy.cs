@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class ShieldProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Hit points of this shield.")]

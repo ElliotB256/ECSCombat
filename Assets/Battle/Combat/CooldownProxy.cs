@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class CooldownProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Duration = 1.0f;

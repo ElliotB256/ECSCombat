@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class HealAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Heal;

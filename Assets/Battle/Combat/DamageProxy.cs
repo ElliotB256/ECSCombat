@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class DamageProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Damage;

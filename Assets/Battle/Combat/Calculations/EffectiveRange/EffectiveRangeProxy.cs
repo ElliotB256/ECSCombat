@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat.Calculations
 {
-    [RequiresEntityConversion]
     public class EffectiveRangeProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Tooltip("Start of the range over which effectiveness changes.")]

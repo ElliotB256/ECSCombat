@@ -6,7 +6,6 @@ using UnityEngine;
 namespace Battle.Spawner
 {
     [DisallowMultipleComponent]
-    [RequiresEntityConversion]
     public class SpawnWaveComponentAuthoring : MonoBehaviour, IConvertGameObjectToEntity, IDeclareReferencedPrefabs
     {
         public List<GameObject> Templates;

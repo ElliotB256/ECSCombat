@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Effects
 {
-    [RequiresEntityConversion]
     public class ParticleBeamEffectProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public GameObject ParticleSystem;

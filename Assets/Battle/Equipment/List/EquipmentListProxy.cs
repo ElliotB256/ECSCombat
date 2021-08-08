@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Equipment
 {
-    [RequiresEntityConversion]
     public class EquipmentListProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)

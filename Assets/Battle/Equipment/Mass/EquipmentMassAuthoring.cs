@@ -3,7 +3,6 @@ using Unity.Entities;
 using UnityEngine;
 
 [DisallowMultipleComponent]
-[RequiresEntityConversion]
 public class EquipmentMassAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 {
     [Tooltip("Percentage increase the entitie's mass when the equipment is added.")]

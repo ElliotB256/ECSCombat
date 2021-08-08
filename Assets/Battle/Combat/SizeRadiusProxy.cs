@@ -3,7 +3,6 @@ using UnityEngine;
 
 namespace Battle.Combat
 {
-    [RequiresEntityConversion]
     public class SizeRadiusProxy : MonoBehaviour, IConvertGameObjectToEntity
     {
         public float Size;
