@@ -7,35 +7,44 @@ namespace Battle.Combat
 {
     public class UpdateGameTimeDeltaSystem : SystemBase
     {
+
+        protected override void OnCreate()
+        {
+            if( !HasSingleton<GameTimeDelta>() )
+            {
+                Entity singleton = EntityManager.CreateEntity( typeof(GameTimeDelta) );
+                EntityManager.SetComponentData( singleton , new GameTimeDelta{
+                    dT          = 0 ,
+                    RateFactor  = 1 ,
+                    Paused      = false,
+                } );
+            }
+        }
+
         protected override void OnUpdate()
         {
-            var faster = Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.KeypadPlus);
-            var slower = Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus);
-            var pause = Input.GetKeyDown(KeyCode.Space);
+            bool faster = Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.Plus) || Input.GetKeyDown(KeyCode.KeypadPlus);
+            bool slower = Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus);
+            bool pause = Input.GetKeyDown(KeyCode.Space);
 
-            float dT = Time.DeltaTime;
+            var singleton = GetSingleton<GameTimeDelta>();
+            {
+                if (faster)
+                    singleton.RateFactor = math.min(2f, singleton.RateFactor + 0.5f);
+                if (slower)
+                    singleton.RateFactor = math.max(0.5f, singleton.RateFactor - 0.5f);
+                if (pause)
+                    singleton.Paused = !singleton.Paused;
+
+                singleton.dT = Time.DeltaTime * singleton.RateFactor * (singleton.Paused ? 0f : 1f);
+            }
+            SetSingleton( singleton );
+
             Entities
-                .ForEach(
-                (ref GameTimeDelta delta) =>
-                {
-                    if (faster)
-                        delta.RateFactor = math.min(2f, delta.RateFactor + 0.5f);
-                    if (slower)
-                        delta.RateFactor = math.max(0.5f, delta.RateFactor - 0.5f);
-                    if (pause)
-                        delta.Paused = !delta.Paused;
-
-                    delta.dT = dT * delta.RateFactor * (delta.Paused ? 0f : 1f);
-                })
-                .Schedule();
-
-            var gameTime = GetSingleton<GameTimeDelta>();
-            Entities
-                .ForEach(
-                (ref GameTimeMaterialProperty material) => {
-                    material.Value += gameTime.dT;
-                }
-                ).Schedule();
+                .WithName($"update_{nameof(GameTimeMaterialProperty)}_job")
+                .ForEach( ( ref GameTimeMaterialProperty material ) => material.Value += singleton.dT )
+                .ScheduleParallel();
         }
+
     }
 }
