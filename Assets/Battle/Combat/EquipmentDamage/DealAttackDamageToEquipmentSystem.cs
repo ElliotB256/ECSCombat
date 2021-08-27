@@ -19,17 +19,19 @@ namespace Battle.Combat
 
         protected override void OnCreate()
         {
-            AttackQuery = GetEntityQuery(
-                new EntityQueryDesc
-                {
-                    All = new[] { ComponentType.ReadOnly<Attack>(), ComponentType.ReadOnly<Target>(), ComponentType.ReadOnly<Damage>() }
-                });
+            AttackQuery = GetEntityQuery( new EntityQueryDesc{
+                All = new[] {
+                        ComponentType.ReadOnly<Attack>()
+                    ,   ComponentType.ReadOnly<Target>()
+                    ,   ComponentType.ReadOnly<Damage>()
+                }
+            } );
         }
 
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
             Attacks = AttackQuery.ToEntityArray(Allocator.TempJob);
-            Dependency = new UpdateJob()
+            Dependency = new UpdateJob
             {
                 Random = new Random((uint)UnityEngine.Random.Range(1, 10000)),
             Attacks = Attacks,

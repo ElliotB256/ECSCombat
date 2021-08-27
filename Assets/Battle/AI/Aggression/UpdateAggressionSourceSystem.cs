@@ -13,31 +13,35 @@ namespace Battle.AI
     [UpdateInGroup(typeof(AISystemGroup))]
     public class UpdateAggressionSourceSystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
-            Dependency = Entities.WithNone<GuardBehaviour>().ForEach(
-                (ref AggroLocation source, in Target target, in LocalToWorld l2w) =>
+            Entities
+                .WithNone<GuardBehaviour>()
+                .ForEach( ( ref AggroLocation source , in Target target , in LocalToWorld ltw ) =>
                 {
-                    source.Position = l2w.Position;
-                }
-                ).Schedule(Dependency);
+                    source.Position = ltw.Position;
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
-            var positions = GetComponentDataFromEntity<LocalToWorld>(true);
-            Dependency = Entities.ForEach(
-                (Entity e, ref AggroLocation source, in GuardBehaviour guard, in Target target) =>
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>( isReadOnly:true );
+            Entities
+                .WithReadOnly(ltwData)
+                .ForEach( ( Entity e , ref AggroLocation source , in GuardBehaviour guard , in Target target ) =>
                 {
                     if (target.Value == Entity.Null)
                         return;
 
-                    if (!positions.HasComponent(guard.Target))
+                    if (!ltwData.HasComponent(guard.Target))
                     {
-                        source.Position = positions[e].Position;
+                        source.Position = ltwData[e].Position;
                         return;
                     }
 
-                    source.Position = positions[guard.Target].Position;
-                }
-                ).WithReadOnly(positions).Schedule(Dependency);
+                    source.Position = ltwData[guard.Target].Position;
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

@@ -14,16 +14,17 @@ namespace Battle.AI
     {
         protected override void OnUpdate()
         {
-            var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
-            Dependency = Entities.ForEach(
-                (ref RandomWalkBehaviour walk, in Escort escort) =>
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>( isReadOnly:true );
+
+            Entities
+                .WithReadOnly(ltwData)
+                .ForEach( ( ref RandomWalkBehaviour walk , in Escort escort ) =>
                 {
-                    if (transforms.HasComponent(escort.Target))
-                        walk.Centre = transforms[escort.Target].Position;
-                }
-                )
-                .WithReadOnly(transforms)
-                .Schedule(Dependency);
+                    if( ltwData.HasComponent(escort.Target) )
+                        walk.Centre = ltwData[escort.Target].Position;
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

@@ -18,37 +18,33 @@ namespace Battle.AI
     {
         protected override void OnUpdate()
         {
-            var positions = GetComponentDataFromEntity<LocalToWorld>(true);
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>( isReadOnly:true );
 
-            Entities.ForEach(
-                (
-                    ref TurretBehaviour behaviour,
-                    ref TargettedTool tool
-                    ) =>
-                {
-                    behaviour.Range = tool.Range;
-                }
-                ).ScheduleParallel();
+            Entities
+                .ForEach( ( ref TurretBehaviour behaviour, ref TargettedTool tool ) => behaviour.Range = tool.Range )
+                .WithBurst()
+                .ScheduleParallel();
 
-            Entities.ForEach(
-                (
-                Entity e,
-                int entityInQueryIndex,
-                ref Target target,
-                ref TurnToDestinationBehaviour turnTo,
-                in TurretBehaviour behaviour,
-                in LocalToWorld localToWorld
+            Entities
+                .WithReadOnly(ltwData)
+                .ForEach( (
+                    Entity entity ,
+                    int entityInQueryIndex ,
+                    ref Target target ,
+                    ref TurnToDestinationBehaviour turnTo ,
+                    in TurretBehaviour behaviour ,
+                    in LocalToWorld localToWorld
                 ) =>
                 {
-                    if (target.Value == Entity.Null)
+                    if( target.Value==Entity.Null )
                         return;
-                    if (!positions.HasComponent(target.Value))
+                    if( !ltwData.HasComponent(target.Value) )
                     {
                         target.Value = Entity.Null;
                         return;
                     }
 
-                    var targetPos = positions[target.Value].Position;
+                    var targetPos = ltwData[target.Value].Position;
 
                     // Disengage if target is outside range.
                     if (math.lengthsq(targetPos - localToWorld.Position) > behaviour.Range * behaviour.Range)
@@ -56,9 +52,8 @@ namespace Battle.AI
 
                     // Point turret to target
                     turnTo.Destination = targetPos;
-                }
-                )
-                .WithReadOnly(positions)
+                } )
+                .WithBurst()
                 .ScheduleParallel();
         }
     }
