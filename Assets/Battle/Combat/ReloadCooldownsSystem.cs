@@ -20,7 +20,7 @@ namespace Battle.Combat
                     if (!cooldown.IsReady())
                         cooldown.Timer = math.max(0f, cooldown.Timer - dT);
                 })
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

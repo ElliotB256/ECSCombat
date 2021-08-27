@@ -26,7 +26,7 @@ namespace Battle.Combat
                     }
                     color.Value = teamColor;
                 }
-                ).Schedule();
+                ).ScheduleParallel();
         }
     }
 }

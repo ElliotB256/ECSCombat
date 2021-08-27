@@ -1,6 +1,7 @@
 ﻿using Battle.Movement;
 using Unity.Entities;
 using Unity.Transforms;
+using Unity.Jobs;
 
 namespace Battle.Equipment
 {
@@ -9,30 +10,32 @@ namespace Battle.Equipment
     public class EngineSystem : SystemBase
     {
         protected override void OnUpdate()
-        { 
+        {
+            var thrustData = GetComponentDataFromEntity<Thrust>( isReadOnly:false );
+
             Entities
                 .WithAll<Enabling>()
-                .ForEach(
-                (in Engine engine, in Parent parent) =>
+                .ForEach( ( in Engine engine , in Parent parent ) =>
                 {
-                    var thrust = GetComponent<Thrust>(parent.Value);
+                    Thrust thrust = thrustData[parent.Value];
                     thrust.Forward += engine.ForwardThrust;
                     thrust.Turning += engine.TurningThrust;
-                    SetComponent(parent.Value, thrust);
-                }
-                ).Schedule();
+                    thrustData[parent.Value] = thrust;
+                } )
+                .WithBurst()
+                .Schedule();
 
             Entities
                 .WithAll<Disabling>()
-                .ForEach(
-                (in Engine engine, in Parent parent) =>
+                .ForEach( ( in Engine engine , in Parent parent ) =>
                 {
-                    var thrust = GetComponent<Thrust>(parent.Value);
+                    Thrust thrust = thrustData[parent.Value];
                     thrust.Forward -= engine.ForwardThrust;
                     thrust.Turning -= engine.TurningThrust;
-                    SetComponent(parent.Value, thrust);
-                }
-                ).Schedule();
+                    thrustData[parent.Value] = thrust;
+                } )
+                .WithBurst()
+                .Schedule();
         }
     }
 }

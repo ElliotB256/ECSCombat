@@ -17,7 +17,7 @@ namespace Battle.Movement
                 {
                     maxSpeed.Value = thrust.Forward / mass.Value;
                 }
-                ).Schedule();
+                ).ScheduleParallel();
 
             Entities
                 .ForEach(
@@ -25,12 +25,12 @@ namespace Battle.Movement
                 {
                     turn.RadiansPerSecond = thrust.Turning / mass.Value;
                 }
-                ).Schedule();
+                ).ScheduleParallel();
 
             // gotta go fast
             Entities
                 .ForEach((ref Speed speed, in MaxSpeed maxSpeed) => speed.Value = maxSpeed.Value)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

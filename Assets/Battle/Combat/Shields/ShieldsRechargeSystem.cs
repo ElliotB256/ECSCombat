@@ -29,7 +29,7 @@ namespace Battle.Combat
                     var amount = maxShield.Value * dT / SECONDS_TO_RECHARGE;
                     shield.Health = math.min(maxShield.Value, shield.Health + amount);
                 }
-                ).Schedule();
+                ).ScheduleParallel();
 
         }
     }

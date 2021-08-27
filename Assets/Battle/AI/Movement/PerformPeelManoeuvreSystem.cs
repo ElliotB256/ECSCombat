@@ -69,7 +69,7 @@ namespace Battle.AI
                 }
                 )
                 .WithReadOnly(positions)
-                .Schedule();
+                .ScheduleParallel();
             m_AIStateBuffer.AddJobHandleForProducer(Dependency);
         }
     }
