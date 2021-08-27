@@ -14,23 +14,24 @@ namespace Battle.Combat.AttackSources
     {
         protected override void OnUpdate()
         {
-            var random = new Random((uint)UnityEngine.Random.Range(1, 100000));
+            uint seed = (uint)UnityEngine.Random.Range(1,100000);
             var evasions = GetComponentDataFromEntity<Evasion>(true);
 
             Entities
-                .ForEach(
-                (ref Attack attack, in Target target) =>
+                .WithReadOnly(evasions)
+                .ForEach( ( Entity entity , int entityInQueryIndex , ref Attack attack , in Target target ) =>
                 {
-                    if (evasions.HasComponent(target.Value))
+                    if( evasions.HasComponent(target.Value) )
                     {
                         float evasion = evasions[target.Value].Rating;
-                        float hitChance = math.exp(-evasion / attack.Accuracy);
-                        if (random.NextFloat() > hitChance)
+                        float hitChance = math.exp( -evasion / attack.Accuracy );
+                        
+                        var rnd = new Random( seed + (uint)(entityInQueryIndex*1000) );
+                        if( rnd.NextFloat()>hitChance )
                             attack.Result = Attack.eResult.Miss;
                     }
-                }
-                )
-                .WithReadOnly(evasions)
+                } )
+                .WithBurst()
                 .ScheduleParallel();
         }
     }

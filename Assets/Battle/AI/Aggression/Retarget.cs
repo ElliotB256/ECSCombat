@@ -31,18 +31,20 @@ namespace Battle.AI
     {
         protected override void OnUpdate()
         {
-            float dT = GetSingleton<GameTimeDelta>().dT;
-            Dependency = Entities.ForEach(
-                (ref RetargetBehaviour retarget, ref Target target) =>
+            float dt = GetSingleton<GameTimeDelta>().dT;
+            
+            Entities
+                .ForEach( ( ref RetargetBehaviour retarget , ref Target target ) =>
                 {
-                    retarget.RemainingTime -= dT;
-                    if (retarget.RemainingTime < 0f)
+                    retarget.RemainingTime -= dt;
+                    if( retarget.RemainingTime<0f )
                     {
                         retarget.RemainingTime = retarget.Interval;
                         target.Value = Entity.Null;
                     }
-                }
-            ).Schedule(Dependency);
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

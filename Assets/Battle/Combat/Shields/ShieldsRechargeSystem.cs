@@ -17,19 +17,19 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            float dT = GetSingleton<GameTimeDelta>().dT;
+            float dt = GetSingleton<GameTimeDelta>().dT;
 
             Entities
-                .ForEach(
-                (ref Shield shield, in LastHitTimer timer, in MaxShield maxShield) =>
+                .ForEach( ( ref Shield shield , in LastHitTimer timer , in MaxShield maxShield ) =>
                 {
-                    if (timer.Value < SECONDS_TO_RECHARGE)
+                    if( timer.Value<SECONDS_TO_RECHARGE )
                         return;
 
-                    var amount = maxShield.Value * dT / SECONDS_TO_RECHARGE;
+                    var amount = maxShield.Value * dt / SECONDS_TO_RECHARGE;
                     shield.Health = math.min(maxShield.Value, shield.Health + amount);
-                }
-                ).ScheduleParallel();
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
         }
     }
