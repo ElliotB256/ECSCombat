@@ -39,7 +39,7 @@ namespace Battle.Equipment
                         buffer.AddComponent(entityInQueryIndex, e, new Disabling());
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
 
             EquipmentBuffer.AddJobHandleForProducer(Dependency);
         }

@@ -28,7 +28,7 @@ namespace Battle.AI
                 {
                     behaviour.Range = tool.Range;
                 }
-                ).Schedule();
+                ).ScheduleParallel();
 
             Entities.ForEach(
                 (
@@ -59,7 +59,7 @@ namespace Battle.AI
                 }
                 )
                 .WithReadOnly(positions)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

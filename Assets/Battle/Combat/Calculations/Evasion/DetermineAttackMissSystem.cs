@@ -31,7 +31,7 @@ namespace Battle.Combat.AttackSources
                 }
                 )
                 .WithReadOnly(evasions)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

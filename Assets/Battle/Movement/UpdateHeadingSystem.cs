@@ -18,7 +18,7 @@ namespace Battle.Movement
                 {
                     heading.Value = MathUtil.GetHeadingToPoint(localToWorld.Forward);
                 })
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

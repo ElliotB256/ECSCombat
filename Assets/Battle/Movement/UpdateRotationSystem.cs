@@ -23,7 +23,7 @@ namespace Battle.Movement
                     rot.Value = math.mul(math.normalize(rot.Value), quaternion.AxisAngle(math.up(), turnSpeed.RadiansPerSecond * dT));
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

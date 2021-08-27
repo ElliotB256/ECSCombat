@@ -30,7 +30,7 @@ namespace Battle.Combat
                 )
                 .WithReadOnly(targetables)
                 .WithReadOnly(deleting)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

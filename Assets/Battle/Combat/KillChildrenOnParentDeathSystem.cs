@@ -37,7 +37,7 @@ namespace Battle.Combat
                 }
                 )
                 .WithReadOnly(health)
-                .Schedule();
+                .ScheduleParallel();
 
             m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }

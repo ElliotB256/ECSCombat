@@ -28,7 +28,7 @@ namespace Battle.Combat
                     destination.Destination = translations[target.Value].Value;
                 })
                 .WithReadOnly(translations)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

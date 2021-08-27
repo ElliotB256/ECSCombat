@@ -10,30 +10,23 @@ namespace Battle.Equipment
     /// <summary>
     /// Sets the target of all equipment to the target of the parent entity. Eg for weapons, etc.
     /// </summary>
-    [
-        UpdateInGroup(typeof(EquipmentUpdateGroup))
-    ]
+    [UpdateInGroup(typeof(EquipmentUpdateGroup))]
     public class EquipmentTargetsParentTargetSystem : SystemBase
     {
-        public EntityQuery Query;
-
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
-            var targets = GetComponentDataFromEntity<Target>();
-            Entities
-                .WithAll<Equipment, Target>()
-                .ForEach(
-                (
-                    Entity e,
-                    in Parent parent
-                ) => {
+            var targetData = GetComponentDataFromEntity<Target>();
 
-                    if (!targets.HasComponent(e) || !targets.HasComponent(parent.Value))
+            Entities
+                .WithAll<Equipment,Target>()
+                .ForEach( ( Entity entity , in Parent parent ) =>
+                {
+                    if (!targetData.HasComponent(entity) || !targetData.HasComponent(parent.Value))
                         return;
 
-                    targets[e] = targets[parent.Value];
-                }
-                )
+                    targetData[entity] = targetData[parent.Value];
+                } )
+                .WithBurst()
                 .Schedule();
         }
     }

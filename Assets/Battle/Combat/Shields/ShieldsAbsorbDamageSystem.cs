@@ -14,26 +14,24 @@ namespace Battle.Combat
         ]
     public class ShieldsAbsorbDamageSystem : SystemBase
     {
-        EntityQuery Attacks;
-        PostAttackEntityBuffer Buffer;
+        PostAttackEntityBuffer _commandBufferSystem;
 
         protected override void OnCreate()
         {
-            Buffer = World.GetOrCreateSystem<PostAttackEntityBuffer>();
+            _commandBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
         }
 
         protected override void OnUpdate()
         {
-            var buffer = Buffer.CreateCommandBuffer().AsParallelWriter();
-            var shields = GetComponentDataFromEntity<Shield>(false);
-            var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
+            var commands = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            var shieldData = GetComponentDataFromEntity<Shield>( isReadOnly:false );
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>( isReadOnly:true );
             
-            // Enumerate over all attacks.
             Entities
+                .WithName("enumerate_over_all_attacks_job")
                 .WithNone<ShieldBypass>()
                 .WithAll<Instigator>()
-                .WithReadOnly(worldTransforms)
-                .WithStoreEntityQueryInField(ref Attacks)
+                .WithReadOnly(ltwData)
                 .ForEach(
                 (Entity entity,
                 int entityInQueryIndex,
@@ -43,42 +41,42 @@ namespace Battle.Combat
                 ref HitLocation hitLocation,
                 ref Target target) =>
             {
-                if (!shields.HasComponent(target.Value) || !worldTransforms.HasComponent(target.Value))
+                if( !shieldData.HasComponent(target.Value) || !ltwData.HasComponent(target.Value) )
                     return;
-                var shield = shields[target.Value];
+                var shield = shieldData[target.Value];
 
                 // depleted shields do not block attacks.
-                if (shield.Health <= 0f)
+                if( shield.Health<=0f )
                     return;
 
                 // if attack comes from within shield there is no shield protection.
-                var targetPosition = worldTransforms[target.Value];
-                var delta = targetPosition.Position - sourceLocation.Position;
-                if (math.lengthsq(delta) < math.pow(shield.Radius, 2.0f))
+                var targetPosition = ltwData[target.Value];
+                float3 delta = targetPosition.Position - sourceLocation.Position;
+                if( math.lengthsq(delta)<math.pow(shield.Radius,2f) )
                     return;
 
                 // Shield reduces incoming damage.
-                float absorbed = math.min(shield.Health, damage.Value);
+                float absorbed = math.min( shield.Health , damage.Value );
                 shield.Health = shield.Health - absorbed;
                 damage.Value = damage.Value - absorbed;
                 hitLocation.Position = targetPosition.Position + shield.Radius * -math.normalize(delta);
+                shieldData[target.Value] = shield;
 
+                // generate aesthetic effect.
                 bool blocked = absorbed > 0f;
-
-                shields[target.Value] = shield;
-
-                //generate aesthetic effect.
-                if (blocked)
+                if( blocked )
                 {
-                    var effect = buffer.CreateEntity(entityInQueryIndex);
-                    buffer.AddComponent(entityInQueryIndex, effect, new ShieldHitEffect { HitDirection = -math.normalize(delta) });
-                    buffer.AddComponent(entityInQueryIndex, effect, shield);
-                    buffer.AddComponent(entityInQueryIndex, effect, targetPosition);
-                    buffer.AddComponent(entityInQueryIndex, effect, new Delete());
+                    Entity effect = commands.CreateEntity( entityInQueryIndex );
+                    commands.AddComponent( entityInQueryIndex, effect, new ShieldHitEffect{ HitDirection = -math.normalize(delta) } );
+                    commands.AddComponent( entityInQueryIndex, effect, shield );
+                    commands.AddComponent( entityInQueryIndex, effect, targetPosition );
+                    commands.AddComponent( entityInQueryIndex, effect, new Delete() );
                 }
-            }).Schedule();
+            } )
+            .WithBurst()
+            .Schedule();
 
-            Buffer.AddJobHandleForProducer(Dependency);
+            _commandBufferSystem.AddJobHandleForProducer( Dependency );
         }
     }
 }

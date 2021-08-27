@@ -24,7 +24,7 @@ namespace Battle.Movement
                     translation.Value = translation.Value + displacement;
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

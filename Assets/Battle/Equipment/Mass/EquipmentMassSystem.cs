@@ -7,25 +7,29 @@ namespace Battle.Equipment
     /// <summary>
     /// Modifies Mass as entities are added.
     /// </summary>
-    [AlwaysUpdateSystem]
     [UpdateInGroup(typeof(EquipmentUpdateGroup))]
     public class EquipmentMassSystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
+            var parentData = GetComponentDataFromEntity<Parent>( isReadOnly:true );
+            var massData = GetComponentDataFromEntity<Mass>( isReadOnly:false );
+
             Entities
                 .WithAll<Enabling>()
-                .ForEach(
-                (in EquipmentMass equipmentMass, in Parent parent) =>
+                .WithReadOnly(parentData)
+                .ForEach( ( in EquipmentMass equipmentMass , in Parent parent ) =>
                 {
-                    var ship = parent;
-                    while (HasComponent<Parent>(ship.Value))
-                        ship = GetComponent<Parent>(ship.Value);
-                    var mass = GetComponent<Mass>(ship.Value);
+                    Parent ship = parent;
+                    while( parentData.HasComponent(ship.Value) )
+                        ship = parentData[ship.Value];
+                    
+                    Mass mass = massData[ship.Value];
                     mass.Value += equipmentMass.MassFractionalIncrease * mass.Base;
-                    SetComponent(ship.Value, mass);
-                }
-                ).Schedule();
+                    massData[ship.Value] = mass;
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }
