@@ -48,7 +48,7 @@ namespace Battle.Combat.AttackSources
                     buffer.SetComponent(entityInQueryIndex, projectile, new Instigator() { Value = attacker });
                     buffer.AddComponent(entityInQueryIndex, projectile, team);
                 })
-                .Schedule();
+                .ScheduleParallel();
             m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }

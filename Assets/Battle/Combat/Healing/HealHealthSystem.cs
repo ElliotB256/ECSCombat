@@ -37,7 +37,7 @@ namespace Battle.Combat
                     SetComponent(target.Value, health);
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

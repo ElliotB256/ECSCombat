@@ -37,7 +37,7 @@ namespace Battle.AI
                     turnSpeed.RadiansPerSecond = math.sign(diff) * math.min(maxTurnSpeed.RadiansPerSecond, math.abs(diff) / dT);
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

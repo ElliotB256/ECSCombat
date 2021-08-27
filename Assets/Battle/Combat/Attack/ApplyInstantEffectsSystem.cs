@@ -60,7 +60,7 @@ namespace Battle.Combat.AttackSources
                 }
                 )
                 .WithReadOnly(transforms)
-                .Schedule();
+                .ScheduleParallel();
 
             m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }

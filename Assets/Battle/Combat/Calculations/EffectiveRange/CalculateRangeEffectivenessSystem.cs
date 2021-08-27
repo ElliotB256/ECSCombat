@@ -42,7 +42,7 @@ namespace Battle.Combat.Calculations
                 }
                 )
                 .WithReadOnly(positions)
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

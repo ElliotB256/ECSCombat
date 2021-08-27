@@ -12,21 +12,23 @@ namespace Battle.Combat
     /// </summary>
     public class SetTeamColorsSystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
-            Entities.ForEach(
-                (ref MaterialColor color, in Team team) =>
+            Entities
+                .WithChangeFilter<Team>()
+                .ForEach( ( ref MaterialColor color , in Team team ) =>
                 {
                     float4 teamColor;
-                    switch (team.ID)
+                    switch( team.ID )
                     {
                         default: teamColor = new float4(1.0f, 1.0f, 1.0f, 1.0f); break;
                         case 1: teamColor = new float4(0.5f, 0.7f, 1.0f, 1.0f); break;
                         case 2: teamColor = new float4(1.0f, 0.0f, 0.0f, 1.0f); break;
                     }
                     color.Value = teamColor;
-                }
-                ).Schedule();
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

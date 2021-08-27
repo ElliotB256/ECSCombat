@@ -34,7 +34,7 @@ namespace Battle.Combat
                         buffer.AddComponent(entityInQueryIndex, e, new Delete());
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
             m_entityBufferSystem.AddJobHandleForProducer(Dependency);
         }
     }

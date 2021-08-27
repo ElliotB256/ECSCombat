@@ -25,7 +25,7 @@ namespace Battle.Combat.AttackSources
 
             Entities
                 .ForEach((ref TargettedTool tool) => tool.Firing = false)
-                .Schedule();
+                .ScheduleParallel();
 
             Entities
                 .WithAll<Enabled>()
@@ -65,7 +65,7 @@ namespace Battle.Combat.AttackSources
                     cooldown.Timer = cooldown.Duration;
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
 
         protected EntityQuery m_query;

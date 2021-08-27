@@ -12,24 +12,19 @@ namespace Battle.Equipment
     [UpdateBefore(typeof(AI.AISystemGroup))]
     public class SetTeamToParentTeam : SystemBase
     {
-        protected override void OnCreate()
+        protected override void OnUpdate ()
         {
-            //Enabled = false;
-        }
+            var teamData = GetComponentDataFromEntity<Team>( isReadOnly:false );
 
-        public EntityQuery Query;
-
-        protected override void OnUpdate()
-        {
             Entities
                 .WithAll<Team>()
-                .ForEach(
-                (Entity e, in Parent parent) =>
+                .WithChangeFilter<Parent>()
+                .ForEach( ( Entity entity , in Parent parent ) =>
                 {
-                    if (HasComponent<Team>(parent.Value))
-                        SetComponent(e, GetComponent<Team>(parent.Value));
-                }
-                )
+                    if( teamData.HasComponent(parent.Value) )
+                        teamData[entity] = teamData[parent.Value];
+                } )
+                .WithBurst()
                 .Schedule();
         }
     }

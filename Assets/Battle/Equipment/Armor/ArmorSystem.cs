@@ -13,22 +13,26 @@ namespace Battle.Equipment
     {
         protected override void OnUpdate()
         {
+            var healthData = GetComponentDataFromEntity<Health>( isReadOnly:false );
+            var maxHealthData = GetComponentDataFromEntity<MaxHealth>( isReadOnly:false );
+
             Entities
                 .WithAll<Enabling>()
-                .ForEach(
-                (in Armor armor, in Parent parent) =>
+                .ForEach( ( in Armor armor , in Parent parent ) =>
                 {
-                    var health = GetComponent<Health>(parent.Value);
-                    var maxHealth = GetComponent<MaxHealth>(parent.Value);
-                    var fraction = health.Value / maxHealth.Value;
+                    var health = healthData[parent.Value];
+                    var maxHealth = maxHealthData[parent.Value];
+                    float fraction = health.Value / maxHealth.Value;
 
-                    var bonusHealth = armor.HealthFractionBonus * maxHealth.Base;
+                    float bonusHealth = armor.HealthFractionBonus * maxHealth.Base;
                     maxHealth.Value += bonusHealth;
-                    SetComponent(parent.Value, maxHealth);
+                    maxHealthData[parent.Value] = maxHealth;
+
                     health.Value = fraction * maxHealth.Value;
-                    SetComponent(parent.Value, health);
-                }
-                ).Schedule();
+                    healthData[parent.Value] = health;
+                } )
+                .WithBurst()
+                .Schedule();
 
             // Currently no plans to remove armor, so removal not implemented.
         }

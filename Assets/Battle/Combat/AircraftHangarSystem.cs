@@ -48,7 +48,7 @@ namespace Battle.Combat
                     buffer.SetComponent(entityInQueryIndex, ship, team);
                     buffer.AddComponent(entityInQueryIndex, ship, new Escort { Target = entity });
                 })
-                .Schedule();
+                .ScheduleParallel();
 
             m_EntityCommandBufferSystem.AddJobHandleForProducer(Dependency);
         }

@@ -1,86 +1,89 @@
-﻿using Unity.Entities;
+﻿using Unity.Mathematics;
+using Unity.Entities;
 using Unity.Transforms;
-using UnityEngine;
-
-using Battle.Combat;
-using Unity.Collections;
-using Unity.Burst;
 using Unity.Jobs;
 using Unity.Rendering;
+
+using Battle.Combat;
 
 namespace Battle.Effects
 {
     /// <summary>
     /// Create beam effects between attacker and target entity.
     /// </summary>
-    [
-        UpdateInGroup(typeof(AttackResultSystemsGroup)),
-        UpdateAfter(typeof(ShieldsAbsorbDamageSystem))
-        ]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup))]
+    [UpdateAfter(typeof(ShieldsAbsorbDamageSystem))]
     public class BeamEffectSystem : SystemBase
     {
-        protected override void OnUpdate()
+
+        PostAttackEntityBuffer _commandBufferSystem;
+
+        protected override void OnCreate ()
         {
-            var random = new Unity.Mathematics.Random((uint)Random.Range(1, 100000));
-            var buffer = PostAttackEntityBuffer.CreateCommandBuffer().AsParallelWriter();
+            _commandBufferSystem = World.GetOrCreateSystem<PostAttackEntityBuffer>();
+        }
 
-            Dependency = Entities.ForEach(
-                (Entity e, int entityInQueryIndex, in Attack attack, in Instigator attacker, in Target target, in BeamEffectStyle style, in HitLocation hitLoc, in SourceLocation sourceLoc) =>
-                {
-                        var laserEffect = new BeamEffect()
-                        {
-                            start = sourceLoc.Position,
-                            end = hitLoc.Position,
-                            lifetime = 0.2f
-                        };
+        protected override void OnUpdate ()
+        {
+            uint seed = (uint)UnityEngine.Random.Range(1,100000);
+            var commands = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-                        if (attack.Result == Attack.eResult.Miss)
-                        {
-                            var delta = new Unity.Mathematics.float3(random.NextFloat() - 0.5f, 0f, random.NextFloat() - 0.5f);
-                            laserEffect.end = laserEffect.end + 6f * delta;
-                        }
-
-                        Entity effect = buffer.CreateEntity(entityInQueryIndex);
-                        buffer.AddComponent(entityInQueryIndex, effect, laserEffect);
-                        buffer.AddComponent(entityInQueryIndex, effect, style);
-                        buffer.AddComponent(entityInQueryIndex, effect, attacker);
-                        buffer.AddComponent(entityInQueryIndex, effect, target);
-                }
-                )
+            Entities
                 .WithName("CreateBeamEffects")
-                .Schedule(Dependency);
+                .ForEach( (
+                    Entity e ,
+                    int entityInQueryIndex ,
+                    in Attack attack ,
+                    in Instigator attacker ,
+                    in Target target ,
+                    in BeamEffectStyle style ,
+                    in HitLocation hitLoc ,
+                    in SourceLocation sourceLoc
+                ) =>
+                {
+                    var laserEffect = new BeamEffect()
+                    {
+                        start = sourceLoc.Position,
+                        end = hitLoc.Position,
+                        lifetime = 0.2f
+                    };
+
+                    if( attack.Result==Attack.eResult.Miss )
+                    {
+                        var rnd = new Random( seed + (uint)(entityInQueryIndex*1000) );
+                        var delta = new float3(rnd.NextFloat() - 0.5f, 0f, rnd.NextFloat() - 0.5f);
+                        laserEffect.end = laserEffect.end + 6f * delta;
+                    }
+
+                    Entity effect = commands.CreateEntity(entityInQueryIndex);
+                    commands.AddComponent(entityInQueryIndex, effect, laserEffect);
+                    commands.AddComponent(entityInQueryIndex, effect, style);
+                    commands.AddComponent(entityInQueryIndex, effect, attacker);
+                    commands.AddComponent(entityInQueryIndex, effect, target);
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
             // Update existing beam effects, eg to follow target or despawn.
-            buffer = PostAttackEntityBuffer.CreateCommandBuffer().AsParallelWriter();
-            var worldTransforms = GetComponentDataFromEntity<LocalToWorld>(true);
-            var deltaTime = GetSingleton<GameTimeDelta>().dT;
-            Dependency = Entities
-                .ForEach(
-                (Entity e, int entityInQueryIndex, ref BeamEffect beamEffect, in Instigator attacker) =>
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>( isReadOnly:true );
+            float deltaTime = GetSingleton<GameTimeDelta>().dT;
+            Entities
+                .WithName("update_beam_effects_job")
+                .WithReadOnly(ltwData)
+                .ForEach( ( Entity e , int entityInQueryIndex , ref BeamEffect beamEffect , in Instigator attacker ) =>
                 {
-                    if (worldTransforms.HasComponent(attacker.Value))
-                        beamEffect.start = worldTransforms[attacker.Value].Position;
+                    if (ltwData.HasComponent(attacker.Value))
+                        beamEffect.start = ltwData[attacker.Value].Position;
 
                     beamEffect.lifetime -= deltaTime;
                     if (beamEffect.lifetime < 0f)
-                        buffer.DestroyEntity(entityInQueryIndex, e);
-                }
-                )
-                .WithName("UpdateBeamEffects")
-                .WithReadOnly(worldTransforms)
-                .Schedule(Dependency);
+                        commands.DestroyEntity(entityInQueryIndex, e);
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
-            //Required as a workaround - https://issuetracker.unity3d.com/issues/job-complete-must-be-called-before-scheduling-another-job-with-the-same-jobhandle
-            Dependency.Complete();
-
-            PostAttackEntityBuffer.AddJobHandleForProducer(Dependency);
+            _commandBufferSystem.AddJobHandleForProducer(Dependency);
         }
 
-        private PostAttackEntityBuffer PostAttackEntityBuffer;
-
-        protected override void OnCreate()
-        {
-            PostAttackEntityBuffer = World.GetOrCreateSystem<PostAttackEntityBuffer>();
-        }
     }
 }

@@ -7,14 +7,13 @@ namespace Assets.Battle.Effects.Damage
 {
     public class IncreaseLastHitTimerSystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
-            float dT = GetSingleton<GameTimeDelta>().dT;
-            Dependency = Entities.ForEach(
-                (ref LastHitTimer timer) =>
-                {
-                    timer.Value += dT;
-                }).Schedule(Dependency);
+            float dt = GetSingleton<GameTimeDelta>().dT;
+            Entities
+                .ForEach( ( ref LastHitTimer timer ) => timer.Value += dt )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

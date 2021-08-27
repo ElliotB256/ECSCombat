@@ -9,28 +9,23 @@ namespace Battle.Movement
     [UpdateBefore(typeof(UpdateRotationSystem))]
     public class CalculateSpeedSystem : SystemBase
     {
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
             Entities
-                .ForEach(
-                (ref MaxSpeed maxSpeed, in Thrust thrust, in Mass mass) =>
+                .WithChangeFilter<Thrust,Mass>()
+                .ForEach( ( ref MaxSpeed maxSpeed , ref MaxTurnSpeed turn , in Thrust thrust , in Mass mass ) =>
                 {
                     maxSpeed.Value = thrust.Forward / mass.Value;
-                }
-                ).Schedule();
-
-            Entities
-                .ForEach(
-                (ref MaxTurnSpeed turn, in Thrust thrust, in Mass mass) =>
-                {
                     turn.RadiansPerSecond = thrust.Turning / mass.Value;
-                }
-                ).Schedule();
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
             // gotta go fast
             Entities
-                .ForEach((ref Speed speed, in MaxSpeed maxSpeed) => speed.Value = maxSpeed.Value)
-                .Schedule();
+                .ForEach( ( ref Speed speed , in MaxSpeed maxSpeed ) => speed.Value = maxSpeed.Value )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

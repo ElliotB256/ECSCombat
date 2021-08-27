@@ -11,26 +11,24 @@ namespace Battle.Equipment
     /// 
     /// Very similar to EquipmentTargetsParentTarget
     /// </summary>
-    [
-        UpdateInGroup(typeof(EquipmentUpdateGroup))
-    ]
+    [UpdateInGroup(typeof(EquipmentUpdateGroup))]
     public class SetEquipmentTeamOnEquipSystem : SystemBase
     {
-        public EntityQuery Query;
-
-        protected override void OnUpdate()
+        protected override void OnUpdate ()
         {
+            var teamData = GetComponentDataFromEntity<Team>( isReadOnly:false );
+
             Entities
-                .WithAll<Team, Equipment, Equipping>()
-                .ForEach(
-                (Entity e, in Parent parent) =>
+                .WithAll<Team,Equipment,Equipping>()
+                .ForEach( ( Entity entity , in Parent parent ) =>
                 {
-                    if (!HasComponent<Team>(parent.Value))
+                    if( !teamData.HasComponent(parent.Value) )
                         return;
-                    SetComponent(e, GetComponent<Team>(parent.Value));
-                }
-                )
-                .Schedule();
+                    
+                    teamData[entity] = teamData[parent.Value];
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
     }
 }

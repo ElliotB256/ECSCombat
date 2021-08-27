@@ -33,7 +33,7 @@ namespace Battle.Combat.AttackSources
                         ));
                 }
                 )
-                .Schedule();
+                .ScheduleParallel();
         }
     }
 }

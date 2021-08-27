@@ -10,9 +10,7 @@ namespace Battle.Combat
     /// <summary>
     /// Checks if projectiles have reached their target.
     /// </summary>
-    [
-        UpdateInGroup(typeof(WeaponSystemsGroup))
-        ]
+    [UpdateInGroup(typeof(WeaponSystemsGroup))]
     public class ProjectileHitTargetSystem : SystemBase
     {
         WeaponEntityBufferSystem CommandBufferSystem;
@@ -24,33 +22,32 @@ namespace Battle.Combat
 
         protected override void OnUpdate()
         {
-            var transforms = GetComponentDataFromEntity<LocalToWorld>(true);
-            var sizeRadii = GetComponentDataFromEntity<SizeRadius>(true);
+            var ltwData = GetComponentDataFromEntity<LocalToWorld>(true);
+            var sizeRadiusData = GetComponentDataFromEntity<SizeRadius>(true);
             float dT = UnityEngine.Time.fixedDeltaTime;
-            var buffer = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
+            var commands = CommandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
-                .ForEach(
-                (
-                Entity e,
-                int entityInQueryIndex,
-                ref Projectile projectile,
-                in Target target,
-                in LocalToWorld transform,
-                in Speed speed,
-                in TurnSpeed turnSpeed
+                .WithReadOnly(sizeRadiusData)
+                .WithReadOnly(ltwData)
+                .ForEach( (
+                    Entity e, int entityInQueryIndex,
+                    ref Projectile projectile,
+                    in Target target,
+                    in LocalToWorld transform,
+                    in Speed speed,
+                    in TurnSpeed turnSpeed
                 ) =>
                 {
-
-                    if (!transforms.HasComponent(target.Value))
+                    if (!ltwData.HasComponent(target.Value))
                         return; // Target does not exist?
 
-                    var tPos = transforms[target.Value].Position;
+                    var tPos = ltwData[target.Value].Position;
                     var delta = (tPos - transform.Position);
 
                     var projectileDistance = speed.Value * dT;
 
-                    float radius = (sizeRadii.HasComponent(target.Value)) ? sizeRadii[target.Value].Value : 0f;
+                    float radius = (sizeRadiusData.HasComponent(target.Value)) ? sizeRadiusData[target.Value].Value : 0f;
 
                     // If target out of range, return
                     if (math.length(delta) - radius > projectileDistance)
@@ -59,14 +56,13 @@ namespace Battle.Combat
                     // Projectile has reached the target.
                     projectile.ReachedTarget = true;
 
-                    buffer.AddComponent(entityInQueryIndex, e, new Delete());
-                    var effect = buffer.Instantiate(entityInQueryIndex, projectile.AttackEntity);
-                    buffer.AddComponent(entityInQueryIndex, effect, target);
-                    buffer.AddComponent(entityInQueryIndex, effect, new Instigator { Value = e });
+                    commands.AddComponent(entityInQueryIndex, e, new Delete());
+                    var effect = commands.Instantiate(entityInQueryIndex, projectile.AttackEntity);
+                    commands.AddComponent(entityInQueryIndex, effect, target);
+                    commands.AddComponent(entityInQueryIndex, effect, new Instigator { Value = e });
                 })
-                .WithReadOnly(sizeRadii)
-                .WithReadOnly(transforms)
-                .Schedule();
+                .WithBurst()
+                .ScheduleParallel();
 
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }

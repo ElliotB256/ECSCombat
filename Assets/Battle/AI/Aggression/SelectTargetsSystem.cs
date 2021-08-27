@@ -97,17 +97,17 @@ namespace Battle.AI
             var targetMapWriter = targetMap.AsParallelWriter();
 
             // Store target information in hash map.
-            Dependency = Entities
+            Entities
                 .WithAll<Targetable>()
-                .ForEach(
-                (
+                .WithStoreEntityQueryInField(ref TargetQuery)
+                .ForEach( (
                     Entity targetEntity,
                     in LocalToWorld localToWorld,
                     in Team team,
                     in AgentCategory category,
                     in Health health,
                     in MaxHealth maxHealth
-                    ) =>
+                ) =>
                 {
                     var healthFraction = health.Value / maxHealth.Value;
                     var pos = localToWorld.Position;
@@ -120,63 +120,58 @@ namespace Battle.AI
                             Position = pos,
                             Team = team.ID
                         });
-                }
-                )
-                .WithStoreEntityQueryInField(ref TargetQuery)
-                .Schedule(Dependency);
+                } )
+                .WithBurst()
+                .ScheduleParallel();
 
             // Targeters select best target.
-            Dependency = Entities
+            Entities
+                .WithReadOnly( targetMap ).WithDisposeOnCompletion( targetMap )
                 .ForEach(
                 (
-                    ref Combat.Target currentTarget,
-                    in AggroLocation location,
-                    in AggroRadius aggroRadius,
-                    in Team team,
+                    ref Combat.Target currentTarget ,
+                    in AggroLocation location ,
+                    in AggroRadius aggroRadius ,
+                    in Team team ,
                     in TargetingOrders orders
-                ) => {
+                ) =>
+                {
                     // ignore those which already have targets
-                    if (currentTarget.Value != Entity.Null)
+                    if( currentTarget.Value!=Entity.Null )
                         return;
 
-                    var targetter = new Targetter
-                    {
-                        Team = team.ID,
-                        Position = location.Position,
-                        Orders = orders,
-                        Radius = aggroRadius.Value,
-                        CurrentScore = float.PositiveInfinity,
-                        CurrentTarget = Entity.Null
+                    var targetter = new Targetter{
+                        Team            = team.ID,
+                        Position        = location.Position,
+                        Orders          = orders,
+                        Radius          = aggroRadius.Value,
+                        CurrentScore    = float.PositiveInfinity,
+                        CurrentTarget   = Entity.Null
                     };
 
-                    var radius = targetter.Radius;
-                    var minCoords = Coordinates(targetter.Position - radius);
-                    var maxCoords = Coordinates(targetter.Position + radius);
+                    float radius = targetter.Radius;
+                    int2 minCoords = Coordinates( targetter.Position - radius );
+                    int2 maxCoords = Coordinates( targetter.Position + radius );
 
-                    for (int x = minCoords.x; x <= maxCoords.x; x++)
+                    for( int x=minCoords.x ; x<=maxCoords.x ; x++ )
+                    for( int y=minCoords.y ; y<=maxCoords.y ; y++ )
                     {
-                        for (int y = minCoords.y; y <= maxCoords.y; y++)
-                        {
-                            // Identify bucket to search
-                            var currentBinID = HashCoordinates(new int2(x, y));
+                        // Identify bucket to search
+                        var currentBinID = HashCoordinates(new int2(x, y));
 
-                            // Check targets within each bucket.
-                            if (!targetMap.TryGetFirstValue(currentBinID, out Target candidate, out NativeMultiHashMapIterator<int> iterator))
-                                continue;
+                        // Check targets within each bucket.
+                        if (!targetMap.TryGetFirstValue(currentBinID, out Target candidate, out NativeMultiHashMapIterator<int> iterator))
+                            continue;
 
+                        targetter.Consider(candidate);
+                        while (targetMap.TryGetNextValue(out candidate, ref iterator))
                             targetter.Consider(candidate);
-                            while (targetMap.TryGetNextValue(out candidate, ref iterator))
-                                targetter.Consider(candidate);
-                        }
                     }
 
                     currentTarget.Value = targetter.CurrentTarget;
-                }
-                )
-                .Schedule(Dependency);
-
-            // Dispose of native arrays
-            targetMap.Dispose(Dependency);
+                } )
+                .WithBurst()
+                .ScheduleParallel();
         }
 
         public static int HashPosition(float3 position)

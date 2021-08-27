@@ -1,5 +1,5 @@
 ﻿using Battle.Effects;
-using Unity.Collections;
+using Unity.Mathematics;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -8,41 +8,34 @@ namespace Battle.Combat
     /// <summary>
     /// Deals damage for all Attack entities with a Damage component.
     /// </summary>
-    [
-        UpdateInGroup(typeof(AttackResultSystemsGroup))
-        ]
+    [UpdateInGroup(typeof(AttackResultSystemsGroup))]
     public class DealAttackDamageSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            var lastHitTimers = GetComponentDataFromEntity<LastHitTimer>();
-            var healths = GetComponentDataFromEntity<Health>();
+            var lastHitTimerData = GetComponentDataFromEntity<LastHitTimer>( isReadOnly:false );
+            var healthData = GetComponentDataFromEntity<Health>( isReadOnly:false );
+            var lastHitColorData = GetComponentDataFromEntity<LastHitColor>( isReadOnly:false );
 
             Entities
-                .ForEach(
-                (
-                    in Attack attack,
-                    in Target target,
-                    in Damage damage
-                    ) =>
+                .ForEach( ( in Attack attack , in Target target , in Damage damage ) =>
                 {
-                    var amount = damage.Value;
-                    if (attack.Result == Attack.eResult.Miss)
+                    if( attack.Result==Attack.eResult.Miss )
                         return;
 
-                    if (lastHitTimers.HasComponent(target.Value) && damage.Value > 0f)
-                        lastHitTimers[target.Value] = new LastHitTimer { Value = 0f };
-                    if (HasComponent<LastHitColor>(target.Value) && damage.Value > 0f)
-                        SetComponent(target.Value, new LastHitColor { Value = new Unity.Mathematics.float4(1f,1f,1f,1f) });
+                    if( lastHitTimerData.HasComponent(target.Value) && damage.Value>0f )
+                        lastHitTimerData[target.Value] = new LastHitTimer{ Value = 0f };
+                    if( lastHitColorData.HasComponent(target.Value) && damage.Value>0f )
+                        lastHitColorData[target.Value] = new LastHitColor{ Value = new float4(1f,1f,1f,1f) };
 
-                    if (healths.HasComponent(target.Value))
+                    if( healthData.HasComponent(target.Value) )
                     {
-                        var health = healths[target.Value];
-                        health.Value -= amount;
-                        healths[target.Value] = health;
+                        Health health = healthData[target.Value];
+                        health.Value -= damage.Value;
+                        healthData[target.Value] = health;
                     }
-                }
-                )
+                } )
+                .WithBurst()
                 .Schedule();
         }
     }
