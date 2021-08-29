@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "com.andrewraphaellukasik.segments": {
+      "version": "https://github.com/andrew-raphael-lukasik/segments.git#upm",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.entities": "0.17.0-preview.41",
+        "com.unity.rendering.hybrid": "0.11.0-preview.42"
+      },
+      "hash": "b267e4ba7cb79f38f6442350a4f45236a84a538a"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
