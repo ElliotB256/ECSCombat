@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.andrewraphaellukasik.segments": "https://github.com/andrew-raphael-lukasik/segments.git#upm",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.burst": "1.4.11",
